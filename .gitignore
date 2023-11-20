@@ -1,3 +1,4 @@
 #ignore
 *.o
 .DS_Store
+.vscode
