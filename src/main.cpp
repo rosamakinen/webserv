@@ -1,17 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: meskelin <meskelin@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/14 10:18:46 by dpalmer           #+#    #+#             */
-/*   Updated: 2023/11/20 10:53:32 by meskelin         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include <sys/socket.h> // For socket functions
-#include <netinet/in.h> // For sockaddr_in
 #include <cstdlib> // For exit() and EXIT_FAILURE
 #include <iostream> // For cout
 #include <unistd.h> // For read
@@ -20,7 +6,7 @@ int main() {
   // Create a socket (IPv4, TCP)
   int sockfd = socket(AF_INET, SOCK_STREAM, 0);
   if (sockfd == -1) {
-    std::cout << "Failed to create socket. errno: " << errno << std::endl;
+   std::cout << "Failed to create socket. errno: " << errno << std::endl;
     exit(EXIT_FAILURE);
   }
 
