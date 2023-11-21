@@ -11,7 +11,7 @@ int main()
 	while (1)
 	{
 		std::string request = socket.readRequest();
-		std::cout << "The message was: '" << request;
+		std::cout << "The message was: " << request;
 		if (!request.compare("Q\r\n"))
 			break ;
 
