@@ -36,6 +36,5 @@ int main()
 	//std::cout << server->getRequestMaxBodySize() << std::endl;
 	// delete server;
 
-
 	return 0;
 }
