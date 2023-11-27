@@ -19,8 +19,11 @@ UP			=	\033[A
 CUT			=	\033[K
 
 #source files
-SRC_FILES	=	main\
+
+SRC_FILES	=	main \
+				HttpRequest
 				Socket
+
 
 #paths
 SRC 		= 	$(addprefix $(SRC_DIR), $(addsuffix .cpp, $(SRC_FILES)))
