@@ -34,8 +34,8 @@ int main()
 	//std::cout << server->getPort() << std::endl;
 	//std::cout << server->getName() << std::endl;
 	//std::cout << server->getRequestMaxBodySize() << std::endl;
+	// delete server;
 
-	delete server;
 
 	return 0;
 }
