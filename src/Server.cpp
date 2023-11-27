@@ -15,6 +15,12 @@ Server::~Server(void)
 	if (!this->locations.empty())
 	{
 		// TODO: clear location directory paths map && methods
+		std::vector<Server::location>::iterator it = this->locations.begin();
+		for (; it < this->locations.end(); it++)
+		{
+			it->methods.clear();
+			it->directory_pairs.clear();
+		}
 		this->locations.clear();
 	}
 }
@@ -39,6 +45,8 @@ Server &Server::operator=(const Server &rhs)
 		this->request_max_body_size = rhs.request_max_body_size;
 		this->copyLocations(rhs.locations);
 	}
+
+	return *this;
 }
 
 void Server::setServerName(const std::string server_name)
@@ -51,16 +59,16 @@ void Server::setRequestMaxBodySize(const unsigned int request_max_body_size)
 	this->request_max_body_size = request_max_body_size;
 }
 
-void Server::copyLocationMethods(const std::vector<std::string> methods, const Server::location *location)
+void Server::copyLocationMethods(const std::vector<std::string> methods, Server::location *location)
 {
 	std::vector<const std::string>::iterator it = methods.begin();
 	for (; it < methods.end(); it++)
-		location->methods->push_back(*it);
+		location->methods.push_back(*it);
 }
 
 void Server::addDirectoryPair(const std::string key, const std::string value, struct location *location)
 {
-	location->directory_pairs.insert(key, value);
+	location->directory_pairs.insert(std::pair<std::string, std::string>(key, value));
 }
 
 void Server::addLocation(const std::string root, const std::vector<std::string> methods)

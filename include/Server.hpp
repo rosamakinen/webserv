@@ -10,7 +10,7 @@ class Server
 		struct location
 		{
 			std::string				 root;
-			std::vector<std::string> *methods;
+			std::vector<std::string> methods;
 			std::map<std::string, std::string>	directory_pairs;
 		};
 
@@ -24,7 +24,7 @@ class Server
 		Server(void);
 
 		void	copyLocations(const std::vector<location> locations);
-		void	copyLocationMethods(const std::vector<std::string> methods, const Server::location *location);
+		void	copyLocationMethods(const std::vector<std::string> methods, Server::location *location);
 	public:
 		Server(const std::string& ip, const unsigned int& port);
 		~Server(void);
