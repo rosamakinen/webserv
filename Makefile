@@ -21,8 +21,9 @@ CUT			=	\033[K
 #source files
 
 SRC_FILES	=	main \
-				HttpRequest
-				Socket
+				HttpRequest \
+				Socket \
+				Server
 
 
 #paths
