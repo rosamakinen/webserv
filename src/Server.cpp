@@ -16,7 +16,7 @@ Server::~Server(void)
 	{
 		// TODO: clear location directory paths map && methods
 		std::vector<Server::location>::iterator it = this->locations.begin();
-		for (; it != this->locations.end(); it++)
+		for (; it != this->locations.end(); ++it)
 		{
 			it->methods.clear();
 			it->directory_pairs.clear();
@@ -28,7 +28,7 @@ Server::~Server(void)
 void Server::copyLocations(const std::vector<location> locations)
 {
 	std::vector<location>::const_iterator it = locations.begin();
-	for (; it != locations.end(); it++)
+	for (; it != locations.end(); ++it)
 		this->locations.push_back(*it);
 }
 
@@ -87,7 +87,7 @@ void Server::addDirectoryPair(const std::string key, const std::string value, st
 void Server::copyLocationMethods(const std::vector<std::string> methods, Server::location *location)
 {
 	std::vector<std::string>::const_iterator it = methods.begin();
-	for (; it != methods.end(); it++)
+	for (; it != methods.end(); ++it)
 		location->methods.push_back(*it);
 }
 
