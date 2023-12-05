@@ -53,10 +53,10 @@ const std::string Socket::readRequest(int connection, unsigned int buffer_size) 
 	char buffer[buffer_size];
 
 	int result = read(connection, buffer, buffer_size);
-	buffer[result] = '\0';
-	std::cout << result << std::endl;
 	isCallValid(result, "Failed to read request", -1);
+	buffer[result] = '\0';
 	std::string input(buffer);
+
 	return input;
 }
 
