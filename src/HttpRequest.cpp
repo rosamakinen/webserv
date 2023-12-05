@@ -3,7 +3,7 @@
 #include "../include/HttpRequest.hpp"
 #include "HttpRequest.hpp"
 
-HttpRequest::HttpRequest() : method("GET"), version("HTTP/1.1"), uri("/"), host("localhost"), body(""), contentLenght(0)
+HttpRequest::HttpRequest() : method("GET"), version("HTTP/1.1"), uri("/"), host("localhost"), body(""), contentLength(0)
 {
 }
 
@@ -13,13 +13,13 @@ HttpRequest::HttpRequest(
 	const std::string& uri,
 	const std::string& host,
 	const std::string body,
-	const int& contentLenght
+	const int& contentLength
 	) : method(method),
 	version(version),
 	uri(uri),
 	host(host),
 	body(body),
-	contentLenght(contentLenght)
+	contentLength(contentLength)
 {
 	isValid(*this);
 }
@@ -30,7 +30,7 @@ HttpRequest::HttpRequest(const HttpRequest& rhs) :
 	uri(rhs.uri),
 	host(rhs.host),
 	body(rhs.body),
-	contentLenght(rhs.contentLenght)
+	contentLength(rhs.contentLength)
 {
 }
 
@@ -41,6 +41,7 @@ HttpRequest::~HttpRequest()
 HttpRequest &HttpRequest::operator=(const HttpRequest& rhs)
 {
 	// All fields are const so nothing to do here
+
 	if (this == &rhs)
 		return *this;
 	return *this;
@@ -71,9 +72,9 @@ const std::string			HttpRequest::getBody() const
 	return this->body;
 }
 
-const int&					HttpRequest::getContentLenght() const
+const int&					HttpRequest::getContentLength() const
 {
-	return this->contentLenght;
+	return this->contentLength;
 }
 
 const std::string	HttpRequest::allowedVersion = "HTTP/1.1";
@@ -85,8 +86,8 @@ const std::string	HttpRequest::allowedMethods[] =
 
 void HttpRequest::isValid(const HttpRequest& request)
 {
-	if (request.contentLenght <= 0)
-		std::cerr << "Request content lenght must be more than 0" << std::endl;
+	if (request.contentLength <= 0)
+		std::cerr << "Request content length must be more than 0" << std::endl;
 
 	if (request.version.compare(HttpRequest::allowedVersion) != 0)
 		std::cerr << "Request version not allowed" << std::endl;

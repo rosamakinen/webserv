@@ -14,7 +14,7 @@ class HttpRequest
 		const std::string			uri;
 		const std::string			host;
 		const std::string			body;
-		const int					contentLenght;
+		const int					contentLength;
 
 		HttpRequest(void);
 
@@ -28,7 +28,7 @@ class HttpRequest
 					const std::string& uri,
 					const std::string& host,
 					const std::string body,
-					const int& contentLenght);
+					const int& contentLength);
 
 		HttpRequest&	operator=(const HttpRequest& rhs);
 
@@ -37,5 +37,5 @@ class HttpRequest
 		const std::string			getUri() const;
 		const std::string			getHost() const;
 		const std::string			getBody() const;
-		const int&					getContentLenght() const;
+		const int&					getContentLength() const;
 };
