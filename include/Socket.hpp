@@ -3,7 +3,7 @@
 #include <sys/socket.h> // For socket functions
 #include <netinet/in.h> // For sockaddr_in
 #include <iostream>
-#include <fcntl.h>
+#include <fcntl.h> // For non-blocking fd
 #include <unistd.h> // For read
 
 class Socket
