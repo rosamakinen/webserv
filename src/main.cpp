@@ -69,9 +69,7 @@ int main()
 				{
 					std::string request = socket.readRequest(fd, server->getRequestMaxBodySize());
 					std::cout << "The message was: " << request;
-					if (request.compare("Q\r\n"))
-						break;
-					std::string response = "This is the response\n";
+					std::string response = "HTTP/1.1 200 OK\r\n\r\n";
 					socket.writeResponse(fd, response);
 				}
 			}

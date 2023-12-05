@@ -19,6 +19,9 @@ Socket::Socket(const int portNumber) : fd(-1)
 	this->fd = socket(AF_INET, SOCK_STREAM, 0);
 	isCallValid(this->fd, "Failed to create the socket", -1);
 
+	int opt = 1;
+	setsockopt(this->fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
+
 	this->address.sin_family = AF_INET;
 	this->address.sin_addr.s_addr = htonl(INADDR_ANY);
 	this->address.sin_port = htons(portNumber);
@@ -62,7 +65,7 @@ const std::string Socket::readRequest(int connection, unsigned int buffer_size) 
 
 void Socket::writeResponse(int connection, const std::string response) const
 {
-	int result = send(connection, response.c_str(), response.size(), 0);
+	int result = write(connection, response.c_str(), response.size());
 	isCallValid(result, "Failed to send response", -1);
 }
 
