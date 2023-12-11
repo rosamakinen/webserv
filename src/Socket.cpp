@@ -1,5 +1,6 @@
 
 #include "Socket.hpp"
+#include <cerrno>
 
 Socket::Socket(void)
 {
@@ -20,13 +21,14 @@ Socket::Socket(const int portNumber) : fd(-1)
 	this->fd = socket(AF_INET, SOCK_STREAM, 0);
 	isCallValid(this->fd, "Failed to create the socket", -1);
 
-	// Make
+	// Make port and address reusable for multple sockets
 	int opt = 1;
 	int result = setsockopt(this->fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 	isCallValid(result, "Failed to set SO_REUSEADDR option", this->fd);
 	result = setsockopt(this->fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt));
 	isCallValid(result, "Failed to set SO_REUSEPORT option", this->fd);
 
+	// Make socket non-blocking by adding flag
 	result = fcntl(this->fd, F_SETFL, fcntl(this->fd, F_GETFL, 0) | O_NONBLOCK, FD_CLOEXEC);
 	isCallValid(result, "Failed to set socket as non/blocking", this->fd);
 
@@ -43,9 +45,7 @@ Socket::Socket(const int portNumber) : fd(-1)
 
 Socket::~Socket(void)
 {
-	int result = shutdown(this->fd, SHUT_RDWR);
-	isCallValid(result, "Failed to shutdown the socket", this->fd);
-	close(this->fd);
+	isCallValid(close(this->fd), "Failed to close socket", -1);
 }
 
 Socket::Socket(const Socket &rhs) : fd(rhs.fd)
@@ -56,7 +56,6 @@ int Socket::acceptConnection() const
 {
 	size_t socketSize = sizeof(this->address);
 	int connection = accept(this->fd, (struct sockaddr*)&this->address, (socklen_t*)&socketSize);
-	isCallValid(connection, "Failed to accept connection", this->fd);
 
 	return connection;
 }
@@ -64,6 +63,16 @@ int Socket::acceptConnection() const
 void Socket::closeConnection(int& connection) const
 {
 	isCallValid(close(connection), "Failed to close connection", -1);
+}
+
+void Socket::closeConnections(pollfd *pollfd, int size) const
+{
+	for (int i = 0; i < size; i++)
+	{
+		if (pollfd[i].fd == this->fd)
+			continue;
+		closeConnection(pollfd[i].fd);
+	}
 }
 
 const std::string Socket::readRequest(int connection, unsigned int buffer_size) const
@@ -74,7 +83,7 @@ const std::string Socket::readRequest(int connection, unsigned int buffer_size) 
 	while (1)
 	{
 		int readBytes = read(connection, buffer, buffer_size);
-		if (readBytes < 0)
+		if (readBytes <= 0)
 			break ;
 		buffer[readBytes] = '\0';
 		input.append(buffer);
