@@ -20,13 +20,16 @@ Socket::Socket(const int portNumber) : fd(-1)
 	isCallValid(this->fd, "Failed to create the socket", -1);
 
 	int opt = 1;
-	setsockopt(this->fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
+	int result = setsockopt(this->fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+	isCallValid(result, "Failed to set SO_REUSEADDR option", this->fd);
+	result = setsockopt(this->fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt));
+	isCallValid(result, "Failed to set SO_REUSEPORT option", this->fd);
 
 	this->address.sin_family = AF_INET;
 	this->address.sin_addr.s_addr = htonl(INADDR_ANY);
 	this->address.sin_port = htons(portNumber);
 
-	int result = bind(this->fd, (struct sockaddr*)&this->address, sizeof(this->address));
+	result = bind(this->fd, (struct sockaddr*)&this->address, sizeof(this->address));
 	isCallValid(result, "Failed to bind to port", this->fd);
 
 	result = listen(this->fd, 10);
@@ -35,6 +38,8 @@ Socket::Socket(const int portNumber) : fd(-1)
 
 Socket::~Socket(void)
 {
+	int result = shutdown(this->fd, SHUT_RDWR);
+	isCallValid(result, "Failed to shutdown the socket", this->fd);
 	close(this->fd);
 }
 
