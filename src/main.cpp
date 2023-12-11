@@ -70,7 +70,7 @@ int main()
 	// Initialize poll struct for sockets and clients
 	int numberOfFds = 1, currentFdsSize = 0, socketFd = socket->getFd();
 	struct pollfd *fds = NULL;
-	fds = addNewPoll(fds, 0, socketFd, POLLIN);
+	fds = addNewPoll(fds, currentFdsSize, socketFd, POLLIN);
 	while (1)
 	{
 		// Wait max 3 minutes for incoming traffic
