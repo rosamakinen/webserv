@@ -1,20 +1,34 @@
 #pragma once
 
-#include <vector>;
-#include "Server.hpp";
-
-class Server;
+#include "../include/WebServer.hpp"
 
 class ConfigParser
 {
 	private:
-		std::vector<Server>			servers;
-		std::vector<std::string>	serverConfig;
-		size_t						serverNumber;
+		std::ifstream				configFile;
+		size_t						lineCount;
+		size_t						start;
+		nestedMap					nestedStrings;
+		std::string					stringFile;
+		std::string					execPath;
+		std::vector<iterPair>		pairArray;
+		std::vector<nestedMap>		configFileInfo;
+		std::vector<std::string>	parsed;
+		std::vector<size_t>			ports;
+		std::vector<numberMap>		errors;
+
+		bool						validateDirectory(char **environ, char **av);
+		bool						checkPath(char **environ, char **av);
+		bool						readFile();
 
 	public:
 		ConfigParser();
 		~ConfigParser();
 
+		// ERRORS
+		class	ErrorEnviron : public std::exception
+		{
+			virtual const char	*what() const throw();
+		};
 
 };
