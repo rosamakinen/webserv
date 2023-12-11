@@ -1,3 +1,4 @@
+
 #include "Socket.hpp"
 
 Socket::Socket(void)
@@ -19,11 +20,15 @@ Socket::Socket(const int portNumber) : fd(-1)
 	this->fd = socket(AF_INET, SOCK_STREAM, 0);
 	isCallValid(this->fd, "Failed to create the socket", -1);
 
+	// Make
 	int opt = 1;
 	int result = setsockopt(this->fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 	isCallValid(result, "Failed to set SO_REUSEADDR option", this->fd);
 	result = setsockopt(this->fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt));
 	isCallValid(result, "Failed to set SO_REUSEPORT option", this->fd);
+
+	result = fcntl(this->fd, F_SETFL, fcntl(this->fd, F_GETFL, 0) | O_NONBLOCK, FD_CLOEXEC);
+	isCallValid(result, "Failed to set socket as non/blocking", this->fd);
 
 	this->address.sin_family = AF_INET;
 	this->address.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -47,7 +52,7 @@ Socket::Socket(const Socket &rhs) : fd(rhs.fd)
 {
 }
 
-int Socket::acceptConnection()
+int Socket::acceptConnection() const
 {
 	size_t socketSize = sizeof(this->address);
 	int connection = accept(this->fd, (struct sockaddr*)&this->address, (socklen_t*)&socketSize);
@@ -56,14 +61,24 @@ int Socket::acceptConnection()
 	return connection;
 }
 
+void Socket::closeConnection(int& connection) const
+{
+	isCallValid(close(connection), "Failed to close connection", -1);
+}
+
 const std::string Socket::readRequest(int connection, unsigned int buffer_size) const
 {
 	char buffer[buffer_size];
+	std::string input;
 
-	int result = read(connection, buffer, buffer_size);
-	isCallValid(result, "Failed to read request", -1);
-	buffer[result] = '\0';
-	std::string input(buffer);
+	while (1)
+	{
+		int readBytes = read(connection, buffer, buffer_size);
+		if (readBytes < 0)
+			break ;
+		buffer[readBytes] = '\0';
+		input.append(buffer);
+	}
 
 	return input;
 }

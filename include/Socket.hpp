@@ -5,6 +5,9 @@
 #include <iostream>
 #include <fcntl.h> // For non-blocking fd
 #include <unistd.h> // For read
+#include <fcntl.h>
+
+/* TODO: handle these errors in poll [EAGAIN],[EINTR],[EINVAL]*/
 
 class Socket
 {
@@ -21,7 +24,8 @@ class Socket
 		~Socket(void);
 		Socket(const Socket& rhs);
 
-		int					acceptConnection();
+		int					acceptConnection() const;
+		void				closeConnection(int& connection) const;
 		const std::string	readRequest(int connection, unsigned int buffer_size) const;
 		void				writeResponse(int connection, const std::string response) const;
 

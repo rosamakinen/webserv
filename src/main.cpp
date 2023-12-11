@@ -79,7 +79,7 @@ int main()
 	for (int fd = 0; fd <= biggest_fd; fd++)
 	{
 		FD_CLR(fd, &currentSockets);
-		close(fd);
+		socket.closeConnection(fd);
 	}
 
 	delete server;
