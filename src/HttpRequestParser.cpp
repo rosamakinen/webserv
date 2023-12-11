@@ -30,7 +30,7 @@ HttpRequestParser &HttpRequestParser::operator=(const HttpRequestParser &rhs)
 	return *this;
 }
 
-HttpRequest &HttpRequestParser::parseHttpRequest(std::string requestString)
+HttpRequest &HttpRequestParser::parseHttpRequest(std::string requestInput)
 {
 	//add requestLine & headers & body variables to class
 
@@ -47,10 +47,18 @@ HttpRequest &HttpRequestParser::parseHttpRequest(std::string requestString)
 	// to store them in class, or maybe just store them locally in the function so I dont
 	// have to cast them)
 
-	//could also do the looping with a megastring that has what
-	this->method = parseMethod();
-	this->version = parseVersion();
-	this->uri = parseUri();
+	//could also do the looping with a megastring that has the buffer
+
+	std::stringstream	ss(requestInput);
+	std::string			newLine;
+
+	while (getline(ss, newLine, '\n'))
+	{
+		if (this->requestLine.empty())
+			parseRequestLine(newLine);
+		// else if (headers)
+		// else (body)
+	}
 	this->host = parseHost();
 	this->body = parseBody();
 	this->contentLength = parseContentLength();
@@ -61,21 +69,35 @@ HttpRequest &HttpRequestParser::parseHttpRequest(std::string requestString)
 
 void HttpRequestParser::parseRequestLine(std::string requestLine)
 {
-
+	if (this->method.empty())
+		this->method = parseMethod(requestLine);
+	else if (this->uri.empty())
+		this->uri = parseUri(requestLine);
+	else if (this->version.empty())
+		this->version = parseVersion(requestLine);
 }
 
-const std::string HttpRequestParser::parseMethod()
+const std::string HttpRequestParser::parseMethod(std::string requestLine)
 {
-	this->
+	std::string tempMethod = "";
+	if (requestLine.compare(0, 4, "GET "))
+		tempMethod = "GET";
+	else if (requestLine.compare(0, 5, "POST "))
+		tempMethod = "POST";
+	else if (requestLine.compare(0, 7, "DELETE "))
+		tempMethod = "DELETE";
+	else
+		std::cout << "Wrong method type" << std::endl;
+
+	return tempMethod;
+}
+
+const std::string HttpRequestParser::parseVersion(std::string requestLine)
+{
 	return std::string();
 }
 
-const std::string HttpRequestParser::parseVersion()
-{
-	return std::string();
-}
-
-const std::string HttpRequestParser::parseUri()
+const std::string HttpRequestParser::parseUri(std::string requestLine)
 {
 	return std::string();
 }
