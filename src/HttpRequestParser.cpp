@@ -77,23 +77,32 @@ void HttpRequestParser::parseRequestLine(std::string requestLine)
 		this->version = parseVersion(requestLine);
 }
 
-const std::string HttpRequestParser::parseMethod(std::string requestLine)
+const std::string HttpRequestParser::parseMethod(std::string &requestLine)
 {
 	std::string tempMethod = "";
 	if (requestLine.compare(0, 4, "GET "))
+	{
 		tempMethod = "GET";
+		requestLine = requestLine.substr(4, requestLine.length());
+	}
 	else if (requestLine.compare(0, 5, "POST "))
+	{
 		tempMethod = "POST";
+		requestLine = requestLine.substr(5, requestLine.length());
+	}
 	else if (requestLine.compare(0, 7, "DELETE "))
+	{
 		tempMethod = "DELETE";
+		requestLine = requestLine.substr(7, requestLine.length());
+	}
 	else
 		std::cout << "Wrong method type" << std::endl;
-
 	return tempMethod;
 }
 
 const std::string HttpRequestParser::parseVersion(std::string requestLine)
 {
+	while (requestLine.find())
 	return std::string();
 }
 

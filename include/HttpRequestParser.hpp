@@ -28,7 +28,7 @@ class HttpRequestParser
 
 		HttpRequest&				parseHttpRequest(std::string request);
 		void						parseRequestLine(std::string requestInput);
-		const std::string			parseMethod(std::string requestLine);
+		const std::string			parseMethod(std::string &requestLine);
 		const std::string			parseVersion(std::string requestLine);
 		const std::string			parseUri(std::string requestLine);
 		const std::string			parseHost();
