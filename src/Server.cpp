@@ -1,100 +1,174 @@
 
 #include "../include/Server.hpp"
-#include "Server.hpp"
 
-Server::Server(void) : ip("127.0.0.1"), port(8000)
+Server::Server()
 {
 }
 
-Server::Server(const std::string &ip, const unsigned int &port) : ip(ip), port(port), name(""), request_max_body_size(1000)
+Server::~Server()
 {
 }
 
-Server::~Server(void)
+bool	Server::isErrorPage(std::string error) const
 {
-	if (!this->locations.empty())
+	if (this->_errorPages.find(error) != _errorPages.end())
+		return true;
+	return false;
+}
+
+bool	Server::isKeyInLocation(std::string location, std::string key) const
+{
+	if (this->isKeyInLocation(location, key))
+		return true;
+	return false;
+}
+
+bool	Server::isLocationInServer(std::string location) const
+{
+	for (locationMap::const_iterator i = this->_location.begin(); i != this->_location.end(); i++)
+		if (!location.compare(i->first))
+			return true;
+	return false;
+}
+
+bool	Server::isValueForKey(std::string location, std::string key, std::string value) const
+{
+
+}
+
+//Setters
+void	Server::setServerName(std::string serverName)
+{
+	this->_serverName = serverName;
+}
+
+void	Server::setListenPort(size_t listenPort)
+{
+	this->_listenPort = listenPort;
+}
+
+void	Server::setHostIp(std::string hostIp)
+{
+	this->_hostIp = hostIp;
+}
+
+void	Server::setRoot(std::string rootDir)
+{
+	this->_rootDir = rootDir;
+}
+
+void	Server::setIndex(std::string index)
+{
+	this->_index = index;
+}
+
+void	Server::setClientMaxBodySize(size_t clientMaxBodySize)
+{
+	this->_clientMaxBodySize = clientMaxBodySize;
+}
+
+void	Server::setErrorPage(std::string errorCode, std::string errorPage)
+{
+	this->_errorPages[errorCode] = errorPage;
+}
+
+void	Server::setLocation(std::string key, vectorMap locationValues)
+{
+	(this->_location)[key] = locationValues;
+}
+
+void	Server::setKeyValue(
+			std::string location,
+			std::string key,
+			std::vector<std::string> values)
+{
+	locationMap::iterator outerIter = this->_location.find(location);
+	if (outerIter != this->_location.end())
 	{
-		// TODO: clear location directory paths map && methods
-		std::vector<Server::location>::iterator it = this->locations.begin();
-		for (; it != this->locations.end(); ++it)
-		{
-			it->methods.clear();
-			it->directory_pairs.clear();
-		}
-		this->locations.clear();
+		vectorMap& inner = outerIter->second;
+		vectorMap::iterator innerIter = inner.find(key);
+		if (innerIter != inner.end())
+			innerIter->second = values;
+		else
+			inner[key] = values;
+	}
+	else
+	{
+		vectorMap newInner;
+		newInner[key] = values;
+		this->_location[location] = newInner;
 	}
 }
 
-void Server::copyLocations(const std::vector<location> locations)
+
+//Getters
+std::string	Server::getServerName() const
 {
-	std::vector<location>::const_iterator it = locations.begin();
-	for (; it != locations.end(); ++it)
-		this->locations.push_back(*it);
+	return this->_serverName;
 }
 
-Server::Server(const Server &rhs) : ip(rhs.ip), port(rhs.port), name(rhs.name), request_max_body_size(rhs.request_max_body_size)
+size_t	Server::getListenPort() const
 {
-	this->copyLocations(rhs.locations);
+	return this->_listenPort;
 }
 
-Server &Server::operator=(const Server &rhs)
+std::string	Server::getHostIp() const
 {
-	if (this != &rhs)
+	return this->_hostIp;
+}
+
+std::string	Server::getRoot() const
+{
+	return this->_rootDir;
+}
+
+std::string	Server::getIndex() const
+{
+	return this->_index;
+}
+
+size_t	Server::getClientMaxBodySize() const
+{
+	return this->_clientMaxBodySize;
+}
+
+std::string	Server::getErrorPage(std::string error) const
+{
+	return this->_errorPages.find(error)->second;
+}
+
+struct sockaddr_in	Server::getAddress() const
+{
+	return this->_address;
+}
+
+size_t	Server::getLocationCount() const
+{
+	return this->_location.size();
+}
+
+size_t	Server::getLocationCount(std::string location) const
+{
+	size_t	count = 0;
+	locationMap::const_iterator outerIter = this->_location.find(location);
+	if (outerIter != this->_location.end())
 	{
-		this->name = rhs.name;
-		this->request_max_body_size = rhs.request_max_body_size;
-		this->copyLocations(rhs.locations);
+		const vectorMap& inner = outerIter->second;
+		for (vectorMap::const_iterator i = inner.begin(); i != inner.end(); i++)
+			count++;
 	}
-
-	return *this;
+	return count;
 }
 
-void Server::setName(const std::string server_name)
+const std::vector<std::string>*	Server::getLocationValue(std::string location, std::string key) const
 {
-	this->name = server_name;
-}
-
-void Server::setRequestMaxBodySize(const unsigned int request_max_body_size)
-{
-	this->request_max_body_size = request_max_body_size;
-}
-
-const std::string	Server::getName() const
-{
-	return this->name;
-}
-
-const std::string	Server::getIp() const
-{
-	return this->ip;
-}
-
-unsigned int	Server::getPort() const
-{
-	return this->port;
-}
-
-unsigned int	Server::getRequestMaxBodySize() const
-{
-	return this->request_max_body_size;
-}
-
-void Server::addDirectoryPair(const std::string key, const std::string value, struct location *location)
-{
-	location->directory_pairs.insert(std::pair<std::string, std::string>(key, value));
-}
-
-void Server::copyLocationMethods(const std::vector<std::string> methods, Server::location *location)
-{
-	std::vector<std::string>::const_iterator it = methods.begin();
-	for (; it != methods.end(); ++it)
-		location->methods.push_back(*it);
-}
-
-void Server::addLocation(const std::string root, const std::vector<std::string> methods)
-{
-	location l;
-	l.root = root;
-	this->copyLocationMethods(methods, &l);
-	this->locations.push_back(l);
+	locationMap::const_iterator outerIter = this->_location.find(location);
+	if (outerIter != this->_location.end())
+	{
+		const vectorMap& inner = outerIter->second;
+		vectorMap::const_iterator innerIter = inner.find(key);
+		if (innerIter != inner.end())
+			return &(innerIter->second);
+	}
+	return NULL;
 }
