@@ -12,13 +12,12 @@
 
 Server* initServer()
 {
-	Server *server = new Server("127.0.0.1", 8000);
+	Server *server = new Server();
+	server->setHostIp("127.0.0.1");
+	server->setListenPort(8000);
 	server->setName("localhost");
-	server->setRequestMaxBodySize(1000);
-	std::vector<std::string> methods;
-	methods.push_back("GET");
-	methods.push_back("POST");
-	server->addLocation("/", methods);
+	server->setRoot("/");
+	server->setClientMaxBodySize(1000);
 
 	return server;
 }
@@ -62,10 +61,9 @@ void	handleNewClient(int *numberOfFds, Socket *socket, pollfd **fds)
 	}
 }
 
-int main()
+void runServer(Server *server)
 {
-	Server *server = initServer();
-	Socket *socket = new Socket(server->getPort());
+	Socket *socket = new Socket(server->getListenPort());
 
 	// Initialize poll struct for sockets and clients
 	int numberOfFds = 1, currentFdsSize = 0, socketFd = socket->getFd();
@@ -90,7 +88,7 @@ int main()
 				handleNewClient(&numberOfFds, socket, &fds);
 			else
 			{
-				request = socket->readRequest(fds[i].fd, server->getRequestMaxBodySize());
+				request = socket->readRequest(fds[i].fd, server->getClientMaxBodySize());
 				if (request.compare("Q\r\n") == 0)
 					break;
 				// TODO: handle request
@@ -106,6 +104,13 @@ int main()
 	socket->closeConnections(fds, currentFdsSize);
 	delete [] fds;
 	delete socket;
+}
+
+int main()
+{
+	Server *server = initServer();
+	runServer(server);
+
 	delete server;
 
 	return 0;

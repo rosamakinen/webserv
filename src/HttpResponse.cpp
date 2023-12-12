@@ -52,7 +52,7 @@ const std::string HttpResponse::getDate() const
 	return this->date;
 }
 
-const std::string HttpResponse::getServerName() const
+const std::string HttpResponse::getName() const
 {
 	return this->serverName;
 }

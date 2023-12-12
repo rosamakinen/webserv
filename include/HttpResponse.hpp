@@ -34,7 +34,7 @@ class HttpResponse
 		void						setBody(const std::string body);
 
 		const std::string			getDate() const;
-		const std::string			getServerName() const;
+		const std::string			getName() const;
 		unsigned int				getContentLenght() const;
 		const std::string			getContentType() const;
 		const std::string			getBody() const;
