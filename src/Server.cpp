@@ -18,7 +18,7 @@ bool	Server::isErrorPage(std::string error) const
 
 bool	Server::isKeyInLocation(std::string location, std::string key) const
 {
-	if (this->isKeyInLocation(location, key))
+	if (this->getLocationValue(location, key))
 		return true;
 	return false;
 }
@@ -33,7 +33,12 @@ bool	Server::isLocationInServer(std::string location) const
 
 bool	Server::isValueForKey(std::string location, std::string key, std::string value) const
 {
-
+	const std::vector<std::string>* values = this->getLocationValue(location, key);
+	if (!values || values->empty())
+		return false;
+	else if (std::find(values->begin(), values->end(), value) == values->end())
+		return false;
+	return true;
 }
 
 //Setters

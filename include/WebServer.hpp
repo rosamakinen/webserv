@@ -18,5 +18,5 @@
 #include <unistd.h>		//needed for checking file permissions
 
 typedef std::map<std::string, std::string> simpleMap;
-typedef std::map<std::string, std::vector<std::string>> vectorMap;
+typedef std::map<std::string, std::vector<std::string> > vectorMap;
 typedef std::map<std::string, vectorMap> locationMap;
