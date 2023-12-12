@@ -1,46 +1,60 @@
 #pragma once
 
-#include <iostream>
-#include <map>
-#include <vector>
+#include "../include/WebServer.hpp"
 
 class Server
 {
 	private:
-		struct location
-		{
-			std::string				 			root;
-			std::vector<std::string>			methods;
-			std::map<std::string, std::string>	directory_pairs;
-		};
-
-		const std::string	ip;
-		const unsigned int	port;
-		std::string			name;
-		unsigned int		request_max_body_size;
-
-		std::vector<location> locations;
-
-		Server(void);
-
-		void	copyLocations(const std::vector<location> locations);
-		void	copyLocationMethods(const std::vector<std::string> methods, Server::location *location);
+		std::string			_serverName;
+		size_t				_listenPort;
+		std::string			_hostIp;
+		std::string			_rootDir;
+		struct sockaddr_in	_address;
+		size_t				_clientMaxBodySize;
+		std::string			_index;
+		simpleMap			_errorPages;
+		locationMap			_location;
 
 	public:
-		Server(const std::string& ip, const unsigned int& port);
-		~Server(void);
-		Server(const Server& rhs);
+		Server();
+		Server(std::string serverName,
+			size_t listenPort,
+			std::string hostIp,
+			std::string rootDir,
+			std::string index,
+			std::string clientMaxBodySize);
+		~Server();
 
-		Server& operator=(const Server& rhs);
+		bool								isErrorPage(std::string error) const;
+		bool								isKeyInLocation(std::string locationBlock, std::string key) const;
+		bool								isLocationInServer(std::string locationBlock) const;
+		bool								isValueForKey(std::string locationBlock, std::string key, std::string value) const;
 
-		void	setName(const std::string server_name);
-		void	setRequestMaxBodySize(const unsigned int request_max_body_size);
+		//Setters
+		void								setServerName(std::string serverName);
+		void								setListenPort(size_t listenPort);
+		void								setHostIp(std::string hostIp);
+		void								setRoot(std::string rootDir);
+		void								setIndex(std::string index);
+		void								setClientMaxBodySize(size_t clientMaxBodySize);
+		void								setErrorPage(std::string errorCode, std::string errorPage);
+		void								setLocation(std::string key, vectorMap locationValues);
+		void								setKeyValue(
+												std::string location,
+												std::string key,
+												std::vector<std::string> values);
 
-		const std::string			getName() const;
-		const std::string			getIp() const;
-		unsigned int				getPort() const;
-		unsigned int				getRequestMaxBodySize() const;
+		//Getters
+		std::string							getServerName() const;
+		size_t								getListenPort() const;
+		std::string							getHostIp() const;
+		std::string							getRoot() const;
+		std::string							getIndex() const;
+		size_t								getClientMaxBodySize() const;
+		std::string							getErrorPage(std::string error) const;
+		struct sockaddr_in					getAddress() const;
+		size_t								getLocationCount() const;
+		size_t								getLocationCount(std::string location) const;
+		const std::vector<std::string>*		getLocationValue(std::string location, std::string key) const;
 
-		void	addLocation(const std::string root, const std::vector<std::string> methods);
-		void	addDirectoryPair(const std::string key, const std::string value, struct location *location);
 };
