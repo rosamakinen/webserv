@@ -8,6 +8,8 @@
 #include "../include/Socket.hpp"
 #include "../include/Server.hpp"
 
+#define TIMEOUT 180000
+
 Server* initServer()
 {
 	Server *server = new Server("127.0.0.1", 8000);
@@ -31,57 +33,79 @@ void	isCallValid(const int fd, const std::string errorMsg, int closeFd)
 	}
 }
 
+pollfd	*addNewPoll(pollfd *fds, int size, int fd, short events)
+{
+	struct pollfd *newFds = new pollfd[size + 1];
+
+	if (fds != NULL)
+	{
+		for (int i = 0; i < size; i++)
+			newFds[i] = fds[i];
+		delete [] fds;
+	}
+	newFds[size].fd = fd;
+	newFds[size].events = events;
+
+	return newFds;
+}
+
+void	handleNewClient(int *numberOfFds, Socket *socket, pollfd **fds)
+{
+	int newClientFd = -1;
+	while (1)
+	{
+		newClientFd = socket->acceptConnection();
+		if (newClientFd < 0)
+			break;
+		*fds = addNewPoll(*fds, *numberOfFds, newClientFd, POLLIN);
+		*numberOfFds += 1;
+	}
+}
+
 int main()
 {
 	Server *server = initServer();
-	fd_set currentSockets, readySockets;
-	FD_ZERO(&currentSockets);
+	Socket *socket = new Socket(server->getPort());
 
-	Socket socket(server->getPort());
-	int biggest_fd = socket.getFd();
-	FD_SET(biggest_fd, &currentSockets);
-
-	struct timeval timer;
+	// Initialize poll struct for sockets and clients
+	int numberOfFds = 1, currentFdsSize = 0, socketFd = socket->getFd();
+	struct pollfd *fds = NULL;
+	fds = addNewPoll(fds, currentFdsSize, socketFd, POLLIN);
 	while (1)
 	{
-		timer.tv_sec = 1;
-		timer.tv_usec = 0;
+		// Wait max 3 minutes for incoming traffic
+		int result = poll(fds, numberOfFds, TIMEOUT);
+		if (result <= 0)
+			break;
 
-		// Select incoming connections
-		readySockets = currentSockets;
-		int selected = select(biggest_fd + 1, &readySockets, NULL, NULL, &timer);
-		if (selected < 0)
-			break ; // TODO: add error / exit
-
-		for (int fd = 0; fd <= biggest_fd; fd++)
+		currentFdsSize = numberOfFds;
+		std::string request;
+		for (int i = 0; i < currentFdsSize; i ++)
 		{
-			if (FD_ISSET(fd, &readySockets))
+			if (fds[i].revents == 0)
+				continue;
+			if (fds[i].revents != POLLIN)
+				break; // TODO this is an error?
+			if (fds[i].fd == socketFd)
+				handleNewClient(&numberOfFds, socket, &fds);
+			else
 			{
-				if (fd == socket.getFd())
-				{
-					int clientSocketFd = socket.acceptConnection();
-					isCallValid(clientSocketFd, "Could not accept the connection", socket.getFd());
-					FD_SET(clientSocketFd, &currentSockets);
-					if (clientSocketFd > biggest_fd)
-						biggest_fd = clientSocketFd;
-				}
-				else
-				{
-					std::string request = socket.readRequest(fd, server->getRequestMaxBodySize());
-					std::cout << "The message was: " << request;
-					std::string response = "HTTP/1.1 200 OK\r\n\r\n";
-					socket.writeResponse(fd, response);
-				}
+				request = socket->readRequest(fds[i].fd, server->getRequestMaxBodySize());
+				if (request.compare("Q\r\n") == 0)
+					break;
+				// TODO: handle request
+				std::cout << "Request from '" << i << "' was: " << request;
+				socket->writeResponse(fds[i].fd, "HTTP/1.1 200 OK\r\n");
 			}
 		}
+
+		if (request.compare("Q\r\n") == 0)
+			break;
 	}
 
-	for (int fd = 0; fd <= biggest_fd; fd++)
-	{
-		FD_CLR(fd, &currentSockets);
-		close(fd);
-	}
-
+	socket->closeConnections(fds, currentFdsSize);
+	delete [] fds;
+	delete socket;
 	delete server;
 
 	return 0;
