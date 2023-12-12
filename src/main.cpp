@@ -7,6 +7,8 @@
 
 #include "../include/Socket.hpp"
 #include "../include/Server.hpp"
+#include "../include/Exceptions.hpp"
+#include "../include/ExceptionHandler.hpp"
 
 #define TIMEOUT 180000
 
@@ -88,18 +90,29 @@ void runServer(Server *server)
 				handleNewClient(&numberOfFds, socket, &fds);
 			else
 			{
-				request = socket->readRequest(fds[i].fd, server->getClientMaxBodySize());
-				if (request.compare("Q\r\n") == 0)
-					break;
-				// TODO: handle request
-				std::cout << "Request from '" << i << "' was: " << request;
-				socket->writeResponse(fds[i].fd, "HTTP/1.1 200 OK\r\n");
+				try
+				{
+					request = socket->readRequest(fds[i].fd, server->getClientMaxBodySize());
+					if (request.compare("Q\r\n") == 0)
+						break;
+					// TODO: handle request
+					std::cout << "Request from '" << i << "' was: " << request;
+					socket->writeResponse(fds[i].fd, "HTTP/1.1 200 OK\r\n");
+				}
+				catch (const Exception& e)
+				{
+					HttpResponse response("something", 30, "txt/html");
+					response.setStatus(ExceptionHandler::getErrorStatus(e));
+					std::cout << response._status.first << ", " << response._status.second << std::endl;
+					break ;
+				}
 			}
 		}
 
 		if (request.compare("Q\r\n") == 0)
 			break;
 	}
+
 
 	socket->closeConnections(fds, currentFdsSize);
 	delete [] fds;
@@ -108,10 +121,18 @@ void runServer(Server *server)
 
 int main()
 {
-	Server *server = initServer();
-	runServer(server);
+	try
+	{
+		Server *server = initServer();
+		runServer(server);
 
-	delete server;
+		delete server;
+	}
+	catch(const std::exception& e)
+	{
+		// TODO clean up
+		std::cout << e.what() << '\n';
+	}
 
 	return 0;
 }

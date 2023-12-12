@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <map>
+#include <utility> // pair
 
 #include <fstream>
 #include <sstream>

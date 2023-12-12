@@ -24,8 +24,10 @@ SRC_FILES	=	main \
 				HttpRequest \
 				HttpResponse \
 				Socket \
-				Server
+				Server \
+				ExceptionHandler
 
+H_FILES = Exceptions
 
 #paths
 SRC 		= 	$(addprefix $(SRC_DIR), $(addsuffix .cpp, $(SRC_FILES)))
