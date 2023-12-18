@@ -9,14 +9,14 @@
 class HttpRequestParser
 {
 	private:
-		std::string	requestLine;
+		std::string	_requestLine;
 
-		std::string	method;
-		std::string	version;
-		std::string	uri;
-		std::string	host;
-		std::string	body;
-		int			contentLength;
+		std::string	_tempMethod;
+		std::string	_tempVersion;
+		std::string	_tempUri;
+		std::string	_tempHost;
+		std::string	_tempBody;
+		int			_tempContentLength;
 
 
 	public:
@@ -27,11 +27,13 @@ class HttpRequestParser
 		HttpRequestParser&	operator=(const HttpRequestParser& rhs);
 
 		HttpRequest&				parseHttpRequest(std::string request);
-		void						parseRequestLine(std::string requestInput);
-		const std::string			parseMethod(std::string &requestLine);
+		void						parseRequestLine(std::string newLine);
+		void						parseRequestLineContent();
+		std::string					parseMethod(std::string requestLine);
 		const std::string			parseVersion(std::string requestLine);
 		const std::string			parseUri(std::string requestLine);
 		const std::string			parseHost();
 		const std::string			parseBody();
 		const int					parseContentLength();
+		int							compareMethod(int lastIndex, std::string method, std::string requestLine);
 };

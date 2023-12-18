@@ -15,18 +15,16 @@ HttpRequestParser::HttpRequestParser(const HttpRequestParser &rhs)
 
 HttpRequestParser &HttpRequestParser::operator=(const HttpRequestParser &rhs)
 {
-
 	if (this != &rhs)
 	{
-		this->method = rhs.method;
-		this->version = rhs.version;
-		this->uri = rhs.uri;
-		this->host = rhs.host;
-		this->body = rhs.body;
-		this->contentLength = rhs.contentLength;
-		this->requestLine = rhs.requestLine;
+		this->_tempMethod = rhs._tempMethod;
+		this->_tempVersion = rhs._tempVersion;
+		this->_tempUri = rhs._tempUri;
+		this->_tempHost = rhs._tempHost;
+		this->_tempBody = rhs._tempBody;
+		this->_tempContentLength = rhs._tempContentLength;
+		this->_requestLine = rhs._requestLine;
 	}
-
 	return *this;
 }
 
@@ -54,55 +52,68 @@ HttpRequest &HttpRequestParser::parseHttpRequest(std::string requestInput)
 
 	while (getline(ss, newLine, '\n'))
 	{
-		if (this->requestLine.empty())
+		if (this->_requestLine.empty() == 0)
 			parseRequestLine(newLine);
-		// else if (headers)
-		// else (body)
+		// else if (tempHeaders)
+		// else (tempBody)
 	}
-	this->host = parseHost();
-	this->body = parseBody();
-	this->contentLength = parseContentLength();
+	this->_tempHost = parseHost();
+	this->_tempBody = parseBody();
+	this->_tempContentLength = parseContentLength();
 
-	HttpRequest request(method, version, uri, host, body, contentLength);
+	HttpRequest request(this->_tempMethod, this->_tempVersion, this->_tempUri, this->_tempHost, this->_tempBody, this->_tempContentLength);
 	return request;
 }
 
-void HttpRequestParser::parseRequestLine(std::string requestLine)
+void HttpRequestParser::parseRequestLine(std::string newLine)
 {
-	if (this->method.empty())
-		this->method = parseMethod(requestLine);
-	else if (this->uri.empty())
-		this->uri = parseUri(requestLine);
-	else if (this->version.empty())
-		this->version = parseVersion(requestLine);
+	this->_requestLine = newLine;
+	parseRequestLineContent();
 }
 
-const std::string HttpRequestParser::parseMethod(std::string &requestLine)
+void HttpRequestParser::parseRequestLineContent()
 {
-	std::string tempMethod = "";
-	if (requestLine.compare(0, 4, "GET "))
+	if (this->_requestLine.empty() == 0)
 	{
-		tempMethod = "GET";
-		requestLine = requestLine.substr(4, requestLine.length());
+		std::cout << "we shouldnt have empty requestline, bro" << std::endl;
+		//for debugging, but should we have a check here, altho this should never happen?
 	}
-	else if (requestLine.compare(0, 5, "POST "))
-	{
-		tempMethod = "POST";
-		requestLine = requestLine.substr(5, requestLine.length());
-	}
-	else if (requestLine.compare(0, 7, "DELETE "))
-	{
-		tempMethod = "DELETE";
-		requestLine = requestLine.substr(7, requestLine.length());
-	}
+	if (this->_tempMethod.empty() == 0)
+		this->_tempMethod = parseMethod(this->_requestLine);
+	else if (this->_tempUri.empty() == 0)
+		this->_tempUri = parseUri(this->_requestLine);
+	else if (this->_tempVersion.empty() == 0)
+		this->_tempVersion = parseVersion(this->_requestLine);
+}
+
+
+std::string HttpRequestParser::parseMethod(std::string requestLineInput)
+{
+	std::string method;
+	if (compareMethod(4, "GET ", requestLineInput) == 0)
+			method = requestLineInput.substr(4, requestLineInput.length());
+	else if (compareMethod(5, "POST ", requestLineInput) == 0)
+			method = requestLineInput.substr(5, requestLineInput.length());
+	else if (compareMethod(7, "DELETE ", requestLineInput) == 0)
+			method = requestLineInput.substr(7, requestLineInput.length());
 	else
-		std::cout << "Wrong method type" << std::endl;
-	return tempMethod;
+		std::cout << "Wrong method type" << std::endl; //throw error here
+	return method;
+}
+
+int	HttpRequestParser::compareMethod(int lastIndex, std::string method, std::string requestLineInput)
+{
+	if (requestLineInput.compare(0, method.length(), method) == 0)
+	{
+		this->_requestLine = requestLineInput.substr(0, requestLineInput.length());
+		std::cout << "it's a match, pal" << this->_requestLine << std::endl; //for debugging
+		return 0;
+	}
+	return 1;
 }
 
 const std::string HttpRequestParser::parseVersion(std::string requestLine)
 {
-	while (requestLine.find())
 	return std::string();
 }
 
