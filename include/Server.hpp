@@ -5,7 +5,7 @@
 class Server
 {
 	private:
-		std::string			_serverName;
+		std::string			_name;
 		size_t				_listenPort;
 		std::string			_hostIp;
 		std::string			_rootDir;
@@ -31,7 +31,7 @@ class Server
 		bool								isValueForKey(std::string locationBlock, std::string key, std::string value) const;
 
 		//Setters
-		void								setServerName(std::string serverName);
+		void								setName(std::string serverName);
 		void								setListenPort(size_t listenPort);
 		void								setHostIp(std::string hostIp);
 		void								setRoot(std::string rootDir);
@@ -45,7 +45,7 @@ class Server
 												std::vector<std::string> values);
 
 		//Getters
-		std::string							getServerName() const;
+		std::string							getName() const;
 		size_t								getListenPort() const;
 		std::string							getHostIp() const;
 		std::string							getRoot() const;

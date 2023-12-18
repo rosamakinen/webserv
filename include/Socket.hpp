@@ -7,13 +7,15 @@
 #include <poll.h>
 #include <fcntl.h>
 
+#include "../include/Exceptions.hpp"
+
 /* TODO: handle these errors in poll [EAGAIN],[EINTR],[EINVAL]*/
 
 class Socket
 {
 	private:
-		int			fd;
-		sockaddr_in	address;
+		int			_fd;
+		sockaddr_in	_address;
 
 		Socket(void);
 
@@ -21,6 +23,12 @@ class Socket
 		void				closeConnection(int& connection) const;
 
 	public:
+		class ConfigurationException : public std::exception
+		{
+			public:
+				const char* what() const throw();
+		};
+
 		Socket(int portNumber);
 		~Socket(void);
 		Socket(const Socket& rhs);

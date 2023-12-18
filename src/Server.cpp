@@ -42,9 +42,9 @@ bool	Server::isValueForKey(std::string location, std::string key, std::string va
 }
 
 //Setters
-void	Server::setServerName(std::string serverName)
+void	Server::setName(std::string serverName)
 {
-	this->_serverName = serverName;
+	this->_name = serverName;
 }
 
 void	Server::setListenPort(size_t listenPort)
@@ -107,9 +107,9 @@ void	Server::setKeyValue(
 
 
 //Getters
-std::string	Server::getServerName() const
+std::string	Server::getName() const
 {
-	return this->_serverName;
+	return this->_name;
 }
 
 size_t	Server::getListenPort() const
