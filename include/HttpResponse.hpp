@@ -3,31 +3,32 @@
 
 #include <iostream>
 
+#include "../include/WebServer.hpp"
+
 class HttpResponse
 {
 	private:
+		HttpResponse(void);
+		HttpResponse&	operator=(const HttpResponse& rhs);
+
 	public:
 		static const std::string	_version;
 
 		const std::string	_date;
-		const unsigned int	_contentLenght;
 		const std::string	_contentType;
-		std::pair<unsigned int, std::string>	_status;
+		unsigned int		_contentLenght;
+		httpStatus			_status;
 
 		std::string	_body;
 
-		HttpResponse(void);
 
 		~HttpResponse(void);
 		HttpResponse(const HttpResponse& rhs);
 		HttpResponse(const std::string date,
-					const unsigned int contentLenght,
 					const std::string contentType);
 
-		HttpResponse&	operator=(const HttpResponse& rhs);
-
 		void						setBody(const std::string body);
-		void						setStatus(const std::pair<unsigned int, std::string> status);
+		void						setStatus(const unsigned int code, const std::string message);
 
 		const std::string			getDate() const;
 		unsigned int				getContentLenght() const;

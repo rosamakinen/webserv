@@ -10,8 +10,6 @@
 #include "../include/Exceptions.hpp"
 #include "../include/ExceptionHandler.hpp"
 
-#define TIMEOUT 180000
-
 Server* initServer()
 {
 	Server *server = new Server();
@@ -70,11 +68,13 @@ void runServer(Server *server)
 	// Initialize poll struct for sockets and clients
 	int numberOfFds = 1, currentFdsSize = 0, socketFd = socket->getFd();
 	struct pollfd *fds = NULL;
+	// Add socket fd to pollfds to listen to connections
 	fds = addNewPoll(fds, currentFdsSize, socketFd, POLLIN);
+
 	while (1)
 	{
 		// Wait max 3 minutes for incoming traffic
-		int result = poll(fds, numberOfFds, TIMEOUT);
+		int result = poll(fds, numberOfFds, CONNECTION_TIMEOUT);
 		if (result <= 0)
 			break;
 
@@ -97,18 +97,25 @@ void runServer(Server *server)
 						break;
 					// TODO: handle request
 					std::cout << "Request from '" << i << "' was: " << request;
-					socket->writeResponse(fds[i].fd, "HTTP/1.1 200 OK\r\n");
+					HttpResponse response(Timer::GetTimeDate(), "text/html");
+					response.setStatus(200, "OK");
+					// socket->writeResponse(fds[i].fd, );
 				}
 				catch (const Exception& e)
 				{
-					HttpResponse response("something", 30, "txt/html");
-					response.setStatus(ExceptionHandler::getErrorStatus(e));
-					std::cout << response._status.first << ", " << response._status.second << std::endl;
+					httpStatus *status = ExceptionHandler::getErrorStatus(e);
+
+					HttpResponse response(Timer::GetTimeDate(), "txt/html");
+					response.setStatus(status->code, status->message);
+					std::cout << response._status.code << ", " << response._status.message << std::endl;
+
+					delete status;
 					break ;
 				}
 			}
 		}
 
+		// For now close the program if the client sends a message that contains 'Q'
 		if (request.compare("Q\r\n") == 0)
 			break;
 	}

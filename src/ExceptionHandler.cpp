@@ -1,20 +1,18 @@
 
 #include "../include/ExceptionHandler.hpp"
 
-std::pair<unsigned int, std::string> ExceptionHandler::getErrorStatus(const Exception& e)
+httpStatus *ExceptionHandler::getErrorStatus(const Exception& e)
 {
+	// Log the exception
+	std::cerr << e.what() << std::endl;
+
 	// If we fall all the way here, let's just give a 500
-	std::pair<unsigned int, std::string> status = std::pair<unsigned int, std::string>(500, "Internal Server Error");
+	struct httpStatus *status = new httpStatus;
+	status->code = 500;
+	status->message = "Internal Server Error";
 
 	if (typeid(e) == typeid(InternalException))
-	{
-		status = std::pair<unsigned int, std::string>(500, "Internal Server Error");
-	}
-
-	if (e._showToUser)
-	{
-		std::cerr << e.what() << std::endl;
-	}
+		return status;
 
 	return status;
 }

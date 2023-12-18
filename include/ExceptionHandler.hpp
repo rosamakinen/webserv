@@ -1,4 +1,6 @@
 
+#pragma once
+
 #include "WebServer.hpp"
 #include "HttpResponse.hpp"
 #include "Exceptions.hpp"
@@ -9,5 +11,5 @@
 class ExceptionHandler
 {
 	public:
-		static std::pair<unsigned int, std::string> getErrorStatus(const Exception& e);
+		static httpStatus *getErrorStatus(const Exception& e);
 };
