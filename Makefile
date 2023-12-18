@@ -22,6 +22,7 @@ CUT			=	\033[K
 
 SRC_FILES	=	main \
 				HttpRequest \
+				HttpRequestParser \
 				HttpResponse \
 				Socket \
 				Server

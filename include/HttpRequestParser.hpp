@@ -26,7 +26,7 @@ class HttpRequestParser
 
 		HttpRequestParser&	operator=(const HttpRequestParser& rhs);
 
-		HttpRequest&				parseHttpRequest(std::string request);
+		HttpRequest					parseHttpRequest(std::string request);
 		void						parseRequestLine(std::string newLine);
 		void						parseRequestLineContent();
 		std::string					parseMethod(std::string requestLine);
@@ -34,6 +34,6 @@ class HttpRequestParser
 		const std::string			parseUri(std::string requestLine);
 		const std::string			parseHost();
 		const std::string			parseBody();
-		const int					parseContentLength();
-		int							compareMethod(int lastIndex, std::string method, std::string requestLine);
+		int							parseContentLength();
+		int							compareMethod(std::string method, std::string requestLine);
 };

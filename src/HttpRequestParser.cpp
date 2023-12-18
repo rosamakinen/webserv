@@ -28,7 +28,7 @@ HttpRequestParser &HttpRequestParser::operator=(const HttpRequestParser &rhs)
 	return *this;
 }
 
-HttpRequest &HttpRequestParser::parseHttpRequest(std::string requestInput)
+HttpRequest HttpRequestParser::parseHttpRequest(std::string requestInput)
 {
 	//add requestLine & headers & body variables to class
 
@@ -52,14 +52,20 @@ HttpRequest &HttpRequestParser::parseHttpRequest(std::string requestInput)
 
 	while (getline(ss, newLine, '\n'))
 	{
-		if (this->_requestLine.empty() == 0)
+		if (this->_requestLine.empty())
+		{
+			std::cout << "newLine at start: " << newLine << std::endl;
 			parseRequestLine(newLine);
+		}
 		// else if (tempHeaders)
 		// else (tempBody)
 	}
-	this->_tempHost = parseHost();
-	this->_tempBody = parseBody();
-	this->_tempContentLength = parseContentLength();
+	// this->_tempHost = parseHost();
+	// this->_tempBody = parseBody();
+	// this->_tempContentLength = parseContentLength();
+	this->_tempHost = "host";
+	this->_tempBody = "body";
+	this->_tempContentLength = 13;
 
 	HttpRequest request(this->_tempMethod, this->_tempVersion, this->_tempUri, this->_tempHost, this->_tempBody, this->_tempContentLength);
 	return request;
@@ -73,53 +79,78 @@ void HttpRequestParser::parseRequestLine(std::string newLine)
 
 void HttpRequestParser::parseRequestLineContent()
 {
-	if (this->_requestLine.empty() == 0)
+	if (this->_requestLine.empty())
 	{
 		std::cout << "we shouldnt have empty requestline, bro" << std::endl;
 		//for debugging, but should we have a check here, altho this should never happen?
 	}
-	if (this->_tempMethod.empty() == 0)
+	if (this->_tempMethod.empty())
 		this->_tempMethod = parseMethod(this->_requestLine);
-	else if (this->_tempUri.empty() == 0)
+	else if (this->_tempUri.empty())
+	{
+		std::cout << "weget here? uri " << std::endl;
 		this->_tempUri = parseUri(this->_requestLine);
-	else if (this->_tempVersion.empty() == 0)
+	}
+	else if (this->_tempVersion.empty())
+	{
+		std::cout << "weget here? version " << std::endl;
 		this->_tempVersion = parseVersion(this->_requestLine);
+	}
+	// for debugging purposes
+	std::cout << "requestLine: " << this->_requestLine << std::endl;
+	std::cout << "method: " << this->_tempMethod << std::endl;
+	std::cout << "uri: " << this->_tempUri << std::endl;
+	std::cout << "version: " << this->_tempVersion<< std::endl;
 }
 
 
 std::string HttpRequestParser::parseMethod(std::string requestLineInput)
 {
 	std::string method;
-	if (compareMethod(4, "GET ", requestLineInput) == 0)
-			method = requestLineInput.substr(4, requestLineInput.length());
-	else if (compareMethod(5, "POST ", requestLineInput) == 0)
-			method = requestLineInput.substr(5, requestLineInput.length());
-	else if (compareMethod(7, "DELETE ", requestLineInput) == 0)
-			method = requestLineInput.substr(7, requestLineInput.length());
+	if (compareMethod("GET ", requestLineInput) == 0)
+			method = requestLineInput.substr(0, 4);
+	else if (compareMethod("POST ", requestLineInput) == 0)
+			method = requestLineInput.substr(0, 5);
+	else if (compareMethod("DELETE ", requestLineInput) == 0)
+			method = requestLineInput.substr(0, 7);
 	else
 		std::cout << "Wrong method type" << std::endl; //throw error here
 	return method;
 }
 
-int	HttpRequestParser::compareMethod(int lastIndex, std::string method, std::string requestLineInput)
+int	HttpRequestParser::compareMethod(std::string method, std::string requestLineInput)
 {
 	if (requestLineInput.compare(0, method.length(), method) == 0)
 	{
-		this->_requestLine = requestLineInput.substr(0, requestLineInput.length());
-		std::cout << "it's a match, pal" << this->_requestLine << std::endl; //for debugging
+		this->_requestLine = requestLineInput.substr(method.length(), requestLineInput.length());
+		std::cout << "it's a match, pal" << std::endl << this->_requestLine << std::endl; //for debugging
+		//should we delete/free the og request line before substrinning the new one
 		return 0;
 	}
 	return 1;
 }
 
-const std::string HttpRequestParser::parseVersion(std::string requestLine)
+const std::string HttpRequestParser::parseVersion(std::string requestLineInput)
 {
-	return std::string();
+	std::string version = "HTTP/1.1";
+	if (requestLineInput.compare(version) == 0)
+	{
+			//throw error
+
+	}
+	return version;
 }
 
-const std::string HttpRequestParser::parseUri(std::string requestLine)
+const std::string HttpRequestParser::parseUri(std::string requestLineInput)
 {
-	return std::string();
+	//go untill space, get that for the uri,
+	std::string uri;
+	size_t		pos;
+	std::cout << "in parseUri" << requestLineInput << std::endl;
+	pos = requestLineInput.find(' ');
+	uri = requestLineInput.substr(0, pos);
+	this->_requestLine = requestLineInput.substr(pos, requestLineInput.length());
+	return uri;
 }
 
 const std::string HttpRequestParser::parseHost()
@@ -132,7 +163,7 @@ const std::string HttpRequestParser::parseBody()
 	return std::string();
 }
 
-const int HttpRequestParser::parseContentLength()
+int HttpRequestParser::parseContentLength()
 {
-	return ();
+	return 1111;
 }

@@ -18,7 +18,7 @@ class HttpRequest
 
 		HttpRequest(void);
 
-		static void					isValid(const HttpRequest& request);
+		// static void					isValid(const HttpRequest& request);
 
 	public:
 		~HttpRequest(void);
