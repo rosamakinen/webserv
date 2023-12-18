@@ -19,16 +19,10 @@ class Socket
 
 		Socket(void);
 
-		static void			isCallValid(const int fd, const std::string errorMsg, int closeFd);
+		static void			isCallValid(const int fd, const std::string errorMsg, int closeFd, bool keepRunning);
 		void				closeConnection(int& connection) const;
 
 	public:
-		class ConfigurationException : public std::exception
-		{
-			public:
-				const char* what() const throw();
-		};
-
 		Socket(int portNumber);
 		~Socket(void);
 		Socket(const Socket& rhs);

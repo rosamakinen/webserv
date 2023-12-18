@@ -7,8 +7,9 @@
 
 #include "../include/Socket.hpp"
 #include "../include/Server.hpp"
+#include "../include/HttpResponseParser.hpp"
 #include "../include/Exceptions.hpp"
-#include "../include/ExceptionHandler.hpp"
+#include "../include/ExceptionManager.hpp"
 
 Server* initServer()
 {
@@ -55,7 +56,7 @@ void	handleNewClient(int *numberOfFds, Socket *socket, pollfd **fds)
 	{
 		newClientFd = socket->acceptConnection();
 		if (newClientFd < 0)
-			break;
+			break ;
 		*fds = addNewPoll(*fds, *numberOfFds, newClientFd, POLLIN);
 		*numberOfFds += 1;
 	}
@@ -71,7 +72,8 @@ void runServer(Server *server)
 	// Add socket fd to pollfds to listen to connections
 	fds = addNewPoll(fds, currentFdsSize, socketFd, POLLIN);
 
-	while (1)
+	bool keepRunning = true;
+	while (keepRunning)
 	{
 		// Wait max 3 minutes for incoming traffic
 		int result = poll(fds, numberOfFds, CONNECTION_TIMEOUT);
@@ -94,32 +96,27 @@ void runServer(Server *server)
 				{
 					request = socket->readRequest(fds[i].fd, server->getClientMaxBodySize());
 					if (request.compare("Q\r\n") == 0)
-						break;
+					{
+						keepRunning = false;
+						break ;
+					}
+
 					// TODO: handle request
-					std::cout << "Request from '" << i << "' was: " << request;
-					HttpResponse response(Timer::GetTimeDate(), "text/html");
-					response.setStatus(200, "OK");
-					// socket->writeResponse(fds[i].fd, );
+					std::cout << "Request from fd " << i << " was: " << request;
+					HttpResponse response("text/html; charset=utf-8");
+					response.setBody("<!DOCTYPE html>\r\n<html lang=\"en\" data-color-mode=\"auto\" data-light-theme=\"light\" data-dark-theme=\"dark_tritanopia\" data-a11y-animated-images=\"system\" data-a11y-link-underlines=\"true\">\r\n<head>\r\n<title>Hello World!</title>\r\n</head>\r\n<body>\r\n<h1>Hello, stranger!</h1>\r\n<p>Chrome sent you a request and you answered!</p>\r\n<p>Well done!</p>\r\n</body>\r\n</html>");
+					response.setStatus(std::pair<unsigned int, std::string>(200, "OK"));
+					socket->writeResponse(fds[i].fd, HttpResponseParser::Parse(response, server));
 				}
 				catch (const Exception& e)
 				{
-					httpStatus *status = ExceptionHandler::getErrorStatus(e);
-
-					HttpResponse response(Timer::GetTimeDate(), "txt/html");
-					response.setStatus(status->code, status->message);
-					std::cout << response._status.code << ", " << response._status.message << std::endl;
-
-					delete status;
-					break ;
+					HttpResponse response("txt/html");
+					response.setStatus(ExceptionManager::getErrorStatus(e));
+					socket->writeResponse(fds[i].fd, HttpResponseParser::Parse(response, server));
 				}
 			}
 		}
-
-		// For now close the program if the client sends a message that contains 'Q'
-		if (request.compare("Q\r\n") == 0)
-			break;
 	}
-
 
 	socket->closeConnections(fds, currentFdsSize);
 	delete [] fds;
@@ -137,8 +134,7 @@ int main()
 	}
 	catch(const std::exception& e)
 	{
-		// TODO clean up
-		std::cout << e.what() << '\n';
+		std::cerr << e.what() << '\n';
 	}
 
 	return 0;

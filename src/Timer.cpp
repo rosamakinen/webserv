@@ -1,7 +1,7 @@
 
 #include "../include/WebServer.hpp"
 
-const std::string Timer::GetTimeDate()
+const std::string Timer::GetTimeDateString()
 {
 	// Initialize timezone information
 	tzset();
