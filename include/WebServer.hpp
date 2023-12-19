@@ -1,7 +1,11 @@
 #pragma once
 
-#define CONNECTION_TIMEOUT	60
+#define CONNECTION_TIMEOUT	180000
 #define MESSAGE_BUFFER		1048576
+
+#define HTTP_VERSION		"HTTP/1.1"
+#define HTTP_LINEBREAK		"\r\n"
+#define SPACE				" "
 
 #include <vector>
 #include <map>
@@ -17,6 +21,13 @@
 #include <sys/stat.h>	//fileops
 #include <sys/file.h>	//fileops
 #include <unistd.h>		//needed for checking file permissions
+#include <time.h>
+
+class Timer
+{
+	public:
+		static const std::string GetTimeDateString();
+};
 
 typedef std::map<std::string, std::string> simpleMap;
 typedef std::map<std::string, std::vector<std::string> > vectorMap;

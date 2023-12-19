@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <iostream>
+#include "../include/WebServer.hpp"
 
 class HttpRequest
 {

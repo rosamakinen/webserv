@@ -7,10 +7,9 @@
 
 #include "../include/Socket.hpp"
 #include "../include/Server.hpp"
+#include "../include/HttpResponseParser.hpp"
 #include "../include/Exceptions.hpp"
-#include "../include/ExceptionHandler.hpp"
-
-#define TIMEOUT 180000
+#include "../include/ExceptionManager.hpp"
 
 Server* initServer()
 {
@@ -57,7 +56,7 @@ void	handleNewClient(int *numberOfFds, Socket *socket, pollfd **fds)
 	{
 		newClientFd = socket->acceptConnection();
 		if (newClientFd < 0)
-			break;
+			break ;
 		*fds = addNewPoll(*fds, *numberOfFds, newClientFd, POLLIN);
 		*numberOfFds += 1;
 	}
@@ -70,11 +69,14 @@ void runServer(Server *server)
 	// Initialize poll struct for sockets and clients
 	int numberOfFds = 1, currentFdsSize = 0, socketFd = socket->getFd();
 	struct pollfd *fds = NULL;
+	// Add socket fd to pollfds to listen to connections
 	fds = addNewPoll(fds, currentFdsSize, socketFd, POLLIN);
-	while (1)
+
+	bool keepRunning = true;
+	while (keepRunning)
 	{
 		// Wait max 3 minutes for incoming traffic
-		int result = poll(fds, numberOfFds, TIMEOUT);
+		int result = poll(fds, numberOfFds, CONNECTION_TIMEOUT);
 		if (result <= 0)
 			break;
 
@@ -94,25 +96,27 @@ void runServer(Server *server)
 				{
 					request = socket->readRequest(fds[i].fd, server->getClientMaxBodySize());
 					if (request.compare("Q\r\n") == 0)
-						break;
+					{
+						keepRunning = false;
+						break ;
+					}
+
 					// TODO: handle request
-					std::cout << "Request from '" << i << "' was: " << request;
-					socket->writeResponse(fds[i].fd, "HTTP/1.1 200 OK\r\n");
+					std::cout << "Request from fd " << i << " was: " << request;
+					HttpResponse response("text/html; charset=utf-8");
+					response.setBody("<!DOCTYPE html>\r\n<html lang=\"en\" data-color-mode=\"auto\" data-light-theme=\"light\" data-dark-theme=\"dark_tritanopia\" data-a11y-animated-images=\"system\" data-a11y-link-underlines=\"true\">\r\n<head>\r\n<title>Hello World!</title>\r\n</head>\r\n<body>\r\n<h1>Hello, stranger!</h1>\r\n<p>Chrome sent you a request and you answered!</p>\r\n<p>Well done!</p>\r\n</body>\r\n</html>");
+					response.setStatus(std::pair<unsigned int, std::string>(200, "OK"));
+					socket->writeResponse(fds[i].fd, HttpResponseParser::Parse(response, server));
 				}
 				catch (const Exception& e)
 				{
-					HttpResponse response("something", 30, "txt/html");
-					response.setStatus(ExceptionHandler::getErrorStatus(e));
-					std::cout << response._status.first << ", " << response._status.second << std::endl;
-					break ;
+					HttpResponse response("txt/html");
+					response.setStatus(ExceptionManager::getErrorStatus(e));
+					socket->writeResponse(fds[i].fd, HttpResponseParser::Parse(response, server));
 				}
 			}
 		}
-
-		if (request.compare("Q\r\n") == 0)
-			break;
 	}
-
 
 	socket->closeConnections(fds, currentFdsSize);
 	delete [] fds;
@@ -128,10 +132,9 @@ int main()
 
 		delete server;
 	}
-	catch(const std::exception& e)
+	catch(const std::logic_error& e)
 	{
-		// TODO clean up
-		std::cout << e.what() << '\n';
+		std::cerr << e.what() << '\n';
 	}
 
 	return 0;

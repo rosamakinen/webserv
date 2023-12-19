@@ -1,9 +1,8 @@
 
 
 #include "../include/HttpRequest.hpp"
-#include "HttpRequest.hpp"
 
-HttpRequest::HttpRequest() : method("GET"), version("HTTP/1.1"), uri("/"), host("localhost"), body(""), contentLenght(0)
+HttpRequest::HttpRequest() : method("GET"), version(HTTP_VERSION), uri("/"), host("localhost"), body(""), contentLenght(0)
 {
 }
 
