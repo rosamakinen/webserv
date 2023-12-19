@@ -54,7 +54,7 @@ HttpRequest HttpRequestParser::parseHttpRequest(std::string requestInput)
 	{
 		if (this->_requestLine.empty())
 		{
-			std::cout << "newLine at start: " << newLine << std::endl;
+			std::cout << "newRequestLine at start: " << newLine << std::endl;
 			parseRequestLine(newLine);
 		}
 		// else if (tempHeaders)
@@ -86,21 +86,10 @@ void HttpRequestParser::parseRequestLineContent()
 	}
 	if (this->_tempMethod.empty())
 		this->_tempMethod = parseMethod(this->_requestLine);
-	else if (this->_tempUri.empty())
-	{
-		std::cout << "weget here? uri " << std::endl;
+	if (this->_tempUri.empty())
 		this->_tempUri = parseUri(this->_requestLine);
-	}
-	else if (this->_tempVersion.empty())
-	{
-		std::cout << "weget here? version " << std::endl;
+	if (this->_tempVersion.empty())
 		this->_tempVersion = parseVersion(this->_requestLine);
-	}
-	// for debugging purposes
-	std::cout << "requestLine: " << this->_requestLine << std::endl;
-	std::cout << "method: " << this->_tempMethod << std::endl;
-	std::cout << "uri: " << this->_tempUri << std::endl;
-	std::cout << "version: " << this->_tempVersion<< std::endl;
 }
 
 
@@ -122,9 +111,8 @@ int	HttpRequestParser::compareMethod(std::string method, std::string requestLine
 {
 	if (requestLineInput.compare(0, method.length(), method) == 0)
 	{
+		//TODO: for multiple requests, delete the og request line before substrinning the new one?
 		this->_requestLine = requestLineInput.substr(method.length(), requestLineInput.length());
-		std::cout << "it's a match, pal" << std::endl << this->_requestLine << std::endl; //for debugging
-		//should we delete/free the og request line before substrinning the new one
 		return 0;
 	}
 	return 1;
@@ -135,18 +123,15 @@ const std::string HttpRequestParser::parseVersion(std::string requestLineInput)
 	std::string version = "HTTP/1.1";
 	if (requestLineInput.compare(version) == 0)
 	{
-			//throw error
-
+			//TODO: throw error
 	}
 	return version;
 }
 
 const std::string HttpRequestParser::parseUri(std::string requestLineInput)
 {
-	//go untill space, get that for the uri,
 	std::string uri;
 	size_t		pos;
-	std::cout << "in parseUri" << requestLineInput << std::endl;
 	pos = requestLineInput.find(' ');
 	uri = requestLineInput.substr(0, pos);
 	this->_requestLine = requestLineInput.substr(pos, requestLineInput.length());
