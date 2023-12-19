@@ -2,8 +2,6 @@
 #include "../include/HttpResponse.hpp"
 #include "HttpResponse.hpp"
 
-const std::string	HttpResponse::_version = HTTP_VERSION;
-
 HttpResponse::HttpResponse(void) : _contentType("txt/html"), _contentLenght(0)
 {
 }
@@ -58,11 +56,6 @@ const std::string HttpResponse::getContentType() const
 const std::string HttpResponse::getBody() const
 {
 	return this->_body;
-}
-
-const std::string HttpResponse::getVersion() const
-{
-	return this->_version;
 }
 
 const std::pair<unsigned int, std::string> HttpResponse::getStatus() const
