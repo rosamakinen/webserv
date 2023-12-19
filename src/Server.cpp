@@ -105,7 +105,6 @@ void	Server::setKeyValue(
 	}
 }
 
-
 //Getters
 std::string	Server::getName() const
 {

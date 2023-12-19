@@ -1,12 +1,12 @@
 
 #pragma once
 
-#include <iostream>
+#include "WebServer.hpp"
+#include "Exceptions.hpp"
 
 class HttpRequest
 {
 	private:
-		static const std::string	_allowedVersion;
 		static const std::string	_allowedMethods[];
 
 		const std::string			_method;
@@ -18,7 +18,7 @@ class HttpRequest
 
 		HttpRequest(void);
 
-		// static void					isValid(const HttpRequest& request);
+		static void					isValid(const HttpRequest& request);
 
 	public:
 		~HttpRequest(void);

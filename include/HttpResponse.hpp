@@ -1,38 +1,33 @@
 
 #pragma once
 
-#include <iostream>
+#include "WebServer.hpp"
+#include "Exceptions.hpp"
 
 class HttpResponse
 {
 	private:
-	public:
-		static const std::string	_version;
+		HttpResponse(void);
+		HttpResponse&	operator=(const HttpResponse& rhs);
 
-		const std::string	_date;
-		const unsigned int	_contentLenght;
+	public:
 		const std::string	_contentType;
-		std::pair<unsigned int, std::string>	_status;
+		unsigned int		_contentLenght;
+		std::pair<unsigned int, std::string> _status;
 
 		std::string	_body;
 
-		HttpResponse(void);
-
 		~HttpResponse(void);
 		HttpResponse(const HttpResponse& rhs);
-		HttpResponse(const std::string date,
-					const unsigned int contentLenght,
-					const std::string contentType);
-
-		HttpResponse&	operator=(const HttpResponse& rhs);
+		HttpResponse(const std::string contentType);
 
 		void						setBody(const std::string body);
-		void						setStatus(const std::pair<unsigned int, std::string> status);
+		void						setStatus(const std::pair<unsigned int, std::string> &status);
 
-		const std::string			getDate() const;
-		unsigned int				getContentLenght() const;
-		const std::string			getContentType() const;
-		const std::string			getBody() const;
+		unsigned int										getContentLenght() const;
+		const std::string									getContentType() const;
+		const std::string									getBody() const;
+		const std::pair<unsigned int, std::string>			getStatus() const;
 };
 
 std::ostream& operator<<(std::ostream &out, const HttpResponse &rhs);

@@ -1,11 +1,5 @@
 
-
 #include "../include/HttpRequest.hpp"
-#include "HttpRequest.hpp"
-
-// HttpRequest::HttpRequest() : _method("GET"), _version("HTTP/1.1"), _uri("/"), _host("localhost"), _body(""), _contentLength(0)
-// {
-// }
 
 HttpRequest::HttpRequest(
 	const std::string& method,
@@ -21,7 +15,7 @@ HttpRequest::HttpRequest(
 	_body(body),
 	_contentLength(contentLength)
 {
-	// isValid(*this);
+	isValid(*this);
 }
 
 HttpRequest::HttpRequest(const HttpRequest& rhs) :
@@ -77,31 +71,30 @@ const int&					HttpRequest::getContentLength() const
 	return this->_contentLength;
 }
 
-const std::string	HttpRequest::_allowedVersion = "HTTP/1.1";
 const std::string	HttpRequest::_allowedMethods[] =
 {
 	"GET",
 	"POST"
 };
 
-// void HttpRequest::isValid(const HttpRequest& request)
-// {
-// 	if (request._contentLength <= 0)
-// 		std::cerr << "Request content length must be more than 0" << std::endl;
+void HttpRequest::isValid(const HttpRequest& request)
+{
+	// if (request._contentLength <= 0)
+		// throw BadRequestException("Request content length must be more than 0");
 
-// 	if (request._version.compare(HttpRequest::_allowedVersion) != 0)
-// 		std::cerr << "Request version not allowed" << std::endl;
+	if (request._version.compare(HTTP_VERSION) != 0)
+		throw BadRequestException("Request version not allowed");
 
-// 	bool allowed = false;
-// 	for (size_t i = 0; i < _allowedMethods->size(); i++)
-// 	{
-// 		if (_allowedMethods[i].compare(request._method) == 0)
-// 			allowed = true;
-// 	}
-// 	if (!allowed)
-// 		std::cerr << "Request method not allowed" << std::endl;
+	bool allowed = false;
+	for (size_t i = 0; i < _allowedMethods->size(); i++)
+	{
+		if (_allowedMethods[i].compare(request._method) == 0)
+			allowed = true;
+	}
+	if (!allowed)
+		throw BadRequestException("Request method not allowed");
 
-// 	if (request._method.compare(HttpRequest::_allowedMethods[1]) == 0
-// 		&& request._body.length() == 0)
-// 		std::cerr << "POST Request needs to have a body" << std::endl;
-// }
+	// if (request._method.compare(HttpRequest::_allowedMethods[1]) == 0
+	// 	&& request._body.length() == 0)
+		// throw BadRequestException("POST Request needs to have a body");
+}

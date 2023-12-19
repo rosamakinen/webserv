@@ -1,12 +1,10 @@
 
+#pragma once
+
 #include "WebServer.hpp"
-#include "HttpResponse.hpp"
 #include "Exceptions.hpp"
 
-#include <map>
-#include <typeinfo>
-
-class ExceptionHandler
+class ExceptionManager
 {
 	public:
 		static std::pair<unsigned int, std::string> getErrorStatus(const Exception& e);

@@ -3,22 +3,28 @@
 
 #include <iostream>
 
-class Exception : public std::exception
+// Http response handled exceptions
+class Exception : public std::logic_error
 {
-	protected:
-		const char	*_msg;
 	public:
-		bool		_showToUser;
-
-		Exception(const std::string msg, bool showToUser) { _msg = msg.c_str(); _showToUser = showToUser; };
-
-		virtual const char* what() const throw() = 0;
+		Exception(const std::string message) : logic_error(message.c_str()) { }
 };
 
 class InternalException : public Exception
 {
 	public:
-		InternalException(const std::string msg) : Exception(msg, false) { };
+		InternalException(const std::string message) : Exception(message) { };
+};
 
-		virtual const char* what() const throw() = 0;
+class BadRequestException : public Exception
+{
+	public:
+		BadRequestException(const std::string message) : Exception(message) { };
+};
+
+// Internal exceptions - cause the program to shut down
+class ConfigurationException : public std::logic_error
+{
+	public:
+		ConfigurationException(const std::string message) : logic_error(message.c_str()) { };
 };

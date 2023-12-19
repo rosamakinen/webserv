@@ -26,7 +26,9 @@ SRC_FILES	=	main \
 				HttpResponse \
 				Socket \
 				Server \
-				ExceptionHandler
+				ExceptionManager \
+				Timer \
+				HttpResponseParser
 
 H_FILES = Exceptions
 

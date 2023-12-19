@@ -8,32 +8,17 @@
 
 class HttpRequestParser
 {
-	private:
-		std::string	_requestLine;
-
-		std::string	_tempMethod;
-		std::string	_tempVersion;
-		std::string	_tempUri;
-		std::string	_tempHost;
-		std::string	_tempBody;
-		int			_tempContentLength;
-
-
 	public:
 		HttpRequestParser();
 		~HttpRequestParser();
-		HttpRequestParser(const HttpRequestParser& rhs);
-
-		HttpRequestParser&	operator=(const HttpRequestParser& rhs);
 
 		HttpRequest					parseHttpRequest(std::string request);
-		void						parseRequestLine(std::string newLine);
-		void						parseRequestLineContent();
-		std::string					parseMethod(std::string requestLine);
-		const std::string			parseVersion(std::string requestLine);
-		const std::string			parseUri(std::string requestLine);
+		void						parseRequestLine(std::string &requestLine, std::string &method, std::string &uri, std::string &version);
+		std::string					parseMethod(std::string &requestLine);
+		const std::string			parseVersion(std::string &requestLine);
+		const std::string			parseUri(std::string &requestLine);
 		const std::string			parseHost();
 		const std::string			parseBody();
 		int							parseContentLength();
-		int							compareMethod(std::string method, std::string requestLine);
+		int							compareMethod(std::string method, std::string &requestLine);
 };
