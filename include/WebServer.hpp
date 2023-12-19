@@ -23,6 +23,8 @@
 #include <unistd.h>		//needed for checking file permissions
 #include <time.h>
 
+#include <stdexcept> // invalid_argument
+
 class Timer
 {
 	public:
