@@ -132,7 +132,7 @@ int main()
 
 		delete server;
 	}
-	catch(const std::exception& e)
+	catch(const std::logic_error& e)
 	{
 		std::cerr << e.what() << '\n';
 	}
