@@ -10,52 +10,53 @@ void	Socket::isCallValid(const int fd, const std::string errorMsg, int closeFd)
 {
 	if (fd < 0)
 	{
-		std::cerr << errorMsg << std::endl;
 		if (closeFd != -1)
 			close(closeFd);
+		std::cerr << errorMsg << std::endl;
+		throw ConfigurationException();
 	}
 }
 
-Socket::Socket(const int portNumber) : fd(-1)
+Socket::Socket(const int portNumber) : _fd(-1)
 {
-	this->fd = socket(AF_INET, SOCK_STREAM, 0);
-	isCallValid(this->fd, "Failed to create the socket", -1);
+	this->_fd = socket(AF_INET, SOCK_STREAM, 0);
+	isCallValid(this->_fd, "Failed to create the socket", -1);
 
 	// Make port and address reusable for multple sockets
 	int opt = 1;
-	int result = setsockopt(this->fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-	isCallValid(result, "Failed to set SO_REUSEADDR option", this->fd);
-	result = setsockopt(this->fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt));
-	isCallValid(result, "Failed to set SO_REUSEPORT option", this->fd);
+	int result = setsockopt(this->_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+	isCallValid(result, "Failed to set SO_REUSEADDR option", this->_fd);
+	result = setsockopt(this->_fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt));
+	isCallValid(result, "Failed to set SO_REUSEPORT option", this->_fd);
 
 	// Make socket non-blocking by adding flag
-	result = fcntl(this->fd, F_SETFL, fcntl(this->fd, F_GETFL, 0) | O_NONBLOCK, FD_CLOEXEC);
-	isCallValid(result, "Failed to set socket as non/blocking", this->fd);
+	result = fcntl(this->_fd, F_SETFL, fcntl(this->_fd, F_GETFL, 0) | O_NONBLOCK, FD_CLOEXEC);
+	isCallValid(result, "Failed to set socket as non/blocking", this->_fd);
 
-	this->address.sin_family = AF_INET;
-	this->address.sin_addr.s_addr = htonl(INADDR_ANY);
-	this->address.sin_port = htons(portNumber);
+	this->_address.sin_family = AF_INET;
+	this->_address.sin_addr.s_addr = htonl(INADDR_ANY);
+	this->_address.sin_port = htons(portNumber);
 
-	result = bind(this->fd, (struct sockaddr*)&this->address, sizeof(this->address));
-	isCallValid(result, "Failed to bind to port", this->fd);
+	result = bind(this->_fd, (struct sockaddr*)&this->_address, sizeof(this->_address));
+	isCallValid(result, "Failed to bind to port", this->_fd);
 
-	result = listen(this->fd, 10);
-	isCallValid(result, "Failed to listen on socket", this->fd);
+	result = listen(this->_fd, 10);
+	isCallValid(result, "Failed to listen on socket", this->_fd);
 }
 
 Socket::~Socket(void)
 {
-	isCallValid(close(this->fd), "Failed to close socket", -1);
+	isCallValid(close(this->_fd), "Failed to close socket", -1);
 }
 
-Socket::Socket(const Socket &rhs) : fd(rhs.fd)
+Socket::Socket(const Socket &rhs) : _fd(rhs._fd)
 {
 }
 
 int Socket::acceptConnection() const
 {
-	size_t socketSize = sizeof(this->address);
-	int connection = accept(this->fd, (struct sockaddr*)&this->address, (socklen_t*)&socketSize);
+	size_t socketSize = sizeof(this->_address);
+	int connection = accept(this->_fd, (struct sockaddr*)&this->_address, (socklen_t*)&socketSize);
 
 	return connection;
 }
@@ -69,7 +70,7 @@ void Socket::closeConnections(pollfd *pollfd, int size) const
 {
 	for (int i = 0; i < size; i++)
 	{
-		if (pollfd[i].fd == this->fd)
+		if (pollfd[i].fd == this->_fd)
 			continue;
 		closeConnection(pollfd[i].fd);
 	}
@@ -100,13 +101,18 @@ void Socket::writeResponse(int connection, const std::string response) const
 
 int Socket::getFd() const
 {
-	return this->fd;
+	return this->_fd;
 }
 
 Socket &Socket::operator=(const Socket &rhs)
 {
 	if (this != &rhs)
-		this->fd = rhs.fd;
+		this->_fd = rhs._fd;
 
 	return *this;
+}
+
+const char* Socket::ConfigurationException::what() const throw()
+{
+	return "Something went wrong with the socket.";
 }

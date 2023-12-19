@@ -2,22 +2,18 @@
 #include "../include/HttpResponse.hpp"
 #include "HttpResponse.hpp"
 
-const std::string	HttpResponse::version = "HTTP/1.1";
+const std::string	HttpResponse::_version = "HTTP/1.1";
 
-HttpResponse::HttpResponse(void) : date("1.1.1990"), serverName("localhost"), contentLenght(1000), contentType("txt/html"), statusCode(200)
+HttpResponse::HttpResponse(void) : _date("1.1.1990"), _contentLenght(1000), _contentType("txt/html")
 {
 }
 
 HttpResponse::HttpResponse(const std::string date,
-						   const std::string serverName,
 						   const unsigned int contentLenght,
-						   const std::string contentType,
-						   const unsigned int statusCode)
-	: date(date),
-	  serverName(serverName),
-	  contentLenght(contentLenght),
-	  contentType(contentType),
-	  statusCode(statusCode)
+						   const std::string contentType)
+	: _date(date),
+	  _contentLenght(contentLenght),
+	  _contentType(contentType)
 {
 }
 
@@ -26,11 +22,9 @@ HttpResponse::~HttpResponse(void)
 }
 
 HttpResponse::HttpResponse(const HttpResponse &rhs)
-	: date(rhs.date),
-	  serverName(rhs.serverName),
-	  contentLenght(rhs.contentLenght),
-	  contentType(rhs.contentType),
-	  statusCode(rhs.statusCode)
+	: _date(rhs._date),
+	  _contentLenght(rhs._contentLenght),
+	  _contentType(rhs._contentType)
 {
 	*this = rhs;
 }
@@ -44,35 +38,30 @@ HttpResponse &HttpResponse::operator=(const HttpResponse &rhs)
 
 void HttpResponse::setBody(const std::string body)
 {
-	this->body = body;
+	this->_body = body;
+}
+
+void HttpResponse::setStatus(std::pair<unsigned int, std::string> status)
+{
+	this->_status = status;
 }
 
 const std::string HttpResponse::getDate() const
 {
-	return this->date;
-}
-
-const std::string HttpResponse::getServerName() const
-{
-	return this->serverName;
+	return this->_date;
 }
 
 unsigned int HttpResponse::getContentLenght() const
 {
-	return this->contentLenght;
+	return this->_contentLenght;
 }
 
 const std::string HttpResponse::getContentType() const
 {
-	return this->contentType;
+	return this->_contentType;
 }
 
 const std::string HttpResponse::getBody() const
 {
-	return this->body;
-}
-
-unsigned int HttpResponse::getStatusCode() const
-{
-	return this->statusCode;
+	return this->_body;
 }

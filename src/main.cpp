@@ -7,6 +7,8 @@
 
 #include "../include/Socket.hpp"
 #include "../include/Server.hpp"
+#include "../include/Exceptions.hpp"
+#include "../include/ExceptionHandler.hpp"
 #include "../include/HttpRequest.hpp"
 #include "../include/HttpRequestParser.hpp"
 
@@ -14,13 +16,12 @@
 
 // Server* initServer()
 // {
-// 	Server *server = new Server("127.0.0.1", 8000);
+// 	Server *server = new Server();
+// 	server->setHostIp("127.0.0.1");
+// 	server->setListenPort(8000);
 // 	server->setName("localhost");
-// 	server->setRequestMaxBodySize(1000);
-// 	std::vector<std::string> methods;
-// 	methods.push_back("GET");
-// 	methods.push_back("POST");
-// 	server->addLocation("/", methods);
+// 	server->setRoot("/");
+// 	server->setClientMaxBodySize(1000);
 
 // 	return server;
 // }
@@ -64,10 +65,9 @@
 // 	}
 // }
 
-// int main()
+// void runServer(Server *server)
 // {
-// 	Server *server = initServer();
-// 	Socket *socket = new Socket(server->getPort());
+// 	Socket *socket = new Socket(server->getListenPort());
 
 // 	// Initialize poll struct for sockets and clients
 // 	int numberOfFds = 1, currentFdsSize = 0, socketFd = socket->getFd();
@@ -92,12 +92,22 @@
 // 				handleNewClient(&numberOfFds, socket, &fds);
 // 			else
 // 			{
-// 				request = socket->readRequest(fds[i].fd, server->getRequestMaxBodySize());
-// 				if (request.compare("Q\r\n") == 0)
-// 					break;
-// 				// TODO: handle request
-// 				std::cout << "Request from '" << i << "' was: " << request;
-// 				socket->writeResponse(fds[i].fd, "HTTP/1.1 200 OK\r\n");
+// 				try
+// 				{
+// 					request = socket->readRequest(fds[i].fd, server->getClientMaxBodySize());
+// 					if (request.compare("Q\r\n") == 0)
+// 						break;
+// 					// TODO: handle request
+// 					std::cout << "Request from '" << i << "' was: " << request;
+// 					socket->writeResponse(fds[i].fd, "HTTP/1.1 200 OK\r\n");
+// 				}
+// 				catch (const Exception& e)
+// 				{
+// 					HttpResponse response("something", 30, "txt/html");
+// 					response.setStatus(ExceptionHandler::getErrorStatus(e));
+// 					std::cout << response._status.first << ", " << response._status.second << std::endl;
+// 					break ;
+// 				}
 // 			}
 // 		}
 
@@ -105,20 +115,33 @@
 // 			break;
 // 	}
 
+
 // 	socket->closeConnections(fds, currentFdsSize);
 // 	delete [] fds;
 // 	delete socket;
-// 	delete server;
+// }
+
+// int main()
+// {
+// 	try
+// 	{
+// 		Server *server = initServer();
+// 		runServer(server);
+
+// 		delete server;
+// 	}
+// 	catch(const std::exception& e)
+// 	{
+// 		// TODO clean up
+// 		std::cout << e.what() << '\n';
+// 	}
 
 // 	return 0;
 // }
 
 int main ()
 {
-	std::string input = "POST /user/moi HTTP/1.1\nbodybodybody\nblablablalbaa\n\r\n";
-
-	// std::cout << "input string is: " << input << std::endl;
-
+	std::string input = "GET /user/moi HTTP/1.1\nbodybodybody\nblablablalbaa\n\r\n";
 	HttpRequestParser requestParser;
 	HttpRequest theRequest = requestParser.parseHttpRequest(input);
 
