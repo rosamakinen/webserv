@@ -30,23 +30,6 @@ HttpRequestParser &HttpRequestParser::operator=(const HttpRequestParser &rhs)
 
 HttpRequest HttpRequestParser::parseHttpRequest(std::string requestInput)
 {
-	//add requestLine & headers & body variables to class
-
-	//stringstream:: ss, std::string line
-	//while with getline(stringstream, line, "\n")
-	//check if variable .empty/null
-	//if yes/filled, move the line to next checking?
-
-	//compartmentalize to requestLine(method, version, uri), headers and body
-
-	//is contentLength including whitespace? the full thing or just for body
-
-	//with this style i'm going to have issues with const (maybe I could cast them if I want
-	// to store them in class, or maybe just store them locally in the function so I dont
-	// have to cast them)
-
-	//could also do the looping with a megastring that has the buffer
-
 	std::stringstream	ss(requestInput);
 	std::string			newLine;
 
