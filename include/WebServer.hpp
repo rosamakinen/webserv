@@ -6,6 +6,10 @@
 #define HTTP_VERSION		"HTTP/1.1"
 #define HTTP_LINEBREAK		"\r\n"
 #define SPACE				" "
+#define GET					"GET"
+#define POST				"POST"
+#define DELETE				"DELETE"
+
 
 #include <vector>
 #include <map>

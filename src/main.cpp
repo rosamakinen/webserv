@@ -10,6 +10,8 @@
 #include "../include/HttpResponseParser.hpp"
 #include "../include/Exceptions.hpp"
 #include "../include/ExceptionManager.hpp"
+#include "../include/HttpRequest.hpp"
+#include "../include/HttpRequestParser.hpp"
 
 Server* initServer()
 {
@@ -81,7 +83,7 @@ void runServer(Server *server)
 			break;
 
 		currentFdsSize = numberOfFds;
-		std::string request;
+		std::string requestString;
 		for (int i = 0; i < currentFdsSize; i ++)
 		{
 			if (fds[i].revents == 0)
@@ -94,15 +96,17 @@ void runServer(Server *server)
 			{
 				try
 				{
-					request = socket->readRequest(fds[i].fd, server->getClientMaxBodySize());
-					if (request.compare("Q\r\n") == 0)
+					requestString = socket->readRequest(fds[i].fd, server->getClientMaxBodySize());
+					if (requestString.compare("Q\r\n") == 0)
 					{
 						keepRunning = false;
 						break ;
 					}
 
-					// TODO: handle request
-					std::cout << "Request from fd " << i << " was: " << request;
+					std::cout << "Request from '" << i << "' was: " << requestString;
+					HttpRequestParser requestParser;
+					HttpRequest request = requestParser.parseHttpRequest(requestString);
+
 					HttpResponse response("text/html; charset=utf-8");
 					response.setBody("<!DOCTYPE html>\r\n<html lang=\"en\" data-color-mode=\"auto\" data-light-theme=\"light\" data-dark-theme=\"dark_tritanopia\" data-a11y-animated-images=\"system\" data-a11y-link-underlines=\"true\">\r\n<head>\r\n<title>Hello World!</title>\r\n</head>\r\n<body>\r\n<h1>Hello, stranger!</h1>\r\n<p>Chrome sent you a request and you answered!</p>\r\n<p>Well done!</p>\r\n</body>\r\n</html>");
 					response.setStatus(std::pair<unsigned int, std::string>(200, "OK"));

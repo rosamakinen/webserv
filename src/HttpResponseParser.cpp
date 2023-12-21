@@ -5,7 +5,7 @@ std::string HttpResponseParser::Parse(const HttpResponse &response, Server *serv
 {
 	std::string responseString;
 
-	responseString.append(response.getVersion());
+	responseString.append(HTTP_VERSION);
 	responseString.append(SPACE);
 	std::pair<unsigned int, std::string> httpStatus = response.getStatus();
 	responseString.append(std::to_string(httpStatus.first));
