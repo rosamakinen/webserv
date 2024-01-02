@@ -9,8 +9,6 @@ Server::~Server()
 {
 }
 
-/* Work in progress, I'm sure we're going to need more stuff here, but this 
-* 	should let us spin up a server with an explicit call. --Dan */
 Server::Server( std::string serverName,	size_t listenPort, std::string hostIp, 
 	std::string rootDir, std::string index,	std::string clientMaxBodySize)
 {
