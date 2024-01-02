@@ -113,19 +113,16 @@ void runServer(Server *server)
 					response.setBody("<!DOCTYPE html>\r\n<html lang=\"en\" data-color-mode=\"auto\" data-light-theme=\"light\" data-dark-theme=\"dark_tritanopia\" data-a11y-animated-images=\"system\" data-a11y-link-underlines=\"true\">\r\n<head>\r\n<title>Hello World!</title>\r\n</head>\r\n<body>\r\n<h1>Hello, stranger!</h1>\r\n<p>Chrome sent you a request and you answered!</p>\r\n<p>Well done!</p>\r\n</body>\r\n</html>");
 					response.setStatus(std::pair<unsigned int, std::string>(200, "OK"));
 					socket->writeResponse(fds[i].fd, HttpResponseParser::Parse(response, server));
-
-					socket->closeConnection(fds[i].fd);
-					numberOfFds--;
 				}
 				catch (const Exception& e)
 				{
 					HttpResponse response("txt/html");
 					response.setStatus(ExceptionManager::getErrorStatus(e));
 					socket->writeResponse(fds[i].fd, HttpResponseParser::Parse(response, server));
-
-					socket->closeConnection(fds[i].fd);
-					numberOfFds--;
 				}
+
+				socket->closeConnection(fds[i].fd);
+				numberOfFds--;
 			}
 		}
 	}

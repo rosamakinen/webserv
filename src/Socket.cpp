@@ -79,7 +79,7 @@ void Socket::closeConnections(pollfd *pollfd, int size) const
 	}
 }
 
-const std::string Socket::readRequest(int connection, unsigned int buffer_size) const
+std::string Socket::readRequest(int connection, unsigned int buffer_size) const
 {
 	char buffer[buffer_size];
 	std::string input;
