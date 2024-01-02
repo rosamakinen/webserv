@@ -1,7 +1,4 @@
 #include <cstdlib> // For exit() and EXIT_FAILURE
-#include <iostream> // For cout
-#include <unistd.h> // For read
-#include <sys/select.h>
 #include <sys/time.h>
 #include <sys/types.h>
 
