@@ -87,7 +87,9 @@ const std::string Socket::readRequest(int connection, unsigned int buffer_size) 
 	while (1)
 	{
 		int readBytes = read(connection, buffer, buffer_size);
-		if (readBytes <= 0)
+		if (readBytes < 0)
+			throw BadRequestException("Could not read the client");
+		else if (readBytes == 0)
 			break ;
 		buffer[readBytes] = '\0';
 		input.append(buffer);
