@@ -14,6 +14,8 @@
 #include <vector>
 #include <map>
 #include <utility> // pair
+#include <algorithm>
+#include <typeinfo>
 
 #include <fstream>
 #include <sstream>
@@ -26,6 +28,7 @@
 #include <sys/file.h>	//fileops
 #include <unistd.h>		//needed for checking file permissions
 #include <time.h>
+#include <limits.h>
 
 #include <stdexcept> // invalid_argument
 

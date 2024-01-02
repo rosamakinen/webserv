@@ -35,7 +35,7 @@ HttpResponse &HttpResponse::operator=(const HttpResponse &rhs)
 void HttpResponse::setBody(const std::string body)
 {
 	this->_body = body;
-	this->_contentLenght = strlen(this->_body.c_str());
+	this->_contentLenght = this->_body.length();
 }
 
 void HttpResponse::setStatus(const std::pair<unsigned int, std::string> &status)
