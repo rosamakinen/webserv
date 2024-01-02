@@ -9,6 +9,17 @@ Server::~Server()
 {
 }
 
+Server::Server( std::string serverName,	size_t listenPort, std::string hostIp, 
+	std::string rootDir, std::string index,	std::string clientMaxBodySize)
+{
+	this->setName(serverName);
+	this->setHostIp(hostIp);
+	this->setRoot(rootDir);
+	this->setIndex(index);
+	this->setClientMaxBodySize(atoi(clientMaxBodySize.c_str()));
+	this->setListenPort(listenPort);	
+}
+
 bool	Server::isErrorPage(std::string error) const
 {
 	if (this->_errorPages.find(error) != _errorPages.end())
