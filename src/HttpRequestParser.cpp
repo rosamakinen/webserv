@@ -10,14 +10,15 @@ HttpRequestParser::~HttpRequestParser()
 
 HttpRequest HttpRequestParser::parseHttpRequest(std::string requestInput)
 {
-	std::stringstream	ss(requestInput);
-	std::string			requestLine = "";
-	std::string			newLine = "";
-	std::string			method = "";
-	std::string			uri = "";
-	std::string			version = "";
-	std::string			body = "body";
-	std::string			host = "host";
+	std::stringstream					ss(requestInput);
+	std::string							requestLine = "";
+	std::string							newLine = "";
+	std::string							method = "";
+	std::string							uri = "";
+	std::string							version = "";
+	std::string							body = "body";
+	std::string							host = "host";
+	std::map<std::string, std::string>	headers;
 
 	while (getline(ss, newLine, '\n'))
 	{
@@ -27,12 +28,15 @@ HttpRequest HttpRequestParser::parseHttpRequest(std::string requestInput)
 			std::cout << "newRequestLine at start: " << requestLine << std::endl;
 			parseRequestLine(requestLine, method, uri, version);
 		}
-		//TODO: headers and body parsing
-		// if (headers.empty())
-			//	parseHeaders(newLine);
-		// if (body.empty())
-			//	parseBody(newline);
+		parseHeaders(newLine, headers);
 	}
+	host = parseHost(headers);
+	std::cout << "headers map is: " << std::endl;
+	for (const auto &pair : headers)
+	{
+		std::cout << pair.first << " ***and*** " << pair.second << std::endl;
+	}
+	std::cout << "*****host is: " << host << std::endl;
 	HttpRequest request(method, version, uri, host, body, body.length());
 	return request;
 }
@@ -94,17 +98,42 @@ const std::string HttpRequestParser::parseUri(std::string &requestLine)
 	return uri;
 }
 
-const std::string HttpRequestParser::parseHost()
+std::string HttpRequestParser::parseHost(std::map<std::string, std::string> &headers)
 {
-	return std::string();
+	std::map<std::string, std::string>::iterator it;
+	std::string host = "";
+
+	it = headers.find("Host");
+	if (it == headers.end())
+		throw BadRequestException("Host not found");
+	else
+		host = it->second;
+	std::cout << "parse host has parsed: " << host << std::endl;
+	return host;
+}
+
+const std::map<std::string, std::string> HttpRequestParser::parseHeaders(const std::string &line, std::map<std::string, std::string> &headers)
+{
+	size_t pos = line.find(':');
+	if (pos != std::string::npos)
+	{
+		std::string key = line.substr(0, pos);
+		std::string value = line.substr(pos + 1);
+
+		// // Trim leading and trailing whitespace
+		// key.erase(key.begin(), std::find_if(key.begin(), key.end(), [](unsigned char ch) { return !std::isspace(ch); }));
+		// key.erase(std::find_if(key.rbegin(), key.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), key.end());
+
+		// value.erase(value.begin(), std::find_if(value.begin(), value.end(), [](unsigned char ch) { return !std::isspace(ch); }));
+		// value.erase(std::find_if(value.rbegin(), value.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), value.end());
+
+		if (headers[key].empty())
+			headers[key] = value;
+	}
+	return headers;
 }
 
 const std::string HttpRequestParser::parseBody()
 {
 	return std::string();
-}
-
-int HttpRequestParser::parseContentLength()
-{
-	return 1;
 }
