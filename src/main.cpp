@@ -87,15 +87,13 @@ void runServer(Server *server)
 		{
 			if (fds[i].revents == 0)
 				continue;
-			if (fds[i].revents != POLLIN)
-				throw PollException("Unexpected event occured");
 			if (fds[i].fd == socketFd)
 				handleNewClient(&numberOfFds, socket, &fds);
-			else
+			else if (fds[i].revents == POLLIN)
 			{
 				try
 				{
-					requestString = socket->readRequest(fds[i].fd, server->getClientMaxBodySize());
+					requestString = socket->readRequest(fds[i].fd, server->getClientMaxBodySize(), &numberOfFds);
 					if (requestString.compare("Q\r\n") == 0)
 					{
 						keepRunning = false;
@@ -109,17 +107,14 @@ void runServer(Server *server)
 					HttpResponse response("text/html; charset=utf-8");
 					response.setBody("<!DOCTYPE html>\r\n<html lang=\"en\" data-color-mode=\"auto\" data-light-theme=\"light\" data-dark-theme=\"dark_tritanopia\" data-a11y-animated-images=\"system\" data-a11y-link-underlines=\"true\">\r\n<head>\r\n<title>Hello World!</title>\r\n</head>\r\n<body>\r\n<h1>Hello, stranger!</h1>\r\n<p>Chrome sent you a request and you answered!</p>\r\n<p>Well done!</p>\r\n</body>\r\n</html>");
 					response.setStatus(std::pair<unsigned int, std::string>(200, "OK"));
-					socket->writeResponse(fds[i].fd, HttpResponseParser::Parse(response, server));
+					socket->writeResponse(fds[i].fd, HttpResponseParser::Parse(response, server), &numberOfFds);
 				}
 				catch (const Exception& e)
 				{
 					HttpResponse response("txt/html");
 					response.setStatus(ExceptionManager::getErrorStatus(e));
-					socket->writeResponse(fds[i].fd, HttpResponseParser::Parse(response, server));
+					socket->writeResponse(fds[i].fd, HttpResponseParser::Parse(response, server), &numberOfFds);
 				}
-
-				socket->closeConnection(fds[i].fd);
-				numberOfFds--;
 			}
 		}
 	}

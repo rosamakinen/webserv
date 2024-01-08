@@ -66,6 +66,7 @@ int Socket::acceptConnection() const
 void Socket::closeConnection(int& connection) const
 {
 	isCallValid(close(connection), "Failed to close connection", -1, false);
+	connection = -1;
 }
 
 void Socket::closeConnections(pollfd *pollfd, int size) const
@@ -79,7 +80,7 @@ void Socket::closeConnections(pollfd *pollfd, int size) const
 	}
 }
 
-std::string Socket::readRequest(int connection, unsigned int buffer_size) const
+std::string Socket::readRequest(int connection, unsigned int buffer_size, int *numberOfFds) const
 {
 	char buffer[buffer_size];
 	std::string input;
@@ -88,9 +89,13 @@ std::string Socket::readRequest(int connection, unsigned int buffer_size) const
 	{
 		int readBytes = read(connection, buffer, buffer_size);
 		if (readBytes < 0)
-			throw BadRequestException("Could not read the client");
-		else if (readBytes == 0)
-			break ;
+			break;
+		if (readBytes == 0)
+		{
+			closeConnection(connection);
+			*numberOfFds -= 1;
+			break;
+		}
 		buffer[readBytes] = '\0';
 		input.append(buffer);
 	}
@@ -98,10 +103,14 @@ std::string Socket::readRequest(int connection, unsigned int buffer_size) const
 	return input;
 }
 
-void Socket::writeResponse(int connection, const std::string response) const
+void Socket::writeResponse(int connection, const std::string response, int *numberOfFds) const
 {
 	int result = write(connection, response.c_str(), response.size());
-	isCallValid(result, "Failed to send response", -1, true);
+	if (result < 0)
+	{
+		closeConnection(connection);
+		*numberOfFds -= 1;
+	}
 }
 
 int Socket::getFd() const
