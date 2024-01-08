@@ -1,6 +1,5 @@
 #include "../include/ScalarConverter.hpp"
 #include "../include/WebServer.hpp"
-#include "ScalarConverter.hpp"
 
 ScalarConverter::~ScalarConverter()
 {
