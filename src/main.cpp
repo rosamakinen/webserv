@@ -124,8 +124,14 @@ void runServer(Server *server)
 	delete socket;
 }
 
-int main()
+int main(int argc, char **argv)
 {
+	if (argc != 2 || !argv[1])
+	{
+		std::cerr << "The program needs one configuration file as input\n";
+		return 1;
+	}
+
 	try
 	{
 		Server *server = initServer();
