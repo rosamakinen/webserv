@@ -28,6 +28,7 @@
 #include <sys/stat.h>	//fileops
 #include <sys/file.h>	//fileops
 #include <unistd.h>		//needed for checking file permissions
+#include <stdlib.h>
 #include <time.h>
 #include <limits.h>
 
