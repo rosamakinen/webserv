@@ -2,7 +2,7 @@ NAME		=	webserv
 
 CC			=	c++
 
-CFLAGS		=	#-Wall -Werror -Wextra
+CFLAGS		=	-Wall -Werror -Wextra
 
 # directories
 SRC_DIR		=	src/

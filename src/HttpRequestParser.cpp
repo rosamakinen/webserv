@@ -34,12 +34,17 @@ HttpRequest HttpRequestParser::parseHttpRequest(std::string requestInput)
 		}
 		else if (headersComplete == false)
 			parseHeaders(newLine, headers);
-		else if (headersComplete == true && contentLength.empty())
-			contentLength = getHeaderValue(headers, "Content-Length");
-		else if (headersComplete == true && bodyFound == false)
-			findBody(newLine, bodyFound);
-		else if (bodyFound == true)
-			parseBody(newLine, body);
+		if (method.compare("POST") == 0)
+		{
+			if (headersComplete == true && contentLength.empty())
+				contentLength = getHeaderValue(headers, "Content-Length");
+			else if (headersComplete == true && bodyFound == false)
+				findBody(newLine, bodyFound);
+			else if (bodyFound == true)
+				parseBody(newLine, body);
+		}
+		if (bodyComplete == true)
+			break;
 	}
 	host = getHeaderValue(headers, "Host");
 	HttpRequest request(method, version, uri, host, body, body.length());
@@ -140,6 +145,8 @@ void HttpRequestParser::findBody(std::string newLine, bool &bodyFound)
 
 void HttpRequestParser::parseBody(std::string newLine, std::string &body)
 {
+	//TODO: here to check if the body.length == content-length
+	//if yes, trigger flag, if not add newLine to body
 	body += newLine;
 }
 
