@@ -36,15 +36,12 @@ HttpRequest HttpRequestParser::parseHttpRequest(std::string requestInput)
 			parseHeaders(newLine, headers);
 		else if (headersComplete == true && contentLength.empty())
 			contentLength = getHeaderValue(headers, "Content-Length");
-		//TODO: add getting content length from headers properly.
-		//for GET method content length & body is not needed, but needs to be handled for request constructor
 		else if (headersComplete == true && bodyFound == false)
 			findBody(newLine, bodyFound);
 		else if (bodyFound == true)
 			parseBody(newLine, body);
 	}
 	host = getHeaderValue(headers, "Host");
-	//TODO body.length() should be contentLength as int, if GET method length is 0?
 	HttpRequest request(method, version, uri, host, body, body.length());
 	return request;
 }
@@ -129,7 +126,6 @@ const std::map<std::string, std::string> HttpRequestParser::parseHeaders(const s
 		std::string key = line.substr(0, pos);
 		std::string value = line.substr(pos + 1);
 
-		//TODO: figuring out if we should handle overwriting the pair for a preexisting key
 		if (headers[key].empty())
 			headers[key] = value;
 	}
