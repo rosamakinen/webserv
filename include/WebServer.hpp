@@ -10,6 +10,7 @@
 #define POST				"POST"
 #define DELETE				"DELETE"
 
+#include "../include/Exceptions.hpp"
 
 #include <vector>
 #include <map>
