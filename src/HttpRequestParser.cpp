@@ -1,12 +1,8 @@
 #include "HttpRequestParser.hpp"
 
-HttpRequestParser::HttpRequestParser()
-{
-}
+HttpRequestParser::HttpRequestParser() {}
 
-HttpRequestParser::~HttpRequestParser()
-{
-}
+HttpRequestParser::~HttpRequestParser() {}
 
 HttpRequest HttpRequestParser::parseHttpRequest(std::string requestInput)
 {
@@ -16,8 +12,12 @@ HttpRequest HttpRequestParser::parseHttpRequest(std::string requestInput)
 	std::string							method = "";
 	std::string							uri = "";
 	std::string							version = "";
-	std::string							body = "body";
-	std::string							host = "host";
+	std::string							body = "";
+	std::string							host = "";
+	bool								bodyFound = false;
+	bool								headersComplete = false;
+	bool								bodyComplete = false;
+	std::string							contentLength = "";
 	std::map<std::string, std::string>	headers;
 
 	while (getline(ss, newLine, '\n'))
@@ -25,25 +25,32 @@ HttpRequest HttpRequestParser::parseHttpRequest(std::string requestInput)
 		if (requestLine.empty())
 		{
 			requestLine = newLine;
-			std::cout << "newRequestLine at start: " << requestLine << std::endl;
 			parseRequestLine(requestLine, method, uri, version);
 		}
-		parseHeaders(newLine, headers);
+		else if (headersComplete == false && newLine.compare("\r\n") == 0)
+		{
+			headersComplete = true;
+			continue ;
+		}
+		else if (headersComplete == false)
+			parseHeaders(newLine, headers);
+		else if (headersComplete == true && contentLength.empty())
+			contentLength = getHeaderValue(headers, "Content-Length");
+		//TODO: add getting content length from headers properly.
+		//for GET method content length & body is not needed, but needs to be handled for request constructor
+		else if (headersComplete == true && bodyFound == false)
+			findBody(newLine, bodyFound);
+		else if (bodyFound == true)
+			parseBody(newLine, body);
 	}
-	host = parseHost(headers);
-	std::cout << "headers map is: " << std::endl;
-	for (const auto &pair : headers)
-	{
-		std::cout << pair.first << " ***and*** " << pair.second << std::endl;
-	}
-	std::cout << "*****host is: " << host << std::endl;
+	host = getHeaderValue(headers, "Host");
+	//TODO body.length() should be contentLength as int, if GET method length is 0?
 	HttpRequest request(method, version, uri, host, body, body.length());
 	return request;
 }
 
 void HttpRequestParser::parseRequestLine(std::string &requestLine, std::string &method, std::string &uri, std::string &version)
 {
-	std::cout << "parsing reqline " << requestLine << std::endl;
 	if (requestLine.empty())
 	{
 		throw BadRequestException("Empty requestline");
@@ -92,24 +99,26 @@ const std::string HttpRequestParser::parseUri(std::string &requestLine)
 {
 	std::string uri;
 	size_t		pos;
+
 	pos = requestLine.find(' ');
 	uri = requestLine.substr(0, pos);
 	requestLine = requestLine.substr(pos, requestLine.length());
+
 	return uri;
 }
 
-std::string HttpRequestParser::parseHost(std::map<std::string, std::string> &headers)
+std::string HttpRequestParser::getHeaderValue(std::map<std::string, std::string> &headers, std::string toFind)
 {
 	std::map<std::string, std::string>::iterator it;
-	std::string host = "";
+	std::string ret = "";
 
-	it = headers.find("Host");
+	it = headers.find(toFind);
 	if (it == headers.end())
-		throw BadRequestException("Host not found");
+		throw BadRequestException("Header not found");
 	else
-		host = it->second;
-	std::cout << "parse host has parsed: " << host << std::endl;
-	return host;
+		ret = it->second;
+
+	return ret;
 }
 
 const std::map<std::string, std::string> HttpRequestParser::parseHeaders(const std::string &line, std::map<std::string, std::string> &headers)
@@ -120,20 +129,27 @@ const std::map<std::string, std::string> HttpRequestParser::parseHeaders(const s
 		std::string key = line.substr(0, pos);
 		std::string value = line.substr(pos + 1);
 
-		// // Trim leading and trailing whitespace
-		// key.erase(key.begin(), std::find_if(key.begin(), key.end(), [](unsigned char ch) { return !std::isspace(ch); }));
-		// key.erase(std::find_if(key.rbegin(), key.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), key.end());
-
-		// value.erase(value.begin(), std::find_if(value.begin(), value.end(), [](unsigned char ch) { return !std::isspace(ch); }));
-		// value.erase(std::find_if(value.rbegin(), value.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), value.end());
-
+		//TODO: figuring out if we should handle overwriting the pair for a preexisting key
 		if (headers[key].empty())
 			headers[key] = value;
 	}
 	return headers;
 }
 
-const std::string HttpRequestParser::parseBody()
+bool HttpRequestParser::findBody(std::string newLine, bool &bodyFound)
 {
-	return std::string();
+	if (bodyFound == false && newLine.compare("\r\n"))
+	{
+		bodyFound = true;
+		return true;
+	}
+	return false;
 }
+
+const std::string HttpRequestParser::parseBody(std::string newLine, std::string &body)
+{
+	body += newLine;
+
+	return NULL;
+}
+

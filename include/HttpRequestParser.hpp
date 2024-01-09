@@ -18,8 +18,10 @@ class HttpRequestParser
 		std::string									parseMethod(std::string &requestLine);
 		const std::string							parseVersion(std::string &requestLine);
 		const std::string							parseUri(std::string &requestLine);
-		std::string									parseHost(std::map<std::string, std::string> &headers);
+		// std::string									parseHost(std::map<std::string, std::string> &headers, std::string &host);
+		std::string									getHeaderValue(std::map<std::string, std::string> &headers, std::string toFind);
 		const std::map<std::string, std::string>	parseHeaders(const std::string &request, std::map<std::string, std::string> &headers);
-		const std::string							parseBody();
+		bool										findBody(std::string newLine, bool &bodyFound);
+		const std::string							parseBody(std::string newLine, std::string &body);
 		int											compareMethod(std::string method, std::string &requestLine);
 };
