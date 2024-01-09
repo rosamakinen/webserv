@@ -9,22 +9,13 @@ Server::~Server()
 {
 }
 
-Server::Server( std::string serverName,	size_t listenPort, std::string hostIp, 
-	std::string rootDir, std::string index,	std::string clientMaxBodySize)
+Server::Server( std::string serverName,	size_t listenPort, std::string hostIp,
+	std::string clientMaxBodySize) : _name(serverName), _listenPort(listenPort), _hostIp(hostIp)
 {
-	this->setName(serverName);
-	this->setHostIp(hostIp);
-	this->setRoot(rootDir);
-	this->setIndex(index);
-	this->setClientMaxBodySize(atoi(clientMaxBodySize.c_str()));
-	this->setListenPort(listenPort);	
-}
-
-bool	Server::isErrorPage(std::string error) const
-{
-	if (this->_errorPages.find(error) != _errorPages.end())
-		return true;
-	return false;
+	if (!clientMaxBodySize.empty())
+		this->setClientMaxBodySize(std::stol(clientMaxBodySize));
+	else
+		this->setClientMaxBodySize(MESSAGE_BUFFER);
 }
 
 bool	Server::isKeyInLocation(std::string location, std::string key) const
@@ -36,7 +27,7 @@ bool	Server::isKeyInLocation(std::string location, std::string key) const
 
 bool	Server::isLocationInServer(std::string location) const
 {
-	for (locationMap::const_iterator i = this->_location.begin(); i != this->_location.end(); i++)
+	for (locationMap::const_iterator i = this->_locations.begin(); i != this->_locations.end(); i++)
 		if (!location.compare(i->first))
 			return true;
 	return false;
@@ -68,52 +59,29 @@ void	Server::setHostIp(std::string hostIp)
 	this->_hostIp = hostIp;
 }
 
-void	Server::setRoot(std::string rootDir)
-{
-	this->_rootDir = rootDir;
-}
-
-void	Server::setIndex(std::string index)
-{
-	this->_index = index;
-}
-
 void	Server::setClientMaxBodySize(size_t clientMaxBodySize)
 {
 	this->_clientMaxBodySize = clientMaxBodySize;
 }
 
-void	Server::setErrorPage(std::string errorCode, std::string errorPage)
-{
-	this->_errorPages[errorCode] = errorPage;
-}
-
 void	Server::setLocation(std::string key, vectorMap locationValues)
 {
-	(this->_location)[key] = locationValues;
+	std::pair<locationMap::iterator, bool> result;
+	result = _locations.insert(std::pair<std::string, vectorMap>(key, locationValues));
+	if (result.second == false)
+		throw ConfigurationException("Location already exists");
 }
 
-void	Server::setKeyValue(
-			std::string location,
-			std::string key,
-			std::vector<std::string> values)
+void	Server::addToVectorMap(vectorMap &vMap, std::string line)
 {
-	locationMap::iterator outerIter = this->_location.find(location);
-	if (outerIter != this->_location.end())
-	{
-		vectorMap& inner = outerIter->second;
-		vectorMap::iterator innerIter = inner.find(key);
-		if (innerIter != inner.end())
-			innerIter->second = values;
-		else
-			inner[key] = values;
-	}
-	else
-	{
-		vectorMap newInner;
-		newInner[key] = values;
-		this->_location[location] = newInner;
-	}
+	std::stringstream ss(line);
+	std::istream_iterator<std::string> begin(ss);
+	std::string key = *begin;
+	begin++;
+	std::istream_iterator<std::string> end;
+	std::vector<std::string> vstrings(begin, end);
+
+	vMap.insert(std::pair<std::string, std::vector<std::string> >(key, vstrings));
 }
 
 //Getters
@@ -132,41 +100,21 @@ std::string	Server::getHostIp() const
 	return this->_hostIp;
 }
 
-std::string	Server::getRoot() const
-{
-	return this->_rootDir;
-}
-
-std::string	Server::getIndex() const
-{
-	return this->_index;
-}
-
 size_t	Server::getClientMaxBodySize() const
 {
 	return this->_clientMaxBodySize;
 }
 
-std::string	Server::getErrorPage(std::string error) const
-{
-	return this->_errorPages.find(error)->second;
-}
-
-struct sockaddr_in	Server::getAddress() const
-{
-	return this->_address;
-}
-
 size_t	Server::getLocationCount() const
 {
-	return this->_location.size();
+	return this->_locations.size();
 }
 
 size_t	Server::getLocationCount(std::string location) const
 {
 	size_t	count = 0;
-	locationMap::const_iterator outerIter = this->_location.find(location);
-	if (outerIter != this->_location.end())
+	locationMap::const_iterator outerIter = this->_locations.find(location);
+	if (outerIter != this->_locations.end())
 	{
 		const vectorMap& inner = outerIter->second;
 		for (vectorMap::const_iterator i = inner.begin(); i != inner.end(); i++)
@@ -177,8 +125,8 @@ size_t	Server::getLocationCount(std::string location) const
 
 const std::vector<std::string>*	Server::getLocationValue(std::string location, std::string key) const
 {
-	locationMap::const_iterator outerIter = this->_location.find(location);
-	if (outerIter != this->_location.end())
+	locationMap::const_iterator outerIter = this->_locations.find(location);
+	if (outerIter != this->_locations.end())
 	{
 		const vectorMap& inner = outerIter->second;
 		vectorMap::const_iterator innerIter = inner.find(key);
