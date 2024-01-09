@@ -60,7 +60,7 @@ void HttpRequestParser::parseRequestLine(std::string &requestLine, std::string &
 		version = parseVersion(requestLine);
 }
 
-std::string HttpRequestParser::parseMethod(std::string &requestLine)
+const std::string HttpRequestParser::parseMethod(std::string &requestLine)
 {
 	std::string method;
 	if (compareMethod("GET ", requestLine) == 0)
@@ -104,7 +104,7 @@ const std::string HttpRequestParser::parseUri(std::string &requestLine)
 	return uri;
 }
 
-std::string HttpRequestParser::getHeaderValue(std::map<std::string, std::string> &headers, std::string toFind)
+const std::string HttpRequestParser::getHeaderValue(std::map<std::string, std::string> &headers, std::string toFind)
 {
 	std::map<std::string, std::string>::iterator it;
 	std::string ret = "";
@@ -118,7 +118,7 @@ std::string HttpRequestParser::getHeaderValue(std::map<std::string, std::string>
 	return ret;
 }
 
-const std::map<std::string, std::string> HttpRequestParser::parseHeaders(const std::string &line, std::map<std::string, std::string> &headers)
+void HttpRequestParser::parseHeaders(const std::string &line, std::map<std::string, std::string> &headers)
 {
 	size_t pos = line.find(':');
 	if (pos != std::string::npos)
@@ -129,23 +129,17 @@ const std::map<std::string, std::string> HttpRequestParser::parseHeaders(const s
 		if (headers[key].empty())
 			headers[key] = value;
 	}
-	return headers;
+
 }
 
-bool HttpRequestParser::findBody(std::string newLine, bool &bodyFound)
+void HttpRequestParser::findBody(std::string newLine, bool &bodyFound)
 {
 	if (bodyFound == false && newLine.compare("\r\n"))
-	{
 		bodyFound = true;
-		return true;
-	}
-	return false;
 }
 
-const std::string HttpRequestParser::parseBody(std::string newLine, std::string &body)
+void HttpRequestParser::parseBody(std::string newLine, std::string &body)
 {
 	body += newLine;
-
-	return NULL;
 }
 
