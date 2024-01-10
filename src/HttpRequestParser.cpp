@@ -1,45 +1,58 @@
 #include "HttpRequestParser.hpp"
 
-HttpRequestParser::HttpRequestParser()
-{
-}
+HttpRequestParser::HttpRequestParser() {}
 
-HttpRequestParser::~HttpRequestParser()
-{
-}
+HttpRequestParser::~HttpRequestParser() {}
 
 HttpRequest HttpRequestParser::parseHttpRequest(std::string requestInput)
 {
-	std::stringstream	ss(requestInput);
-	std::string			requestLine = "";
-	std::string			newLine = "";
-	std::string			method = "";
-	std::string			uri = "";
-	std::string			version = "";
-	std::string			body = "body";
-	std::string			host = "host";
+	std::stringstream					ss(requestInput);
+	std::string							requestLine = "";
+	std::string							newLine = "";
+	std::string							method = "";
+	std::string							uri = "";
+	std::string							version = "";
+	std::string							body = "";
+	std::string							host = "";
+	bool								bodyFound = false;
+	bool								headersComplete = false;
+	bool								bodyComplete = false;
+	std::string							contentLength = "";
+	std::map<std::string, std::string>	headers;
 
 	while (getline(ss, newLine, '\n'))
 	{
 		if (requestLine.empty())
 		{
 			requestLine = newLine;
-			std::cout << "newRequestLine at start: " << requestLine << std::endl;
 			parseRequestLine(requestLine, method, uri, version);
 		}
-		//TODO: headers and body parsing
-		// if (headers.empty())
-			//	parseHeaders(newLine);
-		// if (body.empty())
-			//	parseBody(newline);
+		else if (headersComplete == false && newLine.compare("\r\n") == 0)
+		{
+			headersComplete = true;
+			continue ;
+		}
+		else if (headersComplete == false)
+			parseHeaders(newLine, headers);
+		if (method.compare("POST") == 0)
+		{
+			if (headersComplete == true && contentLength.empty())
+				contentLength = getHeaderValue(headers, "Content-Length");
+			else if (headersComplete == true && bodyFound == false)
+				findBody(newLine, bodyFound);
+			else if (bodyFound == true)
+				parseBody(newLine, body);
+		}
+		if (bodyComplete == true)
+			break;
 	}
+	host = getHeaderValue(headers, "Host");
 	HttpRequest request(method, version, uri, host, body, body.length());
 	return request;
 }
 
 void HttpRequestParser::parseRequestLine(std::string &requestLine, std::string &method, std::string &uri, std::string &version)
 {
-	std::cout << "parsing reqline " << requestLine << std::endl;
 	if (requestLine.empty())
 	{
 		throw BadRequestException("Empty requestline");
@@ -52,7 +65,7 @@ void HttpRequestParser::parseRequestLine(std::string &requestLine, std::string &
 		version = parseVersion(requestLine);
 }
 
-std::string HttpRequestParser::parseMethod(std::string &requestLine)
+const std::string HttpRequestParser::parseMethod(std::string &requestLine)
 {
 	std::string method;
 	if (compareMethod("GET ", requestLine) == 0)
@@ -88,23 +101,52 @@ const std::string HttpRequestParser::parseUri(std::string &requestLine)
 {
 	std::string uri;
 	size_t		pos;
+
 	pos = requestLine.find(' ');
 	uri = requestLine.substr(0, pos);
 	requestLine = requestLine.substr(pos, requestLine.length());
+
 	return uri;
 }
 
-const std::string HttpRequestParser::parseHost()
+const std::string HttpRequestParser::getHeaderValue(std::map<std::string, std::string> &headers, std::string toFind)
 {
-	return std::string();
+	std::map<std::string, std::string>::iterator it;
+	std::string ret = "";
+
+	it = headers.find(toFind);
+	if (it == headers.end())
+		throw BadRequestException("Header not found");
+	else
+		ret = it->second;
+
+	return ret;
 }
 
-const std::string HttpRequestParser::parseBody()
+void HttpRequestParser::parseHeaders(const std::string &line, std::map<std::string, std::string> &headers)
 {
-	return std::string();
+	size_t pos = line.find(':');
+	if (pos != std::string::npos)
+	{
+		std::string key = line.substr(0, pos);
+		std::string value = line.substr(pos + 1);
+
+		if (headers[key].empty())
+			headers[key] = value;
+	}
+
 }
 
-int HttpRequestParser::parseContentLength()
+void HttpRequestParser::findBody(std::string newLine, bool &bodyFound)
 {
-	return 1;
+	if (bodyFound == false && newLine.compare("\r\n"))
+		bodyFound = true;
 }
+
+void HttpRequestParser::parseBody(std::string newLine, std::string &body)
+{
+	//TODO: here to check if the body.length == content-length
+	//if yes, trigger flag, if not add newLine to body
+	body += newLine;
+}
+
