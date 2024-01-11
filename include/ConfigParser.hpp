@@ -4,9 +4,13 @@
 
 class ConfigParser
 {
-	private:
-		 void processLine(const std::string& line);
+private:
+	std::string currentSection;
+	std::vector<std::string> sectionStack;
 
-	public:
-		static void parseConfig(const std::string& filename);
+	void processLine(const std::string& line);
+	std::string trim(const std::string& str);
+
+public:
+	void parseConfig(const std::string& filename);
 };
