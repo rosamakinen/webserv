@@ -16,7 +16,6 @@ Server* initServer()
 	server->setHostIp("127.0.0.1");
 	server->setListenPort(8000);
 	server->setName("localhost");
-	server->setRoot("/");
 	server->setClientMaxBodySize(1000);
 
 	return server;
