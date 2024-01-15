@@ -104,15 +104,12 @@ void runServer(Server *server)
 					HttpRequestParser requestParser;
 					HttpRequest request = requestParser.parseHttpRequest(requestString);
 
-					HttpResponse response("text/html; charset=utf-8");
-					response.setBody(FileHandler::getFileContent("/public_www/index.html", true));
-					response.setStatus(std::pair<unsigned int, std::string>(200, "OK"));
+					HttpResponse response(std::pair<unsigned int, std::string>(200, "OK"));
 					socket->writeResponse(fds[i].fd, HttpResponseParser::Parse(response, server), &numberOfFds);
 				}
 				catch (const Exception& e)
 				{
-					HttpResponse response("txt/html");
-					response.setStatus(ExceptionManager::getErrorStatus(e));
+					HttpResponse response(ExceptionManager::getErrorStatus(e));
 					socket->writeResponse(fds[i].fd, HttpResponseParser::Parse(response, server), &numberOfFds);
 				}
 			}

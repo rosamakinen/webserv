@@ -1,15 +1,21 @@
 
 #include "../include/HttpResponse.hpp"
-#include "HttpResponse.hpp"
+#include "../include/FileHandler.hpp"
 
 HttpResponse::HttpResponse(void) : _contentType("txt/html"), _contentLenght(0)
 {
 }
 
-HttpResponse::HttpResponse(const std::string contentType)
-	: _contentType(contentType),
-	 _contentLenght(0)
+HttpResponse::HttpResponse(
+	const std::pair<unsigned int, std::string> &status)
+	: _contentType("text/html; charset=utf-8"),
+	_contentLenght(0),
+	_status(status)
 {
+	if (status.first != 200)
+		setBody(FileHandler::getErrorFileContent(status.first));
+	else
+		setBody(FileHandler::getFileContent("/public_www/index.html", true));
 }
 
 HttpResponse::~HttpResponse(void)

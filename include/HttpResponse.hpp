@@ -18,7 +18,7 @@ class HttpResponse
 
 	public:
 		~HttpResponse(void);
-		HttpResponse(const std::string contentType);
+		HttpResponse(const std::pair<unsigned int, std::string> &status);
 
 		void						setBody(const std::string body);
 		void						setStatus(const std::pair<unsigned int, std::string> &status);
