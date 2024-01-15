@@ -7,77 +7,44 @@ HttpRequestParser::~HttpRequestParser() {}
 HttpRequest HttpRequestParser::parseHttpRequest(std::string requestInput)
 {
 	std::stringstream					ss(requestInput);
-	std::string							requestLine = "";
-	std::string							newLine = "";
-	std::string							method = "";
-	std::string							uri = "";
-	std::string							version = "";
-	std::string							body = "";
-	std::string							host = "";
-	int									lineBreak = 0;
-	std::string							contentLength = "";
-	std::map<std::string, std::string>	headers;
-	unsigned long requestReady = std::stol(contentLength);
+	// std::string							newLine = "";
+	// std::string							body = "";
+	// std::string							host = "";
+	// std::string							contentLength;
+	// std::map<std::string, std::string>	headers;
+	// int									lineBreak = 0;
 
-	while (getline(ss, newLine, '\n'))
-	{
-		if (requestLine.empty())
-		{
-			requestLine = newLine;
-			parseRequestLine(requestLine, method, uri, version);
-		}
-		else if ((lineBreak == 0 || lineBreak == 1) && newLine.compare(HTTP_LINEBREAK) == 0)
-		{
-			lineBreak += 1;
-			continue ;
-		}
-		else if (lineBreak == 0)
-			parseHeaders(newLine, headers);
-		if (lineBreak == 2)
-		{
-			if (method.compare("POST") == 0)
-			{
-				if (contentLength.empty())
-					contentLength = getHeaderValue(headers, "Content-Length");
-				parseBody(newLine, body);
-				if (requestReady == body.length())
-					break;
-			}
-			else
-				break;
-		}
-	}
+	std::string requestLine, uri, version;
+	HttpRequest::METHOD method;
+	if (getline(ss, requestLine))
+		parseRequestLine(requestLine, method, uri, version);
+
+
 	host = getHeaderValue(headers, "Host");
 	HttpRequest request(method, version, uri, host, body, body.length());
 	return request;
 }
 
-void HttpRequestParser::parseRequestLine(std::string &requestLine, std::string &method, std::string &uri, std::string &version)
+void HttpRequestParser::parseRequestLine(std::string &requestLine, HttpRequest::METHOD& method, std::string &uri, std::string &version)
 {
 	if (requestLine.empty())
-	{
 		throw BadRequestException("Empty requestline");
-	}
-	if (method.empty())
-		method = parseMethod(requestLine);
-	if (uri.empty())
-		uri = parseUri(requestLine);
-	if (version.empty())
-		version = parseVersion(requestLine);
+
+	method = parseMethod(requestLine);
+	uri = parseUri(requestLine);
+	version = parseVersion(requestLine);
 }
 
-const std::string HttpRequestParser::parseMethod(std::string &requestLine)
+HttpRequest::METHOD HttpRequestParser::parseMethod(std::string &requestLine)
 {
-	std::string method;
 	if (compareMethod("GET ", requestLine) == 0)
-			method = GET;
+		return HttpRequest::METHOD::GET;
 	else if (compareMethod("POST ", requestLine) == 0)
-			method = POST;
+		return HttpRequest::METHOD::POST;
 	else if (compareMethod("DELETE ", requestLine) == 0)
-			method = DELETE;
+		return HttpRequest::METHOD::DELETE;
 	else
 		throw BadRequestException("Wrong method type");
-	return method;
 }
 
 int	HttpRequestParser::compareMethod(std::string method, std::string &requestLine)
@@ -92,10 +59,9 @@ int	HttpRequestParser::compareMethod(std::string method, std::string &requestLin
 
 const std::string HttpRequestParser::parseVersion(std::string &requestLine)
 {
-	std::string version = "HTTP/1.1";
 	if (requestLine.compare(HTTP_VERSION) == 0)
 		throw BadRequestException("Wrong Http version");
-	return version;
+	return HTTP_VERSION;
 }
 
 const std::string HttpRequestParser::parseUri(std::string &requestLine)

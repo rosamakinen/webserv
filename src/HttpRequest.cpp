@@ -2,7 +2,7 @@
 #include "../include/HttpRequest.hpp"
 
 HttpRequest::HttpRequest(
-	const std::string& method,
+	HttpRequest::METHOD method,
 	const std::string& version,
 	const std::string& uri,
 	const std::string& host,
@@ -41,7 +41,7 @@ HttpRequest &HttpRequest::operator=(const HttpRequest& rhs)
 	return *this;
 }
 
-const std::string			HttpRequest::getMethod() const
+HttpRequest::METHOD	HttpRequest::getMethod() const
 {
 	return this->_method;
 }
@@ -82,17 +82,17 @@ void HttpRequest::isValid(const HttpRequest& request)
 	// if (request._contentLength <= 0)
 		// throw BadRequestException("Request content length must be more than 0");
 
-	if (request._version.compare(HTTP_VERSION) != 0)
-		throw BadRequestException("Request version not allowed");
+	// if (request._version.compare(HTTP_VERSION) != 0)
+	// 	throw BadRequestException("Request version not allowed");
 
-	bool allowed = false;
-	for (size_t i = 0; i < _allowedMethods->size(); i++)
-	{
-		if (_allowedMethods[i].compare(request._method) == 0)
-			allowed = true;
-	}
-	if (!allowed)
-		throw BadRequestException("Request method not allowed");
+	// bool allowed = false;
+	// for (size_t i = 0; i < _allowedMethods->size(); i++)
+	// {
+	// 	if (_allowedMethods[i].compare(request._method) == 0)
+	// 		allowed = true;
+	// }
+	// if (!allowed)
+	// 	throw BadRequestException("Request method not allowed");
 
 	// if (request._method.compare(HttpRequest::_allowedMethods[1]) == 0
 	// 	&& request._body.length() == 0)

@@ -10,8 +10,8 @@
 class HttpRequestParser
 {
 	private:
-		void					parseRequestLine(std::string &requestLine, std::string &method, std::string &uri, std::string &version);
-		const std::string		parseMethod(std::string &requestLine);
+		void					parseRequestLine(std::string &requestLine, HttpRequest::METHOD &method, std::string &uri, std::string &version);
+		HttpRequest::METHOD		parseMethod(std::string &requestLine);
 		const std::string		parseVersion(std::string &requestLine);
 		const std::string		parseUri(std::string &requestLine);
 		const std::string		getHeaderValue(std::map<std::string, std::string> &headers, std::string toFind);
