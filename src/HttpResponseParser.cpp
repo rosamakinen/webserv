@@ -8,7 +8,7 @@ std::string HttpResponseParser::Parse(const HttpResponse &response, Server *serv
 	responseString.append(HTTP_VERSION);
 	responseString.append(SPACE);
 	std::pair<unsigned int, std::string> httpStatus = response.getStatus();
-	responseString.append(ScalarConverter::intToString((int)httpStatus.first));
+	responseString.append(std::to_string(httpStatus.first));
 	responseString.append(SPACE);
 	responseString.append(httpStatus.second);
 	responseString.append(HTTP_LINEBREAK);
@@ -20,7 +20,7 @@ std::string HttpResponseParser::Parse(const HttpResponse &response, Server *serv
 	responseString.append(server->getName());
 	responseString.append(HTTP_LINEBREAK);
 	responseString.append("Content-Length: ");
-	responseString.append(ScalarConverter::intToString(response.getContentLenght()));
+	responseString.append(std::to_string(response.getContentLenght()));
 	responseString.append(HTTP_LINEBREAK);
 	responseString.append("Content-Type: ");
 	responseString.append(response.getContentType());
