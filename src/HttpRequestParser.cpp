@@ -14,11 +14,10 @@ HttpRequest HttpRequestParser::parseHttpRequest(std::string requestInput)
 	std::string							version = "";
 	std::string							body = "";
 	std::string							host = "";
-	bool								bodyFound = false;
-	bool								headersComplete = false;
-	bool								bodyComplete = false;
+	int									lineBreak = 0;
 	std::string							contentLength = "";
 	std::map<std::string, std::string>	headers;
+	unsigned long requestReady = std::stol(contentLength);
 
 	while (getline(ss, newLine, '\n'))
 	{
@@ -27,24 +26,26 @@ HttpRequest HttpRequestParser::parseHttpRequest(std::string requestInput)
 			requestLine = newLine;
 			parseRequestLine(requestLine, method, uri, version);
 		}
-		else if (headersComplete == false && newLine.compare("\r\n") == 0)
+		else if ((lineBreak == 0 || lineBreak == 1) && newLine.compare(HTTP_LINEBREAK) == 0)
 		{
-			headersComplete = true;
+			lineBreak += 1;
 			continue ;
 		}
-		else if (headersComplete == false)
+		else if (lineBreak == 0)
 			parseHeaders(newLine, headers);
-		if (method.compare("POST") == 0)
+		if (lineBreak == 2)
 		{
-			if (headersComplete == true && contentLength.empty())
-				contentLength = getHeaderValue(headers, "Content-Length");
-			else if (headersComplete == true && bodyFound == false)
-				findBody(newLine, bodyFound);
-			else if (bodyFound == true)
+			if (method.compare("POST") == 0)
+			{
+				if (contentLength.empty())
+					contentLength = getHeaderValue(headers, "Content-Length");
 				parseBody(newLine, body);
+				if (requestReady == body.length())
+					break;
+			}
+			else
+				break;
 		}
-		if (bodyComplete == true)
-			break;
 	}
 	host = getHeaderValue(headers, "Host");
 	HttpRequest request(method, version, uri, host, body, body.length());
