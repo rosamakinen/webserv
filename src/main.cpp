@@ -103,18 +103,10 @@ void runServer(Server *server)
 					HttpRequestParser requestParser;
 					HttpRequest request = requestParser.parseHttpRequest(requestString);
 
-					//printing the request
-					std::cout << "body : " << request.getBody() << std::endl;
-					std::cout << "host : " << request.getHost() << std::endl;
-					std::cout << "method : " << request.getMethod() << std::endl;
-					std::cout << "uri : " << request.getUri() << std::endl;
-					std::cout << "contsa : " << request.getContentLength() << std::endl;
-					std::cout << "versioon : " << request.getVersion() << std::endl;
-
-					HttpResponse response("text/html; charset=utf-8");
-					response.setBody("<!DOCTYPE html>\r\n<html lang=\"en\" data-color-mode=\"auto\" data-light-theme=\"light\" data-dark-theme=\"dark_tritanopia\" data-a11y-animated-images=\"system\" data-a11y-link-underlines=\"true\">\r\n<head>\r\n<title>Hello World!</title>\r\n</head>\r\n<body>\r\n<h1>Hello, stranger!</h1>\r\n<p>Chrome sent you a request and you answered!</p>\r\n<p>Well done!</p>\r\n</body>\r\n</html>");
-					response.setStatus(std::pair<unsigned int, std::string>(200, "OK"));
-					socket->writeResponse(fds[i].fd, HttpResponseParser::Parse(response, server), &numberOfFds);
+					// HttpResponse response("text/html; charset=utf-8");
+					// response.setBody("<!DOCTYPE html>\r\n<html lang=\"en\" data-color-mode=\"auto\" data-light-theme=\"light\" data-dark-theme=\"dark_tritanopia\" data-a11y-animated-images=\"system\" data-a11y-link-underlines=\"true\">\r\n<head>\r\n<title>Hello World!</title>\r\n</head>\r\n<body>\r\n<h1>Hello, stranger!</h1>\r\n<p>Chrome sent you a request and you answered!</p>\r\n<p>Well done!</p>\r\n</body>\r\n</html>");
+					// response.setStatus(std::pair<unsigned int, std::string>(200, "OK"));
+					// socket->writeResponse(fds[i].fd, HttpResponseParser::Parse(response, server), &numberOfFds);
 				}
 				catch (const Exception& e)
 				{

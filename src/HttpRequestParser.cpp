@@ -7,21 +7,30 @@ HttpRequestParser::~HttpRequestParser() {}
 HttpRequest HttpRequestParser::parseHttpRequest(std::string requestInput)
 {
 	std::stringstream					ss(requestInput);
-	// std::string							newLine = "";
-	// std::string							body = "";
-	// std::string							host = "";
-	// std::string							contentLength;
-	// std::map<std::string, std::string>	headers;
-	// int									lineBreak = 0;
-
 	std::string requestLine, uri, version;
 	HttpRequest::METHOD method;
-	if (getline(ss, requestLine))
-		parseRequestLine(requestLine, method, uri, version);
+	getline(ss, requestLine);
+	parseRequestLine(requestLine, method, uri, version);
 
+	std::map<std::string, std::string>	headers;
+	while (getline(ss, requestLine))
+	{
+		if (requestLine.compare("\r") == 0)
+			break;
+		parseHeader(requestLine, headers);
+	}
 
-	host = getHeaderValue(headers, "Host");
-	HttpRequest request(method, version, uri, host, body, body.length());
+	std::string	body = "";
+	while (getline(ss, requestLine))
+	{
+		if (requestLine.compare("\r") == 0)
+			break;
+		std::cout << "Parsing line '" << requestLine << "'"<< std::endl;
+		parseBody(requestLine, body);
+	}
+
+	std::string host = getHeaderValue(headers, "Host");
+	HttpRequest request(method, version, uri, host, "body", 14);
 	return request;
 }
 
@@ -43,8 +52,8 @@ HttpRequest::METHOD HttpRequestParser::parseMethod(std::string &requestLine)
 		return HttpRequest::METHOD::POST;
 	else if (compareMethod("DELETE ", requestLine) == 0)
 		return HttpRequest::METHOD::DELETE;
-	else
-		throw BadRequestException("Wrong method type");
+	throw BadRequestException("Wrong method type");
+	return HttpRequest::METHOD::NONE;
 }
 
 int	HttpRequestParser::compareMethod(std::string method, std::string &requestLine)
@@ -79,29 +88,27 @@ const std::string HttpRequestParser::parseUri(std::string &requestLine)
 const std::string HttpRequestParser::getHeaderValue(std::map<std::string, std::string> &headers, std::string toFind)
 {
 	std::map<std::string, std::string>::iterator it;
-	std::string ret = "";
 
 	it = headers.find(toFind);
 	if (it == headers.end())
 		throw BadRequestException("Header not found");
-	else
-		ret = it->second;
-
-	return ret;
+	return it->second;
 }
 
-void HttpRequestParser::parseHeaders(const std::string &line, std::map<std::string, std::string> &headers)
+void HttpRequestParser::parseHeader(const std::string &line, std::map<std::string, std::string> &headers)
 {
 	size_t pos = line.find(':');
 	if (pos != std::string::npos)
 	{
 		std::string key = line.substr(0, pos);
-		std::string value = line.substr(pos + 1);
+		std::string value = line.substr(pos + 2);
+		value.replace(value.length() - 1, value.length(), "");
 
-		if (headers[key].empty())
-			headers[key] = value;
+		std::pair<std::map<std::string, std::string>::iterator, bool> result;
+		result = headers.insert(std::pair<std::string, std::string>(key, value));
+		if (result.second == false)
+			throw BadRequestException("Duplicate header found");
 	}
-
 }
 
 void HttpRequestParser::findBody(std::string newLine, bool &bodyFound)
@@ -112,8 +119,7 @@ void HttpRequestParser::findBody(std::string newLine, bool &bodyFound)
 
 void HttpRequestParser::parseBody(std::string newLine, std::string &body)
 {
-	//TODO: here to check if the body.length == content-length
-	//if yes, trigger flag, if not add newLine to body
-	body += newLine;
+	newLine.replace(newLine.length() - 1, newLine.length(), "");
+	body.append(newLine);
 }
 

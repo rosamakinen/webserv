@@ -17,15 +17,12 @@ class HttpRequest
 		};
 
 		~HttpRequest(void);
-		HttpRequest(const HttpRequest& rhs);
 		HttpRequest(HttpRequest::METHOD method,
 					const std::string& version,
 					const std::string& uri,
 					const std::string& host,
 					const std::string body,
 					const int& contentLength);
-
-		HttpRequest&	operator=(const HttpRequest& rhs);
 
 		HttpRequest::METHOD			getMethod() const;
 		const std::string			getVersion() const;
@@ -45,7 +42,4 @@ class HttpRequest
 		const int					_contentLength;
 
 		HttpRequest(void);
-
-		static void					isValid(const HttpRequest& request);
-
 };
