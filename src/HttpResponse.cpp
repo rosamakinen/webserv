@@ -2,10 +2,6 @@
 #include "../include/HttpResponse.hpp"
 #include "../include/FileHandler.hpp"
 
-HttpResponse::HttpResponse(void) : _contentType("txt/html"), _contentLenght(0)
-{
-}
-
 HttpResponse::HttpResponse(
 	const std::pair<unsigned int, std::string> &status)
 	: _contentType("text/html; charset=utf-8"),
@@ -20,22 +16,6 @@ HttpResponse::HttpResponse(
 
 HttpResponse::~HttpResponse(void)
 {
-}
-
-HttpResponse::HttpResponse(const HttpResponse &rhs)
-	: _contentType(rhs._contentType),
-	  _contentLenght(rhs._contentLenght),
-	  _status(rhs._status),
-	  _body(rhs._body)
-{
-	*this = rhs;
-}
-
-HttpResponse &HttpResponse::operator=(const HttpResponse &rhs)
-{
-	if (this != &rhs)
-		return *this;
-	return *this;
 }
 
 void HttpResponse::setBody(const std::string body)
