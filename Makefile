@@ -28,7 +28,8 @@ SRC_FILES	=	main \
 				Server \
 				ExceptionManager \
 				Timer \
-				HttpResponseParser
+				HttpResponseParser \
+				FileHandler
 
 H_FILES = Exceptions
 
