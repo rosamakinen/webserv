@@ -9,11 +9,7 @@
 
 class HttpRequestParser
 {
-	public:
-		HttpRequestParser();
-		~HttpRequestParser();
-
-		HttpRequest				parseHttpRequest(std::string request);
+	private:
 		void					parseRequestLine(std::string &requestLine, std::string &method, std::string &uri, std::string &version);
 		const std::string		parseMethod(std::string &requestLine);
 		const std::string		parseVersion(std::string &requestLine);
@@ -23,4 +19,10 @@ class HttpRequestParser
 		void					findBody(std::string newLine, bool &bodyFound);
 		void					parseBody(std::string newLine, std::string &body);
 		int						compareMethod(std::string method, std::string &requestLine);
+
+	public:
+		HttpRequestParser();
+		~HttpRequestParser();
+
+		HttpRequest				parseHttpRequest(std::string request);
 };
