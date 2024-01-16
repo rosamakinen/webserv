@@ -9,6 +9,7 @@
 #include "../include/ExceptionManager.hpp"
 #include "../include/HttpRequest.hpp"
 #include "../include/HttpRequestParser.hpp"
+#include "../include/HttpRequestHandler.hpp"
 #include "../include/FileHandler.hpp"
 #include "../include/ConfigParser.hpp"
 
@@ -105,12 +106,14 @@ void runServer(Server *server)
 					HttpRequestParser requestParser;
 					HttpRequest request = requestParser.parseHttpRequest(requestString);
 
-					HttpResponse response(std::pair<unsigned int, std::string>(200, "OK"));
+					HttpRequestHandler requestHandler;
+					HttpResponse response = requestHandler.handleRequest(request);
+
 					socket->writeResponse(fds[i].fd, HttpResponseParser::Parse(response, server), &numberOfFds);
 				}
 				catch (const Exception& e)
 				{
-					HttpResponse response(ExceptionManager::getErrorStatus(e));
+					HttpResponse response(ExceptionManager::getErrorStatus(e), "");
 					socket->writeResponse(fds[i].fd, HttpResponseParser::Parse(response, server), &numberOfFds);
 				}
 			}

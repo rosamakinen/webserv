@@ -14,6 +14,9 @@
 #define PARSELISTEN			"listen"
 #define PARSENAME			"server_name"
 #define PARSESIZE			"client_max_body_size"
+#define HTTP_GET			"GET"
+#define HTTP_POST			"POST"
+#define HTTP_DELETE			"DELETE"
 
 #include "../include/Exceptions.hpp"
 
@@ -38,12 +41,6 @@
 #include <limits.h>
 
 #include <stdexcept> // invalid_argument
-
-class Timer
-{
-	public:
-		static const std::string GetTimeDateString();
-};
 
 typedef std::map<std::string, std::string> simpleMap;
 typedef std::map<std::string, std::vector<std::string> > vectorMap;

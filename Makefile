@@ -2,7 +2,7 @@ NAME		=	webserv
 
 CC			=	c++
 
-CFLAGS		=	-Wall -Werror -Wextra
+CFLAGS		=	-std=c++11 -Wall -Werror -Wextra
 
 # directories
 SRC_DIR		=	src/
@@ -23,6 +23,7 @@ CUT			=	\033[K
 SRC_FILES	=	main \
 				HttpRequest \
 				HttpRequestParser \
+				HttpRequestHandler \
 				HttpResponse \
 				Socket \
 				Server \
@@ -32,16 +33,28 @@ SRC_FILES	=	main \
 				FileHandler \
 				ConfigParser
 
-H_FILES = Exceptions
+H_FILES =	Exceptions \
+			Timer \
+			HttpRequest \
+			HttpRequestParser \
+			HttpRequestHandler \
+			HttpResponse \
+			Socket \
+			Server \
+			ExceptionManager \
+			Timer \
+			HttpResponseParser \
+			FileHandler
 
 #paths
-SRC 		= 	$(addprefix $(SRC_DIR), $(addsuffix .cpp, $(SRC_FILES)))
-OBJ 		= 	$(addprefix $(OBJ_DIR), $(addsuffix .o, $(SRC_FILES)))
+SRC	=	$(addprefix $(SRC_DIR), $(addsuffix .cpp, $(SRC_FILES)))
+OBJ	=	$(addprefix $(OBJ_DIR), $(addsuffix .o, $(SRC_FILES)))
+HS	=	$(addprefix $(INC_DIR), $(addsuffix .hpp, $(H_FILES)))
 
 #all rule
 all: $(NAME)
 
-$(NAME): $(OBJ)
+$(NAME): $(OBJ) $(HS)
 	@echo "$(YELLOW)Compiling $(NAME)...$(RESET)"
 	@$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
 	@echo "$(GREEN)Finished $(NAME)$(RESET)"
