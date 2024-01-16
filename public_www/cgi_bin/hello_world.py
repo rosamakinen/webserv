@@ -1,4 +1,5 @@
 #!/usr/bin/pythons
+import CGI
 
 # Get data from fields
 first_name = form.getvalue('first_name')
@@ -14,3 +15,5 @@ print ('<body>')
 print ("<h2>Hello %s %s</h2>" % (first_name, last_name))
 print ('</body>')
 print ('</html>')
+
+# Write a valid httpresponse to stdout

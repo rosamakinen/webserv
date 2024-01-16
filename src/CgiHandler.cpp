@@ -3,12 +3,13 @@
 
 static int	executeChild()
 {
-	// int result = execve(path_to_command, command_with_flags, environment_variables);
+	// int result = execve(path_to_command(bin/python-command), command_with_flags(from-te-cgi-bin-directory), environment_variables);
 	return 0;
 }
 
 int executeCgi()
 {
+	// TODO prepare para
 	int status = 0;
 
 	int pipe_in[2];
@@ -40,5 +41,6 @@ int executeCgi()
 	}
 
 	// TODO: wait for the child process to stop, close pipes etc.
+	// Time out, dont wait forever for child to execute
 	return status;
 }
