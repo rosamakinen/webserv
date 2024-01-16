@@ -40,3 +40,9 @@ class PollException : public std::logic_error
 	public:
 		PollException(const std::string message) : logic_error(message.c_str()) { };
 };
+
+class FileException : public std::logic_error
+{
+	public:
+		FileException(const std::string message) : logic_error(message.c_str()) { };
+};
