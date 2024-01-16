@@ -10,6 +10,10 @@
 #define POST				"POST"
 #define DELETE				"DELETE"
 #define WHITESPACE			" \t"
+#define PARSEHOST			"host"
+#define PARSELISTEN			"listen"
+#define PARSENAME			"server_name"
+#define PARSESIZE			"client_max_body_size"
 
 #include "../include/Exceptions.hpp"
 
