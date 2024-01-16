@@ -7,12 +7,8 @@ void ConfigParser::parseConfig(const std::string& filename)
 	std::ifstream file(filename);
 	std::string line;
 
-	if (!file.is_open()) 
-	{
-		std::cerr << "Failed to open file: " << filename << std::endl;
-		return;
-	}
-
+	if (!file.is_open())
+		throw ConfigurationException("Failed to open file.");
 	std::string currentSection;
 	while (std::getline(file, line)) 
 	{
@@ -20,7 +16,6 @@ void ConfigParser::parseConfig(const std::string& filename)
 		size_t commentPos = line.find('#');
 		if (commentPos != std::string::npos) 
 			line = line.substr(0, commentPos);
-
 		// Trim whitespace
 		line = trim(line);
 
