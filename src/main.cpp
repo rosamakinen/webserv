@@ -104,6 +104,7 @@ void runServer(Server *server)
 					HttpRequestParser requestParser;
 					HttpRequest request = requestParser.parseHttpRequest(requestString);
 
+
 					HttpResponse response(std::pair<unsigned int, std::string>(200, "OK"));
 					socket->writeResponse(fds[i].fd, HttpResponseParser::Parse(response, server), &numberOfFds);
 				}
