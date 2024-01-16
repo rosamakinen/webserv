@@ -9,6 +9,7 @@
 #define GET					"GET"
 #define POST				"POST"
 #define DELETE				"DELETE"
+#define WHITESPACE			" \t"
 
 #include "../include/Exceptions.hpp"
 

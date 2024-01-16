@@ -29,7 +29,7 @@ SRC_FILES	=	main \
 				ExceptionManager \
 				Timer \
 				HttpResponseParser \
-				ScalarConverter
+				FileHandler
 
 H_FILES = Exceptions
 

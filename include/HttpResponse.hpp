@@ -7,19 +7,14 @@
 class HttpResponse
 {
 	private:
-		HttpResponse(void);
-		HttpResponse&	operator=(const HttpResponse& rhs);
-
-	public:
 		const std::string	_contentType;
 		unsigned int		_contentLenght;
 		std::pair<unsigned int, std::string> _status;
-
 		std::string	_body;
 
+	public:
 		~HttpResponse(void);
-		HttpResponse(const HttpResponse& rhs);
-		HttpResponse(const std::string contentType);
+		HttpResponse(const std::pair<unsigned int, std::string> &status);
 
 		void						setBody(const std::string body);
 		void						setStatus(const std::pair<unsigned int, std::string> &status);

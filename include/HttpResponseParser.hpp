@@ -6,7 +6,6 @@
 
 #include "HttpResponse.hpp"
 #include "Server.hpp"
-#include "ScalarConverter.hpp"
 
 class HttpResponseParser
 {
