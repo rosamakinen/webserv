@@ -11,6 +11,7 @@
 #include "../include/HttpRequestParser.hpp"
 #include "../include/HttpRequestHandler.hpp"
 #include "../include/FileHandler.hpp"
+#include "../include/ConfigParser.hpp"
 
 Server* initServer()
 {

@@ -30,7 +30,8 @@ SRC_FILES	=	main \
 				ExceptionManager \
 				Timer \
 				HttpResponseParser \
-				FileHandler
+				FileHandler \
+				ConfigParser
 
 H_FILES =	Exceptions \
 			Timer \

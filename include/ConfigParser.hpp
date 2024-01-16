@@ -1,34 +1,21 @@
 #pragma once
 
 #include "../include/WebServer.hpp"
+#include "../include/Server.hpp"
 
 class ConfigParser
 {
-	// private:
-	// 	std::ifstream				configFile;
-	// 	size_t						lineCount;
-	// 	size_t						start;
-	// 	nestedMap					nestedStrings;
-	// 	std::string					stringFile;
-	// 	std::string					execPath;
-	// 	std::vector<iterPair>		pairArray;
-	// 	std::vector<nestedMap>		configFileInfo;
-	// 	std::vector<std::string>	parsed;
-	// 	std::vector<size_t>			ports;
-	// 	std::vector<numberMap>		errors;
+private:
+    std::vector<std::string> sectionStack;
+    std::string currentSection;
+    std::vector<std::shared_ptr<Server> > servers;
+    std::shared_ptr<Server> currentServer;
 
-	// 	bool						validateDirectory(char **environ, char **av);
-	// 	bool						checkPath(char **environ, char **av);
-	// 	bool						readFile();
+    void processLine(const std::string& line);
+    std::string trim(const std::string& str);
 
-	// public:
-	// 	ConfigParser();
-	// 	~ConfigParser();
-
-	// 	// ERRORS
-	// 	class	ErrorEnviron : public std::exception
-	// 	{
-	// 		virtual const char	*what() const throw();
-	// 	};
-
+public:
+	void parseConfig(const std::string& filename);
+	const std::vector<std::shared_ptr<Server> >& getServers() const;
 };
+
