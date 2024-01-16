@@ -34,12 +34,6 @@
 
 #include <stdexcept> // invalid_argument
 
-class Timer
-{
-	public:
-		static const std::string GetTimeDateString();
-};
-
 typedef std::map<std::string, std::string> simpleMap;
 typedef std::map<std::string, std::vector<std::string> > vectorMap;
 typedef std::map<std::string, vectorMap> locationMap;
