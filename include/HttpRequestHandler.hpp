@@ -3,14 +3,13 @@
 #include "WebServer.hpp"
 #include "Exceptions.hpp"
 #include "HttpRequest.hpp"
+#include "HttpResponse.hpp"
 
 
 class HttpRequestHandler
 {
-	private:
-		void	HandleRequest(HttpRequest input);
-
 	public:
-		HttpRequestHandler(HttpRequest input);
+		HttpRequestHandler();
 		~HttpRequestHandler();
+		HttpResponse	handleRequest(HttpRequest input);
 };

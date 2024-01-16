@@ -7,6 +7,7 @@
 class FileHandler
 {
 	public:
-		static std::string getFileContent(std::string filename, bool addCrLf);
+		static std::string getFileContent(std::string filename);
 		static std::string getErrorFileContent(unsigned int status);
+		static std::string getFileResource(std::string path);
 };

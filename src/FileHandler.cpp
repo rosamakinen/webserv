@@ -8,7 +8,25 @@ static std::string getFilePath(std::string relativePath)
 	return std::string(file_path).append(relativePath);
 }
 
-std::string FileHandler::getFileContent(std::string path, bool addCrLf)
+std::string FileHandler::getFileResource(std::string path)
+{
+	std::ifstream file(getFilePath(path));
+	if (!file.is_open())
+		throw NotFoundException("Could not open file for reading");
+
+	std::string line;
+	std::string body;
+	while (getline(file, line))
+	{
+		body.append(line);
+		body.append(HTTP_LINEBREAK);
+	}
+
+	file.close();
+	return body;
+}
+
+std::string FileHandler::getFileContent(std::string path)
 {
 	std::ifstream file(getFilePath(path));
 	if (!file.is_open())
@@ -17,11 +35,7 @@ std::string FileHandler::getFileContent(std::string path, bool addCrLf)
 	std::string line;
 	std::string body;
 	while (getline(file, line))
-	{
 		body.append(line);
-		if (addCrLf)
-			body.append(HTTP_LINEBREAK);
-	}
 
 	file.close();
 	return body;

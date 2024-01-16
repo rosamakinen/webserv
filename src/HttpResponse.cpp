@@ -3,7 +3,8 @@
 #include "../include/FileHandler.hpp"
 
 HttpResponse::HttpResponse(
-	const std::pair<unsigned int, std::string> &status)
+	const std::pair<unsigned int, std::string> &status,
+	const std::string& resourcePath)
 	: _contentType("text/html; charset=utf-8"),
 	_contentLenght(0),
 	_status(status)
@@ -11,7 +12,7 @@ HttpResponse::HttpResponse(
 	if (status.first != 200)
 		setBody(FileHandler::getErrorFileContent(status.first));
 	else
-		setBody(FileHandler::getFileContent("/public_www/index.html", true));
+		setBody(FileHandler::getFileResource(resourcePath));
 }
 
 HttpResponse::~HttpResponse(void)

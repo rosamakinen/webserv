@@ -40,7 +40,7 @@ void HttpRequestParser::parseRequestLine(std::string &requestLine, HttpRequest::
 		throw BadRequestException("Empty requestline");
 
 	method = parseMethod(requestLine);
-	uri = parseUri(requestLine);
+	uri = parseNextWord(requestLine);
 	version = parseVersion(requestLine);
 }
 
@@ -52,7 +52,7 @@ HttpRequest::METHOD HttpRequestParser::parseMethod(std::string &requestLine)
 		return HttpRequest::METHOD::POST;
 	else if (compareMethod("DELETE ", requestLine) == 0)
 		return HttpRequest::METHOD::DELETE;
-	throw BadRequestException("Wrong method type");
+	parseNextWord(requestLine);
 	return HttpRequest::METHOD::NONE;
 }
 
@@ -73,16 +73,16 @@ const std::string HttpRequestParser::parseVersion(std::string &requestLine)
 	return HTTP_VERSION;
 }
 
-const std::string HttpRequestParser::parseUri(std::string &requestLine)
+const std::string HttpRequestParser::parseNextWord(std::string &requestLine)
 {
-	std::string uri;
+	std::string word;
 	size_t		pos;
 
 	pos = requestLine.find(' ');
-	uri = requestLine.substr(0, pos);
+	word = requestLine.substr(0, pos);
 	requestLine = requestLine.substr(pos, requestLine.length());
 
-	return uri;
+	return word;
 }
 
 const std::string HttpRequestParser::getHeaderValue(std::map<std::string, std::string> &headers, std::string toFind)
