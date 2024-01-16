@@ -74,13 +74,13 @@ void ConfigParser::processLine(const std::string &line)
 		iss >> value;;
 		if (currentServer)
 		{
-			if (keyword == PARSEHOST)
+			if (keyword.compare(PARSEHOST) == 0)
 				currentServer->setHostIp(value);
-			else if (keyword == PARSELISTEN)
+			else if (keyword.compare(PARSELISTEN) == 0)
 				currentServer->setListenPort(std::stol(value));
-			else if (keyword == PARSENAME)
+			else if (keyword.compare(PARSENAME) == 0)
 				currentServer->setName(value);
-			else if (keyword == PARSESIZE)
+			else if (keyword.compare(PARSESIZE) == 0)
 				currentServer->setClientMaxBodySize(std::stol(value));
 		}
 	}
