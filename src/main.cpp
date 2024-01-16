@@ -125,25 +125,17 @@ void runServer(Server *server)
 	delete socket;
 }
 
-int main(int argc, char **argv)
+int main()
 {
-	if (argc != 2 || !argv[1])
-	{
-		std::cerr << "The program needs one configuration file as input\n";
-		return 1;
-	}
+	ConfigParser parser;
+	parser.parseConfig("config/default.conf");
 
-	try
-	{
-		Server *server = initServer();
-		runServer(server);
-
-		delete server;
+	// Access the servers
+	const std::vector<std::shared_ptr<Server>>& servers = parser.getServers();
+	for (std::vector<std::shared_ptr<Server>>::const_iterator it = servers.begin(); it != servers.end(); ++it) {
+		std::shared_ptr<Server> server = *it;
+		if (server) {
+			std::cout << "Methods: " << server->getLocationValue("/", "method") << std::endl;
+		}
 	}
-	catch(const std::logic_error& e)
-	{
-		std::cerr << e.what() << '\n';
-	}
-
-	return 0;
 }

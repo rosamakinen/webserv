@@ -1,6 +1,5 @@
 #include "../include/ConfigParser.hpp"
 #include "../include/Server.hpp"
-#include "ConfigParser.hpp"
 
 void ConfigParser::parseConfig(const std::string& filename) 
 {
@@ -50,24 +49,18 @@ void ConfigParser::processLine(const std::string &line)
 {
 	std::istringstream iss(line);
 	std::string keyword;
+	std::string locationName;
+	vectorMap vStack;
 	iss >> keyword;
 
-	if (keyword.compare(SERVERBLOCK) == 0) 
-	{
-		currentServer = std::make_shared<Server>();
-		servers.push_back(currentServer);
-	}
-	if (keyword.compare(MAINBLOCK) == 0 || keyword.compare(LOCATIONBLOCK) == 0)
+	std::cout << "Stack size: " << sectionStack.size() << std::endl;
+	if (keyword.compare(MAINBLOCK) == 0 || keyword.compare(LOCATIONBLOCK) == 0 || keyword.compare(SERVERBLOCK) == 0)
 	{	
 		currentSection = keyword;
-		if (keyword.compare(LOCATIONBLOCK) == 0) 
+		if (keyword.compare(SERVERBLOCK) == 0) 
 		{
-			// vectorMap locationPair;
-			std::string locationName;
-			iss >> locationName;
-			if (currentSection.find("location") != std::string::npos)
-				// Server::addToVectorMap(locationPair, line);
-				std::cout << line << " this line is inside a location block" << std::endl;
+			currentServer = std::make_shared<Server>();
+			servers.push_back(currentServer);
 		}
 		if (currentSection.compare(MAINBLOCK) == 0)
 		{
@@ -85,10 +78,24 @@ void ConfigParser::processLine(const std::string &line)
 					currentServer->setClientMaxBodySize(std::stol(value));
 			}
 		}
+		if (keyword.compare(LOCATIONBLOCK) == 0) 
+		{
+			iss >> locationName;
+			std::cout << "location name: " << locationName << std::endl;
+		}
+		std::cout << "Triggered line: " << line << std::endl;
 	}
 	// Debugging for Dan, will remove it after putting in the locations.	
-	// else
-		// std::cout << "Processing '" << line << "' in section '" << currentSection << "'" << std::endl;
+	else
+	{
+		if (currentServer)
+		{
+			currentServer->addToVectorMap(vStack, "TEST ME");
+			// currentServer->addToVectorMap(vStack, line);
+		}
+		// std::cout << "vStack Size: " << vStack.size() << std::endl;
+		std::cout << "Normal Line: " << line << " Section: " << currentSection << std::endl;
+	}
 }
 
 std::string ConfigParser::trim(const std::string& str) 
