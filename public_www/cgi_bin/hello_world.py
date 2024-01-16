@@ -1,3 +1,5 @@
+#!/usr/bin/pythons
+
 # Get data from fields
 first_name = form.getvalue('first_name')
 last_name = form.getvalue('last_name')
