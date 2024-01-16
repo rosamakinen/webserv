@@ -2,7 +2,7 @@ NAME		=	webserv
 
 CC			=	c++
 
-CFLAGS		=	-Wall -Werror -Wextra
+CFLAGS		=	-std=c++11 -Wall -Werror -Wextra
 
 # directories
 SRC_DIR		=	src/
@@ -28,7 +28,8 @@ SRC_FILES	=	main \
 				Server \
 				ExceptionManager \
 				Timer \
-				HttpResponseParser
+				HttpResponseParser \
+				FileHandler
 
 H_FILES = Exceptions
 

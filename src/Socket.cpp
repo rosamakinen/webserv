@@ -87,7 +87,7 @@ std::string Socket::readRequest(int connection, unsigned int buffer_size, int *n
 
 	while (1)
 	{
-		int readBytes = read(connection, buffer, buffer_size);
+		int readBytes = recv(connection, buffer, sizeof(buffer), 0);
 		if (readBytes < 0)
 			break;
 		if (readBytes == 0)
@@ -105,7 +105,7 @@ std::string Socket::readRequest(int connection, unsigned int buffer_size, int *n
 
 void Socket::writeResponse(int connection, const std::string response, int *numberOfFds) const
 {
-	int result = write(connection, response.c_str(), response.size());
+	int result = send(connection, response.c_str(), response.size(), 0);
 	if (result < 0)
 	{
 		closeConnection(connection);
