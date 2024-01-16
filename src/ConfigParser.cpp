@@ -65,7 +65,7 @@ void ConfigParser::processLine(const std::string &line)
 			// vectorMap locationPair;
 			std::string locationName;
 			iss >> locationName;
-			if (currentSection.find("location") = std::string::npos)
+			if (currentSection.find("location") != std::string::npos)
 				// Server::addToVectorMap(locationPair, line);
 				std::cout << line << " this line is inside a location block" << std::endl;
 		}
