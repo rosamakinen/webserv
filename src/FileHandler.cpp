@@ -5,6 +5,7 @@ static std::string getFilePath(std::string relativePath)
 {
 	char file_path[MESSAGE_BUFFER];
 	getcwd(file_path, MESSAGE_BUFFER);
+	std::cout << "File trying to access: " << std::string(file_path).append(relativePath) << std::endl;
 	return std::string(file_path).append(relativePath);
 }
 

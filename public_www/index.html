@@ -6,11 +6,14 @@
 	<body>
 		<h1>Hello, stranger!</h1>
 		<p>Chrome sent you a request and you answered!</p>
-		<form action = "../cgi-bin/hello_world.py" method = "post">
+		<form action = "../cgi-bin/hello_world.py" method = "get">
 			First Name: <input type = "text" name = "first_name">  <br />
 			Last Name: <input type = "text" name = "last_name" />
 			<input type = "submit" value = "Submit" />
 		 </form>
+		 <form enctype = "multipart/form-data" action = "../cgi-bin/download_file.py" method = "get">
+			<p>File link:<a href="textFile.txt" download>Click Here</a></p>
+			</form>
 		<p>Well done!</p>
 	</body>
 </html>

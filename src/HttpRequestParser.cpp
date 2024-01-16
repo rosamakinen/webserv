@@ -40,23 +40,23 @@ void HttpRequestParser::parseRequestLine(std::string &requestLine, HttpRequest::
 		throw BadRequestException("Empty requestline");
 
 	method = parseMethod(requestLine);
-	uri = parseNextWord(requestLine);
+	uri = parseUri(requestLine);
 	version = parseVersion(requestLine);
 }
 
 HttpRequest::METHOD HttpRequestParser::parseMethod(std::string &requestLine)
 {
-	if (compareMethod("GET ", requestLine) == 0)
+	if (compareAndSubstring("GET ", requestLine) == 0)
 		return HttpRequest::METHOD::GET;
-	else if (compareMethod("POST ", requestLine) == 0)
+	else if (compareAndSubstring("POST ", requestLine) == 0)
 		return HttpRequest::METHOD::POST;
-	else if (compareMethod("DELETE ", requestLine) == 0)
+	else if (compareAndSubstring("DELETE ", requestLine) == 0)
 		return HttpRequest::METHOD::DELETE;
-	parseNextWord(requestLine);
+	parseMethodStr(requestLine);
 	return HttpRequest::METHOD::NONE;
 }
 
-int	HttpRequestParser::compareMethod(std::string method, std::string &requestLine)
+int	HttpRequestParser::compareAndSubstring(std::string method, std::string &requestLine)
 {
 	if (requestLine.compare(0, method.length(), method) == 0)
 	{
@@ -73,16 +73,30 @@ const std::string HttpRequestParser::parseVersion(std::string &requestLine)
 	return HTTP_VERSION;
 }
 
-const std::string HttpRequestParser::parseNextWord(std::string &requestLine)
+const std::string HttpRequestParser::parseMethodStr(std::string &requestLine)
 {
-	std::string word;
+	std::string method;
 	size_t		pos;
 
 	pos = requestLine.find(' ');
-	word = requestLine.substr(0, pos);
-	requestLine = requestLine.substr(pos, requestLine.length());
+	method = requestLine.substr(0, pos);
+	requestLine = requestLine.substr(pos + 1, requestLine.length());
+	return method;
+}
 
-	return word;
+const std::string HttpRequestParser::parseUri(std::string &requestLine)
+{
+	std::string uri;
+
+	size_t uriPos = requestLine.find('?');
+	size_t paramPos = requestLine.find(' ');
+	if (uriPos < paramPos)
+		uri = requestLine.substr(0, uriPos);
+	else
+		uri = requestLine.substr(0, paramPos);
+
+	requestLine = requestLine.substr(paramPos, requestLine.length());
+	return uri;
 }
 
 const std::string HttpRequestParser::getHeaderValue(std::map<std::string, std::string> &headers, std::string toFind)
@@ -113,7 +127,7 @@ void HttpRequestParser::parseHeader(const std::string &line, std::map<std::strin
 
 void HttpRequestParser::findBody(std::string newLine, bool &bodyFound)
 {
-	if (bodyFound == false && newLine.compare("\r\n"))
+	if (bodyFound == false && newLine.compare(HTTP_LINEBREAK))
 		bodyFound = true;
 }
 
