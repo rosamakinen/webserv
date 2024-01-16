@@ -18,12 +18,11 @@ void ConfigParser::parseConfig(const std::string& filename)
 			line = line.substr(0, commentPos);
 		// Trim whitespace
 		line = trim(line);
-
 		if (!line.empty()) 
 		{
-			if (line == "{") 
+			if (line.compare("{") == 0) 
 				sectionStack.push_back(currentSection); 
-			else if (line == "}") 
+			else if (line.compare("}") == 0) 
 			{
 				if (!sectionStack.empty()) 
 				{
@@ -53,39 +52,43 @@ void ConfigParser::processLine(const std::string &line)
 	std::string keyword;
 	iss >> keyword;
 
-	if (keyword == "server") 
+	if (keyword.compare(SERVERBLOCK) == 0) 
 	{
 		currentServer = std::make_shared<Server>();
 		servers.push_back(currentServer);
 	}
-	if (keyword == "main" || keyword == "location")
-	{
+	if (keyword.compare(MAINBLOCK) == 0 || keyword.compare(LOCATIONBLOCK) == 0)
+	{	
 		currentSection = keyword;
-		if (keyword == "location") 
+		if (keyword.compare(LOCATIONBLOCK) == 0) 
 		{
+			// vectorMap locationPair;
 			std::string locationName;
 			iss >> locationName;
-			currentSection += " " + locationName;
+			if (currentSection.find("location") = std::string::npos)
+				// Server::addToVectorMap(locationPair, line);
+				std::cout << line << " this line is inside a location block" << std::endl;
 		}
-	}
-	if (currentSection == "main")
-	{
-		std::string value;
-		iss >> value;;
-		if (currentServer)
+		if (currentSection.compare(MAINBLOCK) == 0)
 		{
-			if (keyword.compare(PARSEHOST) == 0)
-				currentServer->setHostIp(value);
-			else if (keyword.compare(PARSELISTEN) == 0)
-				currentServer->setListenPort(std::stol(value));
-			else if (keyword.compare(PARSENAME) == 0)
-				currentServer->setName(value);
-			else if (keyword.compare(PARSESIZE) == 0)
-				currentServer->setClientMaxBodySize(std::stol(value));
+			std::string value;
+			iss >> value;;
+			if (currentServer)
+			{
+				if (keyword.compare(PARSEHOST) == 0)
+					currentServer->setHostIp(value);
+				else if (keyword.compare(PARSELISTEN) == 0)
+					currentServer->setListenPort(std::stol(value));
+				else if (keyword.compare(PARSENAME) == 0)
+					currentServer->setName(value);
+				else if (keyword.compare(PARSESIZE) == 0)
+					currentServer->setClientMaxBodySize(std::stol(value));
+			}
 		}
 	}
 	// Debugging for Dan, will remove it after putting in the locations.	
-	// std::cout << "Processing '" << line << "' in section '" << currentSection << "'" << std::endl;
+	// else
+		// std::cout << "Processing '" << line << "' in section '" << currentSection << "'" << std::endl;
 }
 
 std::string ConfigParser::trim(const std::string& str) 

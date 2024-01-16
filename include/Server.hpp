@@ -30,7 +30,7 @@ class Server
 		void								setHostIp(std::string hostIp);
 		void								setClientMaxBodySize(size_t clientMaxBodySize);
 		void								setLocation(std::string key, vectorMap locationValues);
-		void								addToVectorMap(vectorMap &vMap, std::string values);
+		static void							addToVectorMap(vectorMap &vMap, std::string values);
 
 		//Getters
 		std::string							getName() const;
