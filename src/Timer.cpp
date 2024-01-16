@@ -1,5 +1,6 @@
 
 #include "../include/WebServer.hpp"
+#include "../include/Timer.hpp"
 
 const std::string Timer::GetTimeDateString()
 {

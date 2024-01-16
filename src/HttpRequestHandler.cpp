@@ -4,7 +4,6 @@
 
 HttpResponse HttpRequestHandler::handleRequest(HttpRequest input)
 {
-	//committing to save progress and merge new branch to get latest changes
 	switch (input.getMethod())
 	{
 		case HttpRequest::METHOD::GET:
