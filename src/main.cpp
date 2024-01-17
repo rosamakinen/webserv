@@ -140,30 +140,6 @@ void printVector(const std::vector<std::string>* vecPtr)
 	}
 }
 
-// OLD MAIN
-// int main(int argc, char **argv)
-// {
-// 	if (argc != 2 || !argv[1])
-// 	{
-// 		std::cerr << "The program needs one configuration file as input\n";
-// 		return 1;
-// 	}
-
-// 	try
-// 	{
-// 		Server *server = initServer();
-// 		runServer(server);
-
-// 		delete server;
-// 	}
-// 	catch(const std::logic_error& e)
-// 	{
-// 		std::cerr << e.what() << '\n';
-// 	}
-
-// 	return 0;
-// }
-
 int main()
 {
 	ConfigParser parser;
