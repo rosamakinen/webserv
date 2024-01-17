@@ -10,12 +10,14 @@ private:
 	std::string currentSection;
 	std::vector<std::shared_ptr<Server> > servers;
 	std::shared_ptr<Server> currentServer;
+	vectorMap vStack;
+	std::string currentLocation;
 
-	void processLine(const std::string& line);
-	std::string trim(const std::string& str);
+	void processLine(const std::string &line);
 
 public:
 	void parseConfig(const std::string& filename);
 	const std::vector<std::shared_ptr<Server> >& getServers() const;
+	void clearMap(vectorMap& vMap);
 };
 
