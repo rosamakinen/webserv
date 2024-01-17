@@ -31,7 +31,8 @@ SRC_FILES	=	main \
 				Timer \
 				HttpResponseParser \
 				FileHandler \
-				ConfigParser
+				ConfigParser \
+				CgiHandler
 
 H_FILES =	Exceptions \
 			Timer \
@@ -44,7 +45,8 @@ H_FILES =	Exceptions \
 			ExceptionManager \
 			Timer \
 			HttpResponseParser \
-			FileHandler
+			FileHandler \
+			CgiHandler
 
 #paths
 SRC	=	$(addprefix $(SRC_DIR), $(addsuffix .cpp, $(SRC_FILES)))
