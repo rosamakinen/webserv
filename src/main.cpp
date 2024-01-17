@@ -140,7 +140,7 @@ void printVector(const std::vector<std::string>* vecPtr)
 	}
 }
 
-int main()
+void dansTestFunc()
 {
 	ConfigParser parser;
 	parser.parseConfig("config/default.conf");
@@ -157,4 +157,27 @@ int main()
 			printVector(server->getLocationValue("/cgi-bin", "directory"));
 		}
 	}
+}
+
+int main(int argc, char **argv)
+{
+	if (argc != 2 || !argv[1])
+	{
+		dansTestFunc();
+		return 0;
+	}
+
+	try
+	{
+		Server *server = initServer();
+		runServer(server);
+
+		delete server;
+	}
+	catch(const std::logic_error& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+
+	return 0;
 }
