@@ -63,36 +63,6 @@ int Socket::acceptConnection() const
 	return connection;
 }
 
-void Socket::closeConnection(int& connection) const
-{
-	isCallValid(close(connection), "Failed to close connection", -1, false);
-	connection = -1;
-}
-
-std::string Socket::readRequest(int connection, unsigned int buffer_size) const
-{
-	char buffer[buffer_size];
-	std::string input;
-
-	while (1)
-	{
-		int readBytes = recv(connection, buffer, sizeof(buffer), 0);
-		if (readBytes <= 0)
-			break;
-		buffer[readBytes] = '\0';
-		input.append(buffer);
-	}
-
-	return input;
-}
-
-void Socket::writeResponse(int connection, const std::string response) const
-{
-	int result = send(connection, response.c_str(), response.size(), 0);
-	if (result < 0)
-		throw InternalException("Could not send response");
-}
-
 int Socket::getFd() const
 {
 	return this->_fd;

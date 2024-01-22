@@ -1,33 +1,37 @@
 #include "HttpRequestHandler.hpp"
-#include "FileHandler.hpp"
-#include "ExceptionManager.hpp"
 
-HttpResponse HttpRequestHandler::handleRequest(HttpRequest input)
+void HttpRequestHandler::handleRequest(Client *client)
 {
-	switch (input.getMethod())
+	switch (client->getRequest()->getMethod())
 	{
 		case HttpRequest::METHOD::GET:
-			return HttpResponse(std::pair<unsigned int, std::string>(200, "OK"), input.getUri());
-			break;
+		{
+			HttpResponse *response = new HttpResponse(std::pair<unsigned int, std::string>(200, "OK"), client->getRequest()->getUri());
+			client->setResponse(response);
+			client->setStatus(Client::STATUS::OUTGOING);
+			return;
+		}
 
 		case HttpRequest::METHOD::POST:
 
-			break;
+			return;
 
 		case HttpRequest::METHOD::DELETE:
 
-			break;
+			return;
 
 		default :
 			throw MethodNotAllowedException("Method not allowed");
 			break;
 	}
-	return HttpResponse(ExceptionManager::getErrorStatus(InternalException("Something went wrong")), "");
+
+	HttpResponse *response = new HttpResponse(ExceptionManager::getErrorStatus(InternalException("Something went wrong")), "");
+	client->setResponse(response);
+	client->setStatus(Client::STATUS::OUTGOING);
 }
 
 HttpRequestHandler::HttpRequestHandler()
 {
-
 }
 
 HttpRequestHandler::~HttpRequestHandler()

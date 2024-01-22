@@ -12,17 +12,10 @@
 #include "../include/HttpRequestHandler.hpp"
 #include "../include/FileHandler.hpp"
 #include "../include/ConfigParser.hpp"
+#include "../include/Client.hpp"
 
-Server* initServer()
-{
-	Server *server = new Server();
-	server->setHostIp("127.0.0.1");
-	server->setListenPort(8000);
-	server->setName("localhost");
-	server->setClientMaxBodySize(1000);
-
-	return server;
-}
+std::vector<pollfd> pollfds;
+std::map<int, Client*> _clients;
 
 void	isCallValid(const int fd, const std::string errorMsg, int closeFd)
 {
@@ -34,12 +27,12 @@ void	isCallValid(const int fd, const std::string errorMsg, int closeFd)
 	}
 }
 
-void addNewPoll(std::vector<pollfd>& fds, int fd)
+void addNewPoll(int fd)
 {
-	fds.push_back({fd, POLLIN, 0});
+	pollfds.push_back({fd, POLLIN, 0});
 }
 
-void	handleNewClient(Socket *socket, std::vector<pollfd>& fds)
+void	handleNewClient(Socket *socket)
 {
 	int newClientFd = -1;
 	while (1)
@@ -47,33 +40,144 @@ void	handleNewClient(Socket *socket, std::vector<pollfd>& fds)
 		newClientFd = socket->acceptConnection();
 		if (newClientFd < 0)
 			break ;
-		addNewPoll(fds, newClientFd);
+		addNewPoll(newClientFd);
 	}
 }
 
-void closeConnections(std::vector<pollfd> fds)
+void closeConnections()
 {
-	for (std::vector<pollfd>::iterator it = fds.begin(); it != fds.end(); it++)
+	for (std::vector<pollfd>::iterator it = pollfds.begin(); it != pollfds.end(); it++)
 	{
 		if (it->fd > 0)
 		{
 			close(it->fd);
 			it->fd = -1;
 		}
-		fds.erase(it);
+		pollfds.erase(it);
 	}
 }
 
-void runServer(Server *server)
+void closeConnection(int fd)
 {
-	Socket *socket = new Socket(server->getListenPort());
+	for (std::vector<pollfd>::iterator it = pollfds.begin(); it != pollfds.end(); it++)
+	{
+		if (fd == it->fd)
+		{
+			if (it->fd > 0)
+			{
+				close(it->fd);
+				it->fd = -1;
+			}
+			pollfds.erase(it);
+			break;
+		}
+	}
+}
 
-	// Initialize poll struct for sockets and clients
-	int socketFd = socket->getFd();
-	// Add socket fd to pollfds to listen to connections
-	std::vector<pollfd> pollfds;
-	addNewPoll(pollfds, socketFd);
+std::string readRequest(int connection, unsigned int buffer_size)
+{
+	char buffer[buffer_size];
+	std::string input;
 
+	while (1)
+	{
+		int readBytes = recv(connection, buffer, sizeof(buffer), 0);
+		if (readBytes < 0)
+			break;
+		if (readBytes == 0)
+		{
+			closeConnection(connection);
+			break;
+		}
+		buffer[readBytes] = '\0';
+		input.append(buffer);
+	}
+
+	return input;
+}
+
+void writeResponse(int connection, const std::string response)
+{
+	int result = send(connection, response.c_str(), response.size(), 0);
+	if (result < 0)
+		throw InternalException("Could not send response");
+}
+
+bool incomingClient(int fd, std::vector<Server>& servers)
+{
+	for (std::vector<Server>::iterator it = servers.begin(); it != servers.end(); it++)
+	{
+		Socket *socket = it->getSocket();
+		if (fd == socket->getFd())
+		{
+			handleNewClient(socket);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void handleIncomingRequest(pollfd *fd)
+{
+	Client *client;
+	std::map<int, Client*>::iterator it = _clients.find(fd->fd);
+	if (it == _clients.end())
+		client = new Client();
+	else
+		client = it->second;
+
+	std::pair<std::map<int, Client*>::iterator, bool> result;
+	result = _clients.insert(std::pair<int, Client*>(fd->fd, client));
+	if (!result.second)
+		throw BadRequestException("Connection already established with this client");
+
+	std::string requestString = readRequest(fd->fd, 1000);
+	HttpRequestParser requestParser;
+	HttpRequest *request = requestParser.parseHttpRequest(requestString);
+
+	client->setRequest(request);
+	client->setStatus(Client::INCOMING);
+
+	HttpRequestHandler requestHandler;
+	requestHandler.handleRequest(client);
+
+	fd->events = POLLOUT;
+}
+
+void handleOutgoingResponse(pollfd *fd)
+{
+	std::map<int, Client*>::iterator it = _clients.find(fd->fd);
+	if (it == _clients.end())
+		return;
+	writeResponse(fd->fd, HttpResponseParser::Parse(*it->second->getResponse()));
+	_clients.erase(it);
+}
+
+void handleOutgoingError(const Exception& e, pollfd *fd)
+{
+	HttpResponse *response = new HttpResponse(ExceptionManager::getErrorStatus(e), "");
+	fd->events = POLLOUT;
+
+	std::map<int, Client*>::iterator it = _clients.find(fd->fd);
+	if (it == _clients.end())
+	{
+		Client *client = new Client();
+		client->setResponse(response);
+		client->setStatus(Client::OUTGOING);
+
+		std::pair<std::map<int, Client*>::iterator, bool> result;
+		result = _clients.insert(std::pair<int, Client*>(fd->fd, client));
+		if (!result.second)
+			throw BadRequestException("Connection already established with this client");
+	}
+
+	it->second->setResponse(response);
+	it->second->setStatus(Client::OUTGOING);
+}
+
+void runServers(std::vector<Server>& servers)
+{
 	bool keepRunning = true;
 	std::string requestString;
 	while (keepRunning)
@@ -89,40 +193,35 @@ void runServer(Server *server)
 		{
 			if (pollfds[i].revents == 0)
 				continue;
-			if (pollfds[i].fd == socketFd)
-				handleNewClient(socket, pollfds);
-			else if (pollfds[i].revents == POLLIN)
+			if (incomingClient(pollfds[i].fd, servers))
+				continue;
+			else if (pollfds[i].revents & POLLIN)
 			{
 				try
 				{
-					requestString = socket->readRequest(pollfds[i].fd, server->getClientMaxBodySize());
-					if (requestString.compare("Q\r\n") == 0)
-					{
-						keepRunning = false;
-						break ;
-					}
-
-					std::cout << "Request from '" << i << "' was: " << requestString;
-					HttpRequestParser requestParser;
-					HttpRequest request = requestParser.parseHttpRequest(requestString);
-
-					HttpRequestHandler requestHandler;
-					HttpResponse response = requestHandler.handleRequest(request);
-
-					socket->writeResponse(pollfds[i].fd, HttpResponseParser::Parse(response, server));
+					handleIncomingRequest(&pollfds[i]);
 				}
 				catch (const Exception& e)
 				{
-					HttpResponse response(ExceptionManager::getErrorStatus(e), "");
-					socket->writeResponse(pollfds[i].fd, HttpResponseParser::Parse(response, server));
+					handleOutgoingError(e, &pollfds[i]);
+				}
+			}
+			else if (pollfds[i].revents & POLLOUT)
+			{
+				try
+				{
+					handleOutgoingResponse(&pollfds[i]);
+				}
+				catch (const Exception& e)
+				{
+					handleOutgoingError(e, &pollfds[i]);
 				}
 			}
 		}
 	}
 
-	closeConnections(pollfds);
+	closeConnections();
 	pollfds.clear();
-	delete socket;
 }
 
 // Candidate for removal after testing
@@ -159,6 +258,19 @@ void dansTestFunc()
 	}
 }
 
+Server& initServer()
+{
+	Server *server = new Server();
+	server->setHostIp("127.0.0.1");
+	server->setListenPort(8000);
+	server->setName("localhost");
+	server->setClientMaxBodySize(1000);
+	server->setSocket();
+	addNewPoll(server->getSocket()->getFd());
+
+	return *server;
+}
+
 int main(int argc, char **argv)
 {
 	if (argc != 2 || !argv[1])
@@ -169,10 +281,12 @@ int main(int argc, char **argv)
 
 	try
 	{
-		Server *server = initServer();
-		runServer(server);
+		Server server = initServer();
+		std::vector<Server> servers;
+		servers.push_back(server);
+		runServers(servers);
 
-		delete server;
+		servers.clear();
 	}
 	catch(const std::logic_error& e)
 	{

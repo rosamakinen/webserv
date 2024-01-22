@@ -4,7 +4,7 @@ HttpRequestParser::HttpRequestParser() {}
 
 HttpRequestParser::~HttpRequestParser() {}
 
-HttpRequest HttpRequestParser::parseHttpRequest(std::string requestInput)
+HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput)
 {
 	std::stringstream					ss(requestInput);
 	std::string requestLine, uri, version;
@@ -30,7 +30,7 @@ HttpRequest HttpRequestParser::parseHttpRequest(std::string requestInput)
 	}
 
 	std::string host = getHeaderValue(headers, "Host");
-	HttpRequest request(method, version, uri, host, "body", 14);
+	HttpRequest *request = new HttpRequest(method, version, uri, host, "body", 14);
 	return request;
 }
 
