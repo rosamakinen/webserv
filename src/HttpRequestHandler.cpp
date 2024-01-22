@@ -5,14 +5,11 @@ HttpResponse HttpRequestHandler::handleRequest(HttpRequest input)
 {
 	bool cgiFound = false;
 	cgiFound = findCgi(input.getUri());
-
 	switch (input.getMethod())
 	{
 		case HttpRequest::METHOD::GET:
 			if (cgiFound == true)
-			{
 				std::cout << "here we would go to execute the script" << std::endl;
-			}
 			return HttpResponse(std::pair<unsigned int, std::string>(200, "OK"), input.getUri());
 			break;
 
@@ -33,10 +30,13 @@ HttpResponse HttpRequestHandler::handleRequest(HttpRequest input)
 
 bool HttpRequestHandler::findCgi(std::string uri)
 {
-	size_t found = uri.find("/bin-cgi");
+	size_t found = uri.find("/cgi_bin");
 	if (found != std::string::npos)
-		return false;
-	return validateCgi(uri);
+	{
+		bool ret = validateCgi(uri);
+		return ret;
+	}
+	return false;
 }
 
 bool HttpRequestHandler::validateCgi(std::string uri)
@@ -46,8 +46,7 @@ bool HttpRequestHandler::validateCgi(std::string uri)
 
 	if (access(fullPath.c_str(), F_OK) == 0)
 	{
-		std::cout << "found access to the correct folder" << std::endl;
-		int pos = fullPath.find(".py");
+		int pos = fullPath.find(suffix);
 		std::string extension = fullPath.substr(pos, fullPath.length());
 		if (extension.compare(suffix) == 0)
 			return true;
