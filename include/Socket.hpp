@@ -27,8 +27,8 @@ class Socket
 		int					acceptConnection() const;
 		void				closeConnections(pollfd *pollfd, int size) const;
 		void				closeConnection(int& connection) const;
-		std::string			readRequest(int connection, unsigned int buffer_size, int *numberOfFds) const;
-		void				writeResponse(int connection, const std::string response, int *numberOfFds) const;
+		std::string			readRequest(int connection, unsigned int buffer_size) const;
+		void				writeResponse(int connection, const std::string response) const;
 
 		int					getFd() const;
 

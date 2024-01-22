@@ -69,18 +69,7 @@ void Socket::closeConnection(int& connection) const
 	connection = -1;
 }
 
-void Socket::closeConnections(pollfd *pollfd, int size) const
-{
-	for (int i = 0; i < size; i++)
-	{
-		if (pollfd[i].fd == this->_fd)
-			continue;
-		if (pollfd[i].fd > 0)
-			closeConnection(pollfd[i].fd);
-	}
-}
-
-std::string Socket::readRequest(int connection, unsigned int buffer_size, int *numberOfFds) const
+std::string Socket::readRequest(int connection, unsigned int buffer_size) const
 {
 	char buffer[buffer_size];
 	std::string input;
@@ -88,14 +77,8 @@ std::string Socket::readRequest(int connection, unsigned int buffer_size, int *n
 	while (1)
 	{
 		int readBytes = recv(connection, buffer, sizeof(buffer), 0);
-		if (readBytes < 0)
+		if (readBytes <= 0)
 			break;
-		if (readBytes == 0)
-		{
-			closeConnection(connection);
-			*numberOfFds -= 1;
-			break;
-		}
 		buffer[readBytes] = '\0';
 		input.append(buffer);
 	}
@@ -103,14 +86,11 @@ std::string Socket::readRequest(int connection, unsigned int buffer_size, int *n
 	return input;
 }
 
-void Socket::writeResponse(int connection, const std::string response, int *numberOfFds) const
+void Socket::writeResponse(int connection, const std::string response) const
 {
 	int result = send(connection, response.c_str(), response.size(), 0);
 	if (result < 0)
-	{
-		closeConnection(connection);
-		*numberOfFds -= 1;
-	}
+		throw InternalException("Could not send response");
 }
 
 int Socket::getFd() const

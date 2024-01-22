@@ -34,23 +34,12 @@ void	isCallValid(const int fd, const std::string errorMsg, int closeFd)
 	}
 }
 
-pollfd	*addNewPoll(pollfd *fds, int size, int fd, short events)
+void addNewPoll(std::vector<pollfd>& fds, int fd)
 {
-	struct pollfd *newFds = new pollfd[size + 1];
-
-	if (fds != NULL)
-	{
-		for (int i = 0; i < size; i++)
-			newFds[i] = fds[i];
-		delete [] fds;
-	}
-	newFds[size].fd = fd;
-	newFds[size].events = events;
-
-	return newFds;
+	fds.push_back({fd, POLLIN, 0});
 }
 
-void	handleNewClient(int *numberOfFds, Socket *socket, pollfd **fds)
+void	handleNewClient(Socket *socket, std::vector<pollfd>& fds)
 {
 	int newClientFd = -1;
 	while (1)
@@ -58,8 +47,20 @@ void	handleNewClient(int *numberOfFds, Socket *socket, pollfd **fds)
 		newClientFd = socket->acceptConnection();
 		if (newClientFd < 0)
 			break ;
-		*fds = addNewPoll(*fds, *numberOfFds, newClientFd, POLLIN);
-		*numberOfFds += 1;
+		addNewPoll(fds, newClientFd);
+	}
+}
+
+void closeConnections(std::vector<pollfd> fds)
+{
+	for (std::vector<pollfd>::iterator it = fds.begin(); it != fds.end(); it++)
+	{
+		if (it->fd > 0)
+		{
+			close(it->fd);
+			it->fd = -1;
+		}
+		fds.erase(it);
 	}
 }
 
@@ -68,34 +69,33 @@ void runServer(Server *server)
 	Socket *socket = new Socket(server->getListenPort());
 
 	// Initialize poll struct for sockets and clients
-	int numberOfFds = 1, currentFdsSize = 0, socketFd = socket->getFd();
-	struct pollfd *fds = NULL;
+	int socketFd = socket->getFd();
 	// Add socket fd to pollfds to listen to connections
-	fds = addNewPoll(fds, currentFdsSize, socketFd, POLLIN);
+	std::vector<pollfd> pollfds;
+	addNewPoll(pollfds, socketFd);
 
 	bool keepRunning = true;
+	std::string requestString;
 	while (keepRunning)
 	{
 		// Wait max 3 minutes for incoming traffic
-		int result = poll(fds, numberOfFds, CONNECTION_TIMEOUT);
+		int result = poll(pollfds.data(), pollfds.size(), CONNECTION_TIMEOUT);
 		if (result == 0)
 			throw TimeOutException("The program excited with timeout");
 		else if (result < 0)
 			throw PollException("Poll failed");
 
-		currentFdsSize = numberOfFds;
-		std::string requestString;
-		for (int i = 0; i < currentFdsSize; i ++)
+		for (unsigned long i = 0; i < pollfds.size(); i ++)
 		{
-			if (fds[i].revents == 0)
+			if (pollfds[i].revents == 0)
 				continue;
-			if (fds[i].fd == socketFd)
-				handleNewClient(&numberOfFds, socket, &fds);
-			else if (fds[i].revents == POLLIN)
+			if (pollfds[i].fd == socketFd)
+				handleNewClient(socket, pollfds);
+			else if (pollfds[i].revents == POLLIN)
 			{
 				try
 				{
-					requestString = socket->readRequest(fds[i].fd, server->getClientMaxBodySize(), &numberOfFds);
+					requestString = socket->readRequest(pollfds[i].fd, server->getClientMaxBodySize());
 					if (requestString.compare("Q\r\n") == 0)
 					{
 						keepRunning = false;
@@ -109,19 +109,19 @@ void runServer(Server *server)
 					HttpRequestHandler requestHandler;
 					HttpResponse response = requestHandler.handleRequest(request);
 
-					socket->writeResponse(fds[i].fd, HttpResponseParser::Parse(response, server), &numberOfFds);
+					socket->writeResponse(pollfds[i].fd, HttpResponseParser::Parse(response, server));
 				}
 				catch (const Exception& e)
 				{
 					HttpResponse response(ExceptionManager::getErrorStatus(e), "");
-					socket->writeResponse(fds[i].fd, HttpResponseParser::Parse(response, server), &numberOfFds);
+					socket->writeResponse(pollfds[i].fd, HttpResponseParser::Parse(response, server));
 				}
 			}
 		}
 	}
 
-	socket->closeConnections(fds, currentFdsSize);
-	delete [] fds;
+	closeConnections(pollfds);
+	pollfds.clear();
 	delete socket;
 }
 
