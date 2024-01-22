@@ -23,11 +23,11 @@ static bool validIp(const std::string& ip)
 	int segmentCount = 0;
 	int segmentValue;
 
-	while (std::getline(ss, segment, '.')) {
+	while (std::getline(ss, segment, '.'))
+	{
 		segmentCount++;
-		if (!(std::istringstream(segment) >> segmentValue) || segmentValue < 0 || segmentValue > 255) {
+		if (!(std::istringstream(segment) >> segmentValue) || segmentValue < 0 || segmentValue > 255)
 			return false;
-		}
 	}
 	return segmentCount == 4;
 }
