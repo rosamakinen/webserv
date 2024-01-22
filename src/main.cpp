@@ -143,7 +143,7 @@ void printVector(const std::vector<std::string>* vecPtr)
 void dansTestFunc()
 {
 	ConfigParser parser;
-	parser.parseConfig("config/default.conf");
+	parser.parseConfig("config/danTest.conf");
 
 	// Access the servers
 	const std::vector<std::shared_ptr<Server>>& servers = parser.getServers();
@@ -151,28 +151,33 @@ void dansTestFunc()
 		std::shared_ptr<Server> server = *it;
 		if (server)
 		{
+			std::cout << "IP: " << server->getHostIp() << " Port: " << server->getListenPort() << " Name: " << server->getName() << std::endl;
 			std::cout << "Methods: ";
 			printVector(server->getLocationValue("/", "method"));
+			std::cout << "Methods: ";
 			printVector(server->getLocationValue("/tmp", "method"));
 			printVector(server->getLocationValue("/cgi-bin", "directory"));
 		}
 	}
+	exit(0);
 }
 
 int main(int argc, char **argv)
 {
-	if (argc != 2 || !argv[1])
-	{
-		dansTestFunc();
-		return 0;
-	}
+	std::string configFile;
 
+	if (argc != 2 || !argv[1])
+		std::cout << "Balls" << std::endl;
+	// 	configFile = "config/default.conf";
+	// else
+	// 	configFile = argv[1];
 	try
 	{
-		Server *server = initServer();
-		runServer(server);
+		dansTestFunc();
+		// Server *server = initServer();
+		// runServer(server);
 
-		delete server;
+		// delete server;
 	}
 	catch(const std::logic_error& e)
 	{
