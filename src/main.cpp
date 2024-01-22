@@ -123,25 +123,24 @@ void handleIncomingRequest(pollfd *fd)
 	Client *client;
 	std::map<int, Client*>::iterator it = _clients.find(fd->fd);
 	if (it == _clients.end())
+	{
 		client = new Client();
+		std::pair<std::map<int, Client*>::iterator, bool> result;
+		result = _clients.insert(std::pair<int, Client*>(fd->fd, client));
+		if (!result.second)
+			throw BadRequestException("Connection already established with this client");
+	}
 	else
 		client = it->second;
-
-	std::pair<std::map<int, Client*>::iterator, bool> result;
-	result = _clients.insert(std::pair<int, Client*>(fd->fd, client));
-	if (!result.second)
-		throw BadRequestException("Connection already established with this client");
 
 	std::string requestString = readRequest(fd->fd, 1000);
 	HttpRequestParser requestParser;
 	HttpRequest *request = requestParser.parseHttpRequest(requestString);
-
 	client->setRequest(request);
-	client->setStatus(Client::INCOMING);
 
+	// TODO: separate to handler part
 	HttpRequestHandler requestHandler;
 	requestHandler.handleRequest(client);
-
 	fd->events = POLLOUT;
 }
 
@@ -157,30 +156,57 @@ void handleOutgoingResponse(pollfd *fd)
 void handleOutgoingError(const Exception& e, pollfd *fd)
 {
 	HttpResponse *response = new HttpResponse(ExceptionManager::getErrorStatus(e), "");
-	fd->events = POLLOUT;
 
 	std::map<int, Client*>::iterator it = _clients.find(fd->fd);
-	if (it == _clients.end())
+	if (it != _clients.end())
 	{
-		Client *client = new Client();
-		client->setResponse(response);
-		client->setStatus(Client::OUTGOING);
-
-		std::pair<std::map<int, Client*>::iterator, bool> result;
-		result = _clients.insert(std::pair<int, Client*>(fd->fd, client));
-		if (!result.second)
-			throw BadRequestException("Connection already established with this client");
+		it->second->setResponse(response);
+		fd->events = POLLOUT;
+		return;
 	}
 
-	it->second->setResponse(response);
-	it->second->setStatus(Client::OUTGOING);
+	Client *client = new Client();
+	client->setResponse(response);
+	std::pair<std::map<int, Client*>::iterator, bool> result;
+	result = _clients.insert(std::pair<int, Client*>(fd->fd, client));
+	if (!result.second)
+		throw BadRequestException("Connection already established with this client");
+	fd->events = POLLOUT;
+}
+
+void handleRevent(pollfd *fd, void (*handlerFunc)(pollfd *))
+{
+	try
+	{
+		handlerFunc(fd);
+	}
+	catch (const Exception& e)
+	{
+		handleOutgoingError(e, fd);
+	}
+}
+
+void handlePollEvents(std::vector<Server>& servers)
+{
+	for (unsigned long i = 0; i < pollfds.size(); i ++)
+	{
+		if (pollfds[i].revents == 0)
+			continue;
+		if (incomingClient(pollfds[i].fd, servers))
+			continue;
+		else if (pollfds[i].revents & POLLIN)
+		{
+			handleRevent(&pollfds[i], handleIncomingRequest);
+			continue;
+		}
+		else if (pollfds[i].revents & POLLOUT)
+			handleRevent(&pollfds[i], handleOutgoingResponse);
+	}
 }
 
 void runServers(std::vector<Server>& servers)
 {
-	bool keepRunning = true;
-	std::string requestString;
-	while (keepRunning)
+	while (1)
 	{
 		// Wait max 3 minutes for incoming traffic
 		int result = poll(pollfds.data(), pollfds.size(), CONNECTION_TIMEOUT);
@@ -188,36 +214,7 @@ void runServers(std::vector<Server>& servers)
 			throw TimeOutException("The program excited with timeout");
 		else if (result < 0)
 			throw PollException("Poll failed");
-
-		for (unsigned long i = 0; i < pollfds.size(); i ++)
-		{
-			if (pollfds[i].revents == 0)
-				continue;
-			if (incomingClient(pollfds[i].fd, servers))
-				continue;
-			else if (pollfds[i].revents & POLLIN)
-			{
-				try
-				{
-					handleIncomingRequest(&pollfds[i]);
-				}
-				catch (const Exception& e)
-				{
-					handleOutgoingError(e, &pollfds[i]);
-				}
-			}
-			else if (pollfds[i].revents & POLLOUT)
-			{
-				try
-				{
-					handleOutgoingResponse(&pollfds[i]);
-				}
-				catch (const Exception& e)
-				{
-					handleOutgoingError(e, &pollfds[i]);
-				}
-			}
-		}
+		handlePollEvents(servers);
 	}
 
 	closeConnections();
