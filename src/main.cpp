@@ -195,10 +195,7 @@ void handlePollEvents(std::vector<Server>& servers)
 		if (incomingClient(pollfds[i].fd, servers))
 			continue;
 		else if (pollfds[i].revents & POLLIN)
-		{
 			handleRevent(&pollfds[i], handleIncomingRequest);
-			continue;
-		}
 		else if (pollfds[i].revents & POLLOUT)
 			handleRevent(&pollfds[i], handleOutgoingResponse);
 	}
