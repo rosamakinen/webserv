@@ -25,5 +25,5 @@ class HttpRequestParser
 		HttpRequestParser();
 		~HttpRequestParser();
 
-		HttpRequest				parseHttpRequest(std::string request);
+		HttpRequest				*parseHttpRequest(std::string request);
 };

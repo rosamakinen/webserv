@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../include/WebServer.hpp"
-
+#include "../include/Socket.hpp"
 
 class Server
 {
@@ -11,6 +11,7 @@ class Server
 		std::string			_hostIp;
 		size_t				_clientMaxBodySize;
 		locationMap			_locations;
+		Socket				*_socket;
 
 	public:
 		Server();
@@ -26,6 +27,7 @@ class Server
 
 		//Setters
 		void								setName(std::string serverName);
+		void								setSocket();
 		void								setListenPort(size_t listenPort);
 		void								setHostIp(std::string hostIp);
 		void								setClientMaxBodySize(size_t clientMaxBodySize);
@@ -34,6 +36,7 @@ class Server
 
 		//Getters
 		std::string							getName() const;
+		Socket								*getSocket() const;
 		size_t								getListenPort() const;
 		std::string							getHostIp() const;
 		size_t								getClientMaxBodySize() const;

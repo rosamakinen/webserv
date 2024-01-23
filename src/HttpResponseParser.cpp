@@ -1,7 +1,7 @@
 
 #include "../include/HttpResponseParser.hpp"
 
-std::string HttpResponseParser::Parse(const HttpResponse &response, Server *server)
+std::string HttpResponseParser::Parse(const HttpResponse &response)
 {
 	std::string responseString;
 
@@ -15,9 +15,6 @@ std::string HttpResponseParser::Parse(const HttpResponse &response, Server *serv
 
 	responseString.append("Date: ");
 	responseString.append(Timer::GetTimeDateString());
-	responseString.append(HTTP_LINEBREAK);
-	responseString.append("Server: ");
-	responseString.append(server->getName());
 	responseString.append(HTTP_LINEBREAK);
 	responseString.append("Content-Length: ");
 	responseString.append(std::to_string(response.getContentLenght()));
