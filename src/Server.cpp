@@ -9,8 +9,7 @@ Server::~Server()
 {
 	if (this->_socket)
 		delete this->_socket;
-	if (!this->_locations.empty())
-		this->_locations.clear();
+	this->_locations.clear();
 }
 
 Server::Server( std::string serverName,	size_t listenPort, std::string hostIp,
