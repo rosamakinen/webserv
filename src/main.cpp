@@ -3,21 +3,6 @@
 #include "../include/ServerHandler.hpp"
 #include "../include/ConfigParser.hpp"
 
-// Candidate for removal after testing
-void printVector(const std::vector<std::string>* vecPtr)
-{
-	if (vecPtr)
-	{
-		for (std::vector<std::string>::const_iterator it = vecPtr->begin(); it != vecPtr->end(); ++it)
-		{
-			std::cout << *it;
-			if (it + 1 != vecPtr->end())
-				std::cout << ", ";
-		}
-		std::cout << std::endl;
-	}
-}
-
 Server& initServer()
 {
 	Server *server = new Server();
@@ -33,8 +18,9 @@ Server& initServer()
 int main(int argc, char **argv)
 {
 	if (argc != 2 || !argv[1])
-	{
-		return 0;
+	{	
+			std::cout << "This is a placeholder for the default config.";
+			return 0;
 	}
 
 	try
@@ -51,9 +37,8 @@ int main(int argc, char **argv)
 		servers.clear();
 	}
 	catch(const std::logic_error& e)
-	{
-		std::cerr << e.what() << '\n';
-	}
-
+		{
+			std::cerr << e.what() << '\n';
+		}
 	return 0;
 }

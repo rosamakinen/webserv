@@ -23,6 +23,7 @@
 
 #include <vector>
 #include <map>
+#include <set>
 #include <utility> // pair
 #include <algorithm>
 #include <typeinfo>
