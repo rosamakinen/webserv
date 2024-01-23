@@ -21,6 +21,7 @@ int main(int argc, char **argv)
 	{	
 		try
 		{
+			std::cout << "This is a placeholder for the default config.";
 			return 0;
 		}
 		catch(const std::logic_error& e)
