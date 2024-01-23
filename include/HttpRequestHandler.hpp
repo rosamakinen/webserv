@@ -8,8 +8,13 @@
 #include "ExceptionManager.hpp"
 #include "Client.hpp"
 
+
 class HttpRequestHandler
 {
+	private:
+		bool 	findCgi(std::string uri);
+		bool	validateCgi(std::string uri);
+		
 	public:
 		HttpRequestHandler();
 		~HttpRequestHandler();

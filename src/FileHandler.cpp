@@ -1,7 +1,7 @@
 #include "../include/FileHandler.hpp"
 #include "../include/WebServer.hpp"
 
-static std::string getFilePath(std::string relativePath)
+std::string FileHandler::getFilePath(std::string relativePath)
 {
 	char file_path[MESSAGE_BUFFER];
 	getcwd(file_path, MESSAGE_BUFFER);
