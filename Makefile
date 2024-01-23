@@ -2,7 +2,7 @@ NAME		=	webserv
 
 CC			=	c++
 
-CFLAGS		=	-std=c++11 -Wall -Werror -Wextra -fsanitize=undefined,address
+CFLAGS		=	-std=c++11 -Wall -Werror -Wextra #-fsanitize=undefined,address
 
 # directories
 SRC_DIR		=	src/
@@ -19,7 +19,6 @@ UP			=	\033[A
 CUT			=	\033[K
 
 #source files
-
 SRC_FILES	=	main \
 				HttpRequest \
 				HttpRequestParser \
@@ -33,7 +32,8 @@ SRC_FILES	=	main \
 				FileHandler \
 				ConfigParser \
 				CgiHandler \
-				Client
+				Client \
+				ServerHandler
 
 H_FILES =	Exceptions \
 			Timer \
@@ -48,7 +48,8 @@ H_FILES =	Exceptions \
 			HttpResponseParser \
 			FileHandler \
 			CgiHandler \
-			Client
+			Client \
+			ServerHandler
 
 #paths
 SRC	=	$(addprefix $(SRC_DIR), $(addsuffix .cpp, $(SRC_FILES)))
