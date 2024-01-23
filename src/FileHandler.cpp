@@ -45,7 +45,7 @@ std::string FileHandler::getFileContent(std::string path)
 {
 	std::ifstream file(getFilePath(path));
 	if (!file.is_open())
-		throw NotFoundException("Could not open file for reading");
+		throw FileException("Could not open file for reading");
 
 	std::string line;
 	std::string body;
