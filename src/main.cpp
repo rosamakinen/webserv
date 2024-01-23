@@ -236,25 +236,6 @@ void printVector(const std::vector<std::string>* vecPtr)
 	}
 }
 
-// void dansTestFunc()
-// {
-// 	ConfigParser parser;
-// 	parser.parseConfig("config/default.conf");
-
-// 	// Access the servers
-// 	const std::vector<std::shared_ptr<Server>>& servers = parser.getServers();
-// 	for (std::vector<std::shared_ptr<Server>>::const_iterator it = servers.begin(); it != servers.end(); ++it) {
-// 		std::shared_ptr<Server> server = *it;
-// 		if (server)
-// 		{
-// 			std::cout << "Methods: ";
-// 			printVector(server->getLocationValue("/", "method"));
-// 			printVector(server->getLocationValue("/tmp", "method"));
-// 			printVector(server->getLocationValue("/cgi-bin", "directory"));
-// 		}
-// 	}
-// }
-
 Server& initServer()
 {
 	Server *server = new Server();
@@ -272,7 +253,6 @@ int main(int argc, char **argv)
 {
 	if (argc != 2 || !argv[1])
 	{
-		// dansTestFunc();
 		return 0;
 	}
 
