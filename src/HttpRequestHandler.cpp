@@ -19,11 +19,9 @@ void HttpRequestHandler::handleRequest(Client *client)
 		}
 
 		case HttpRequest::METHOD::POST:
-
 			return;
 
 		case HttpRequest::METHOD::DELETE:
-
 			return;
 
 		default :
