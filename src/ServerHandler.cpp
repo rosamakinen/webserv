@@ -152,6 +152,8 @@ void ServerHandler::handleOutgoingResponse(pollfd *fd)
 	if (it == _clients.end())
 		return;
 	writeResponse(fd->fd, HttpResponseParser::Parse(*it->second->getResponse()));
+
+	delete it->second;
 	_clients.erase(it);
 }
 
