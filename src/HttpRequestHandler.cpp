@@ -30,7 +30,7 @@ HttpResponse HttpRequestHandler::handleRequest(HttpRequest input)
 
 bool HttpRequestHandler::findCgi(std::string uri)
 {
-	size_t found = uri.find("/cgi_bin");
+	size_t found = uri.find("/cgi-bin");
 	if (found != std::string::npos)
 	{
 		bool ret = validateCgi(uri);
@@ -47,8 +47,7 @@ bool HttpRequestHandler::validateCgi(std::string uri)
 	if (access(fullPath.c_str(), F_OK) == 0)
 	{
 		int pos = fullPath.find(suffix);
-		std::string extension = fullPath.substr(pos, fullPath.length());
-		if (extension.compare(suffix) == 0)
+		if (pos != std::string::npos)
 			return true;
 	}
 	throw BadRequestException("Bad CGI request");
