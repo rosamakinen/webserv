@@ -12,7 +12,7 @@ ConfigParser::~ConfigParser()
 static void configError(const std::string& str, size_t lineNumber)
 {
 	std::string base = "Config File Error: ";
-	base += str + " Line: " + std::to_string(lineNumber);
+	base.append(" Line: ").append(std::to_string(lineNumber));
 	throw ConfigurationException(base);
 }
 
@@ -153,7 +153,7 @@ void ConfigParser::parseConfig(const std::string& filename)
 	std::string line;
 
 	if (!file.is_open())
-		configError("Failed to open file.", lineNumber);
+		throw ConfigurationException("Failed to open file.");
 	std::string currentSection;
 	while (std::getline(file, line))
 	{
@@ -168,16 +168,13 @@ void ConfigParser::parseConfig(const std::string& filename)
 				sectionStack.push_back(currentSection);
 			else if (line.compare("}") == 0)
 			{
-				if (!sectionStack.empty())
-				{
-					sectionStack.pop_back();
-					if (!sectionStack.empty())
-						currentSection = sectionStack.back();
-					else
-						currentSection.clear();
-				}
-				else
+				if (sectionStack.empty())
 					configError("Attempting to close unopened block.", lineNumber);
+				sectionStack.pop_back();
+				if (!sectionStack.empty())
+					currentSection = sectionStack.back();
+				else
+					currentSection.clear();
 			}
 			else
 				processLine(line);

@@ -19,15 +19,8 @@ int main(int argc, char **argv)
 {
 	if (argc != 2 || !argv[1])
 	{	
-		try
-		{
 			std::cout << "This is a placeholder for the default config.";
 			return 0;
-		}
-		catch(const std::logic_error& e)
-		{
-			std::cerr << e.what() << '\n';
-		}
 	}
 
 	try
@@ -41,7 +34,7 @@ int main(int argc, char **argv)
 		servers.push_back(server);
 		serverHandler.runServers(servers);
 
-			servers.clear();
+		servers.clear();
 	}
 	catch(const std::logic_error& e)
 		{
