@@ -49,7 +49,11 @@ void	Server::setName(std::string serverName)
 	this->_name = serverName;
 }
 
-void	Server::setListenPort(size_t listenPort)
+void Server::setSocket()
+{
+	this->_socket = new Socket(this->getListenPort());
+}
+void Server::setListenPort(size_t listenPort)
 {
 	this->_listenPort = listenPort;
 }
@@ -90,7 +94,12 @@ std::string	Server::getName() const
 	return this->_name;
 }
 
-size_t	Server::getListenPort() const
+Socket *Server::getSocket() const
+{
+	return this->_socket;
+}
+
+size_t Server::getListenPort() const
 {
 	return this->_listenPort;
 }
