@@ -12,6 +12,9 @@ std::map<std::string, std::string> _contenttypes =
 bool HttpResponse::contentTypeSet(std::string resourcePath, std::string contentTypeToFind)
 {
 	int len = resourcePath.length();
+	if (len <= 1)
+		return false;
+
 	std::map<std::string, std::string>::const_iterator it = _contenttypes.find(contentTypeToFind);
 	if (resourcePath.substr(len - it->first.length(), len).compare(it->first) == 0)
 	{
@@ -30,7 +33,7 @@ std::ios_base::openmode HttpResponse::setContentType(std::string resourcePath)
 		return std::ifstream::in;
 	else if (contentTypeSet(resourcePath, EXT_JPEG))
 		return std::ifstream::binary;
-	throw BadRequestException("Invalid file extension");
+	return std::ifstream::in;
 }
 
 HttpResponse::HttpResponse(
@@ -39,12 +42,14 @@ HttpResponse::HttpResponse(
 	: _contentLenght(0),
 	_status(status)
 {
-	std::ios_base::openmode mode = setContentType(resourcePath);
-
-	if (status.first != 200)
+	if (this->getStatus().first != 200)
 		setBody(FileHandler::getErrorFileContent(status.first));
 	else
+	{
+		// TODO add redirection from configurated root to the index html
+		std::ios_base::openmode mode = setContentType(resourcePath);
 		setBody(FileHandler::getFileResource(resourcePath, mode));
+	}
 }
 
 HttpResponse::~HttpResponse(void)
