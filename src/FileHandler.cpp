@@ -5,13 +5,18 @@ std::string FileHandler::getFilePath(std::string relativePath)
 {
 	char file_path[MESSAGE_BUFFER];
 	getcwd(file_path, MESSAGE_BUFFER);
-	std::cout << "File trying to access: " << std::string(file_path).append(relativePath) << std::endl;
+
 	return std::string(file_path).append(relativePath);
 }
 
 std::string FileHandler::getFileResource(std::string path)
 {
-	std::ifstream file(getFilePath(path));
+	std::ifstream file;
+	std::string full_path = getFilePath(path);
+	if (full_path[full_path.length() - 1] == '/')
+		full_path.append("index.html");
+
+	file.open(full_path);
 	if (!file.is_open())
 		throw NotFoundException("Could not open file for reading");
 

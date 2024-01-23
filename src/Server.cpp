@@ -7,6 +7,9 @@ Server::Server()
 
 Server::~Server()
 {
+	if (this->_socket)
+		delete this->_socket;
+	this->_locations.clear();
 }
 
 Server::Server( std::string serverName,	size_t listenPort, std::string hostIp,
