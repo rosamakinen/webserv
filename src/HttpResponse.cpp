@@ -1,18 +1,50 @@
 
 #include "../include/HttpResponse.hpp"
-#include "../include/FileHandler.hpp"
+#include "HttpResponse.hpp"
+
+std::map<std::string, std::string> _contenttypes =
+{
+	std::make_pair(EXT_HTML, "text/html; charset=utf-8"),
+	std::make_pair(EXT_CSS, "text/css"),
+	std::make_pair(EXT_JPEG, "image/jpeg")
+};
+
+bool HttpResponse::contentTypeSet(std::string resourcePath, std::string contentTypeToFind)
+{
+	int len = resourcePath.length();
+	std::map<std::string, std::string>::const_iterator it = _contenttypes.find(contentTypeToFind);
+	if (resourcePath.substr(len - it->first.length(), len).compare(it->first) == 0)
+	{
+		this->_contentType = it->second;
+		return true;
+	}
+
+	return false;
+}
+
+std::ios_base::openmode HttpResponse::setContentType(std::string resourcePath)
+{
+	if (contentTypeSet(resourcePath, EXT_HTML))
+		return std::ifstream::in;
+	else if (contentTypeSet(resourcePath, EXT_CSS))
+		return std::ifstream::in;
+	else if (contentTypeSet(resourcePath, EXT_JPEG))
+		return std::ifstream::binary;
+	throw BadRequestException("Invalid file extension");
+}
 
 HttpResponse::HttpResponse(
 	const std::pair<unsigned int, std::string> &status,
 	const std::string& resourcePath)
-	: _contentType("text/html; charset=utf-8"),
-	_contentLenght(0),
+	: _contentLenght(0),
 	_status(status)
 {
+	std::ios_base::openmode mode = setContentType(resourcePath);
+
 	if (status.first != 200)
 		setBody(FileHandler::getErrorFileContent(status.first));
 	else
-		setBody(FileHandler::getFileResource(resourcePath));
+		setBody(FileHandler::getFileResource(resourcePath, mode));
 }
 
 HttpResponse::~HttpResponse(void)

@@ -7,6 +7,7 @@
 #define HTTP_LINEBREAK		"\r\n"
 #define SPACE				" "
 #define WHITESPACE			" \t"
+
 #define PARSEHOST			"host"
 #define PARSELISTEN			"listen"
 #define PARSENAME			"server_name"
@@ -14,9 +15,14 @@
 #define SERVERBLOCK			"server"
 #define MAINBLOCK			"main"
 #define LOCATIONBLOCK		"location"
+
 #define HTTP_GET			"GET"
 #define HTTP_POST			"POST"
 #define HTTP_DELETE			"DELETE"
+
+#define EXT_HTML			".html"
+#define EXT_CSS				".css"
+#define EXT_JPEG			".jpeg"
 
 #include "../include/Exceptions.hpp"
 
