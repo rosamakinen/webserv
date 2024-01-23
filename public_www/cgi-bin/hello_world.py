@@ -1,5 +1,4 @@
 #!/usr/bin/pythons
-import CGI
 
 # Get data from fields
 first_name = form.getvalue('first_name')

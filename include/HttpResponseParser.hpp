@@ -11,5 +11,5 @@
 class HttpResponseParser
 {
 	public:
-		static std::string Parse(const HttpResponse& response, Server *server);
+		static std::string Parse(const HttpResponse& response);
 };

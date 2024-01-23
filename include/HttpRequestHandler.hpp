@@ -4,8 +4,10 @@
 #include "Exceptions.hpp"
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
-#include "ExceptionManager.hpp"
 #include "FileHandler.hpp"
+#include "ExceptionManager.hpp"
+#include "Client.hpp"
+
 
 class HttpRequestHandler
 {
@@ -16,5 +18,6 @@ class HttpRequestHandler
 	public:
 		HttpRequestHandler();
 		~HttpRequestHandler();
-		HttpResponse	handleRequest(HttpRequest input);
+
+		void	handleRequest(Client *client);
 };
