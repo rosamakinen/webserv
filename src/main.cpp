@@ -221,6 +221,20 @@ void runServers(std::vector<Server>& servers)
 	pollfds.clear();
 }
 
+
+Server& initServer()
+{
+	Server *server = new Server();
+	server->setHostIp("127.0.0.1");
+	server->setListenPort(8000);
+	server->setName("localhost");
+	server->setClientMaxBodySize(1000);
+	server->setSocket();
+	addNewPoll(server->getSocket()->getFd());
+
+	return *server;
+}
+
 // Candidate for removal after testing
 void printVector(const std::vector<std::string>* vecPtr)
 {
@@ -236,66 +250,53 @@ void printVector(const std::vector<std::string>* vecPtr)
 	}
 }
 
-// void dansTestFunc()
-// {
-// 	ConfigParser parser;
-// 	parser.parseConfig("config/default.conf");
+// Going to be removed once the config -> server handoff works. Until them
+// it only executes when there's no argv[1]
+void dansTestFunc() {
+	ConfigParser parser;
+	parser.parseConfig("config/danTest.conf");
 
-// 	// Access the servers
-// 	const std::vector<std::shared_ptr<Server>>& servers = parser.getServers();
-// 	for (std::vector<std::shared_ptr<Server>>::const_iterator it = servers.begin(); it != servers.end(); ++it) {
-// 		std::shared_ptr<Server> server = *it;
-// 		if (server)
-// 		{
-// 			std::cout << "Methods: ";
-// 			printVector(server->getLocationValue("/", "method"));
-// 			printVector(server->getLocationValue("/tmp", "method"));
-// 			printVector(server->getLocationValue("/cgi-bin", "directory"));
-// 		}
-// 	}
-// }
+	// Access the servers
+	const std::vector<Server>& servers = parser.getServers();
+	for (std::vector<Server>::const_iterator it = servers.begin(); it != servers.end(); ++it) {
+		const Server& server = *it;
 
-Server& initServer()
-{
-	Server *server = new Server();
-	server->setHostIp("127.0.0.1");
-	server->setListenPort(8000);
-	server->setName("localhost");
-	server->setClientMaxBodySize(1000);
-	server->setSocket();
-	addNewPoll(server->getSocket()->getFd());
-
-	return *server;
+		std::cout << "Methods: ";
+		printVector(server.getLocationValue("/", "method"));
+		printVector(server.getLocationValue("/tmp", "method"));
+		printVector(server.getLocationValue("/cgi-bin", "directory"));
+	}
 }
 
 int main(int argc, char **argv)
 {
-	std::string configFile;
-
 	if (argc != 2 || !argv[1])
-		std::cout << "Balls" << std::endl;
-	// 	configFile = "config/default.conf";
-	// else
-	// 	configFile = argv[1];
-	try
-	{
-		// dansTestFunc();
-		return 0;
+	{	
+		try
+		{
+			dansTestFunc();
+			return 0;
+		}
+		catch(const std::logic_error& e)
+		{
+			std::cerr << e.what() << '\n';
+		}
 	}
-
-	try
+	else
 	{
-		Server server = initServer();
-		std::vector<Server> servers;
-		servers.push_back(server);
-		runServers(servers);
+		try
+		{
+			Server server = initServer();
+			std::vector<Server> servers;
+			servers.push_back(server);
+			runServers(servers);
 
-		servers.clear();
+			servers.clear();
+		}
+		catch(const std::logic_error& e)
+		{
+			std::cerr << e.what() << '\n';
+		}
 	}
-	catch(const std::logic_error& e)
-	{
-		std::cerr << e.what() << '\n';
-	}
-
 	return 0;
 }
