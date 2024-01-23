@@ -2,6 +2,7 @@
 #pragma once
 
 #include "HttpRequest.hpp"
+#include "FileHandler.hpp"
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -20,6 +21,9 @@ class HttpRequestParser
 		void					findBody(std::string newLine, bool &bodyFound);
 		void					parseBody(std::string newLine, std::string &body);
 		int						compareAndSubstring(std::string method, std::string &requestLine);
+		void					parseCgiMethod(HttpRequest::METHOD &method, std::string &uri);
+		bool 					findCgi(std::string uri);
+		bool					validateCgi(std::string uri);
 
 	public:
 		HttpRequestParser();

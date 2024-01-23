@@ -12,7 +12,9 @@ class HttpRequest
 		{
 			NONE,
 			GET,
+			CGI_GET,
 			POST,
+			CGI_POST,
 			DELETE
 		};
 

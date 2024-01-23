@@ -41,6 +41,7 @@ void HttpRequestParser::parseRequestLine(std::string &requestLine, HttpRequest::
 
 	method = parseMethod(requestLine);
 	uri = parseUri(requestLine);
+	parseCgiMethod(method, uri);
 	version = parseVersion(requestLine);
 }
 
@@ -56,6 +57,49 @@ HttpRequest::METHOD HttpRequestParser::parseMethod(std::string &requestLine)
 	return HttpRequest::METHOD::NONE;
 }
 
+void HttpRequestParser::parseCgiMethod(HttpRequest::METHOD &method, std::string &uri)
+{
+	if (findCgi(uri) == true)
+	{
+		if (method == HttpRequest::METHOD::GET)
+		{
+			method = HttpRequest::METHOD::CGI_GET;
+			return ;
+		}
+		if (method == HttpRequest::METHOD::POST)
+		{
+			method = HttpRequest::METHOD::CGI_POST;
+			return ;
+		}
+	}
+}
+
+bool HttpRequestParser::findCgi(std::string uri)
+{
+	size_t found = uri.find(CGI_LOCATION);
+	if (found != std::string::npos)
+	{
+		bool ret = validateCgi(uri);
+		return ret;
+	}
+	return false;
+}
+
+bool HttpRequestParser::validateCgi(std::string uri)
+{
+	std::string suffix = ".py";
+	std::string fullPath = FileHandler::getFilePath(uri);
+
+	if (access(fullPath.c_str(), F_OK) == 0)
+	{
+		size_t pos = fullPath.find(suffix);
+		if (pos != std::string::npos)
+			return true;
+	}
+	throw BadRequestException("Bad CGI request");
+	return false;
+}
+
 int	HttpRequestParser::compareAndSubstring(std::string method, std::string &requestLine)
 {
 	if (requestLine.compare(0, method.length(), method) == 0)
@@ -65,6 +109,7 @@ int	HttpRequestParser::compareAndSubstring(std::string method, std::string &requ
 	}
 	return 1;
 }
+
 
 const std::string HttpRequestParser::parseVersion(std::string &requestLine)
 {
