@@ -160,7 +160,6 @@ void ServerHandler::handleOutgoingResponse(pollfd *fd)
 void ServerHandler::handleOutgoingError(const Exception& e, pollfd *fd)
 {
 	HttpResponse *response = new HttpResponse(ExceptionManager::getErrorStatus(e), "");
-
 	std::map<int, Client*>::iterator it = _clients.find(fd->fd);
 	if (it != _clients.end())
 	{
