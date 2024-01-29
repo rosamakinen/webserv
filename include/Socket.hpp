@@ -12,10 +12,10 @@
 class Socket
 {
 	private:
+		Socket(void);
 		int _fd;
 		sockaddr_in	_address;
 
-		Socket(void);
 
 		static void			isCallValid(const int fd, const std::string errorMsg, int closeFd, bool keepRunning);
 

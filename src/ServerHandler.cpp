@@ -19,6 +19,20 @@ ServerHandler::~ServerHandler()
 		_pollfds.clear();
 }
 
+void ServerHandler::initServers(std::vector<Server*>& servers)
+{
+	for (Server* server : servers)
+	{
+		if (server != nullptr)
+		{
+			if (server->getClientMaxBodySize() == 0)
+				server->setClientMaxBodySize(MESSAGE_BUFFER);
+			server->setSocket();
+			addNewPoll(server->getSocket()->getFd());
+		}
+	}
+}
+
 void ServerHandler::isCallValid(const int fd, const std::string errorMsg, int closeFd)
 {
 	if (fd < 0)
@@ -105,11 +119,11 @@ void ServerHandler::writeResponse(int connection, const std::string response)
 		throw InternalException("Could not send response");
 }
 
-bool ServerHandler::incomingClient(int fd, std::vector<Server> &servers)
+bool ServerHandler::incomingClient(int fd, std::vector<Server*> &servers)
 {
-	for (std::vector<Server>::iterator it = servers.begin(); it != servers.end(); it++)
+	for (std::vector<Server*>::iterator it = servers.begin(); it != servers.end(); it++)
 	{
-		Socket *socket = it->getSocket();
+		Socket *socket = (*it)->getSocket();
 		if (fd == socket->getFd())
 		{
 			handleNewClient(socket);
@@ -177,7 +191,7 @@ void ServerHandler::handleOutgoingError(const Exception& e, pollfd *fd)
 	fd->events = POLLOUT;
 }
 
-void ServerHandler::handlePollEvents(std::vector<Server>& servers)
+void ServerHandler::handlePollEvents(std::vector<Server*>& servers)
 {
 	for (unsigned long i = 0; i < _pollfds.size(); i ++)
 	{
@@ -210,8 +224,9 @@ void ServerHandler::handlePollEvents(std::vector<Server>& servers)
 	}
 }
 
-void ServerHandler::runServers(std::vector<Server>& servers)
+void ServerHandler::runServers(std::vector<Server*>& servers)
 {
+	initServers(servers);
 	while (1)
 	{
 		// Wait max 3 minutes for incoming traffic
