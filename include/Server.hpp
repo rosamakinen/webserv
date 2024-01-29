@@ -21,27 +21,26 @@ class Server
 			std::string clientMaxBodySize);
 		~Server();
 
-		bool								isKeyInLocation(std::string locationBlock, std::string key) const;
-		bool								isLocationInServer(std::string locationBlock) const;
-		bool								isValueForKey(std::string locationBlock, std::string key, std::string value) const;
+		bool	isKeyInLocation(std::string locationBlock, std::string key) const;
+		bool	isLocationInServer(std::string locationBlock) const;
+		bool	isValueForKey(std::string locationBlock, std::string key, std::string value) const;
 
 		//Setters
-		void								setName(std::string serverName);
-		void								setSocket();
-		void								setListenPort(size_t listenPort);
-		void								setHostIp(std::string hostIp);
-		void								setClientMaxBodySize(size_t clientMaxBodySize);
-		void								setLocation(std::string key, vectorMap locationValues);
-		static void							addToVectorMap(vectorMap &vMap, std::string values);
+		void	setName(std::string serverName);
+		void	setSocket();
+		void	setListenPort(size_t listenPort);
+		void	setHostIp(std::string hostIp);
+		void	setClientMaxBodySize(size_t clientMaxBodySize);
+		void	setLocation(std::string key, vectorMap locationValues);
+		static void	addToVectorMap(vectorMap &vMap, std::string values);
 
 		//Getters
-		std::string							getName() const;
-		Socket								*getSocket() const;
-		size_t								getListenPort() const;
-		std::string							getHostIp() const;
-		size_t								getClientMaxBodySize() const;
-		size_t								getLocationCount() const;
-		size_t								getLocationCount(std::string location) const;
-		const std::vector<std::string>*		getLocationValue(std::string location, std::string key) const;
-
+		std::string	getName() const;
+		Socket	*getSocket() const;
+		size_t	getListenPort() const;
+		std::string	getHostIp() const;
+		size_t	getClientMaxBodySize() const;
+		size_t	getLocationCount() const;
+		size_t	getLocationCount(std::string location) const;
+		const std::vector<std::string>*	getLocationValue(std::string location, std::string key) const;
 };

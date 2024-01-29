@@ -1,7 +1,8 @@
 
 #include "../include/Server.hpp"
+#include "Server.hpp"
 
-Server::Server() : _socket(nullptr)
+Server::Server()
 {
 }
 
@@ -46,7 +47,6 @@ bool	Server::isValueForKey(std::string location, std::string key, std::string va
 	return true;
 }
 
-//Setters
 void	Server::setName(std::string serverName)
 {
 	this->_name = serverName;
@@ -145,5 +145,6 @@ const std::vector<std::string>*	Server::getLocationValue(std::string location, s
 		if (innerIter != inner.end())
 			return &(innerIter->second);
 	}
-	return NULL;
+
+	return nullptr;
 }

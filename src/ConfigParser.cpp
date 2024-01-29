@@ -148,7 +148,6 @@ void ConfigParser::checkMain(const std::string& keyword, const std::string& valu
 	}
 	else if (keyword.compare(PARSESIZE) == 0)
 		currentServer->setClientMaxBodySize(std::stol(value));
-	// TODO: check other keywords?
 }
 
 void ConfigParser::parseConfig(const std::string& filename)
