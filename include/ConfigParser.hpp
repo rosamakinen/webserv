@@ -6,7 +6,7 @@
 class ConfigParser
 {
 private:
-	std::vector<Server> servers;
+	std::vector<Server *> servers;
 	std::vector<std::string> sectionStack;
 	std::string currentSection;
 	std::string currentLocation;
@@ -22,6 +22,6 @@ public:
 	~ConfigParser();
 
 	void parseConfig(const std::string& filename);
-	const std::vector<Server>& getServers() const;
+	const std::vector<Server *>& getServers() const;
 };
 

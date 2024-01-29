@@ -2,10 +2,6 @@
 #include "Socket.hpp"
 #include <cerrno>
 
-Socket::Socket(void)
-{
-}
-
 void	Socket::isCallValid(const int fd, const std::string errorMsg, int closeFd, bool keepRunning)
 {
 	if (fd < 0)

@@ -7,12 +7,13 @@ ConfigParser::ConfigParser() : lineNumber(1)
 
 ConfigParser::~ConfigParser()
 {
+	servers.clear();
 }
 
 static void configError(const std::string& str, size_t lineNumber)
 {
 	std::string base = "Config File Error: ";
-	base.append(" Line: ").append(std::to_string(lineNumber));
+	base.append(str).append(" Line: ").append(std::to_string(lineNumber));
 	throw ConfigurationException(base);
 }
 
@@ -41,7 +42,7 @@ static bool validIp(const std::string& ip)
 	return segmentCount == 4;
 }
 
-static std::string adjustPath(const std::string& path) 
+static std::string adjustPath(const std::string& path)
 {
 	if (!path.empty() && path[0] == '/')
 		return "." + path;
@@ -62,10 +63,10 @@ static bool checkValidDirectory(const std::string& line)
 	std::string firstWord;
 	iss >> firstWord;
 
-	if (firstWord == "directory") 
+	if (firstWord == "directory")
 	{
 		std::string directoryPath;
-		if (iss >> directoryPath) 
+		if (iss >> directoryPath)
 		{
 			std::string adjustedPath = adjustPath(directoryPath);
 			return directoryExists(adjustedPath);
@@ -74,36 +75,39 @@ static bool checkValidDirectory(const std::string& line)
 	return true;
 }
 
-static void uniChecker(const std::vector<Server>& servers)
+static void uniChecker(const std::vector<Server *> servers)
 {
 	std::set<std::string> uniqueNames;
 	std::set<std::string> uniqueHostPortCombos;
 
-	for (const Server& server: servers)
+	if (servers.empty())
+		throw ConfigurationException("No servers detected.");
+	for (const Server* server: servers)
 	{
-		std::string name = server.getName();
-		std::string hostPortCombo = server.getHostIp() + ":" + std::to_string(server.getListenPort());
+		std::string name = server->getName();
+		std::string hostPortCombo = server->getHostIp() + ":" + std::to_string(server->getListenPort());
 
-		if (!uniqueNames.insert(name).second) 
+		if (!uniqueNames.insert(name).second)
 			throw ConfigurationException("Duplicate name detected.");
 		if (!uniqueHostPortCombos.insert(hostPortCombo).second)
-			throw ConfigurationException("Duplicate IP/Port combination detected.");   
+			throw ConfigurationException("Duplicate IP/Port combination detected.");
 	}
 }
 
 static void clearMap(vectorMap& vMap)
 {
-	for (vectorMap::iterator it = vMap.begin(); it != vMap.end(); ++it) 
+	for (vectorMap::iterator it = vMap.begin(); it != vMap.end(); it++)
 	{
 		it->second.clear();
 	}
+
 	vMap.clear();
 }
 
 
-const std::vector<Server>& ConfigParser::getServers() const
+const std::vector<Server *>& ConfigParser::getServers() const
 {
-	return servers;
+	return this->servers;
 }
 
 void ConfigParser::checkServer()
@@ -112,38 +116,38 @@ void ConfigParser::checkServer()
 		configError("Unclosed block before new server declaration.", lineNumber);
 	currentSection.clear();
 	currentLocation.clear();
-	Server currentServer;
-	servers.push_back(currentServer);
+	Server *currentServer = new Server();
+	this->servers.push_back(currentServer);
 }
 
-void ConfigParser::checkMain(const std::string& keyword, const std::string& value) 
+void ConfigParser::checkMain(const std::string& keyword, const std::string& value)
 {
-	if (servers.empty()) 
+	if (this->servers.empty())
 		configError("No server defined for main block.", lineNumber);
 
-	Server& currentServer = servers.back();
+	Server* currentServer = this->servers.back();
 
-	if (keyword.compare(PARSEHOST) == 0) 
+	if (keyword.compare(PARSEHOST) == 0)
 	{
 		if (!validIp(value))
 			configError("Invalid IP address.", lineNumber);
-		currentServer.setHostIp(value);
-	} 
-	else if (keyword.compare(PARSELISTEN) == 0) 
+		currentServer->setHostIp(value);
+	}
+	else if (keyword.compare(PARSELISTEN) == 0)
 	{
 		size_t port = std::stol(value);
 		if (port > UINT16_MAX || port < 0 || value.empty())
 			configError("Invalid port.", lineNumber);
-		currentServer.setListenPort(port);
-	} 
-	else if (keyword.compare(PARSENAME) == 0) 
+		currentServer->setListenPort(port);
+	}
+	else if (keyword.compare(PARSENAME) == 0)
 	{
 		if (value.empty())
 			configError("No server name provided.", lineNumber);
-		currentServer.setName(value);
-	} 
-	else if (keyword.compare(PARSESIZE) == 0) 
-		currentServer.setClientMaxBodySize(std::stol(value));
+		currentServer->setName(value);
+	}
+	else if (keyword.compare(PARSESIZE) == 0)
+		currentServer->setClientMaxBodySize(std::stol(value));
 	// TODO: check other keywords?
 }
 
@@ -179,49 +183,54 @@ void ConfigParser::parseConfig(const std::string& filename)
 			else
 				processLine(line);
 		}
-		Server& currentServer = servers.back();
-		if (sectionStack.size() == 1 && vStack.size() != 0)
+		if (!this->servers.empty())
 		{
-			currentServer.setLocation(currentLocation, vStack);
-			clearMap(vStack);
+			Server* currentServer = this->servers.back();
+			if (sectionStack.size() == 1 && vStack.size() != 0)
+			{
+				currentServer->setLocation(currentLocation, vStack);
+				clearMap(vStack);
+			}
 		}
 	lineNumber++;
 	}
 	uniChecker(servers);
 }
 
-void ConfigParser::processLine(const std::string &line) 
+void ConfigParser::processLine(const std::string &line)
 {
 	std::istringstream iss(line);
 	std::string keyword;
 	iss >> keyword;
-	Server& currentServer = servers.back();
+	Server* currentServer;
+	if (!this->servers.empty())
+		currentServer = this->servers.back();
 
-	if (keyword.compare(SERVERBLOCK) == 0) 
+	if (keyword.compare(SERVERBLOCK) == 0)
 		checkServer();
-	if (keyword.compare(MAINBLOCK) == 0 || keyword.compare(LOCATIONBLOCK) == 0) 
+	if (keyword.compare(MAINBLOCK) == 0 || keyword.compare(LOCATIONBLOCK) == 0)
 	{
 		if (sectionStack.size() != 1)
 			configError("Main and location blocks must be a direct child of server.", lineNumber);
 		currentSection = keyword;
 	}
-	if (currentSection.compare(MAINBLOCK) == 0) 
+	if (currentSection.compare(MAINBLOCK) == 0)
 	{
 		std::string value;
 		iss >> value;
 		checkMain(keyword, value);
 	}
 
-	if (keyword.compare(LOCATIONBLOCK) == 0) 
+	if (keyword.compare(LOCATIONBLOCK) == 0)
 	{
 		iss >> currentLocation;
 		if (currentLocation.empty())
 			configError("Unnamed location.", lineNumber);
-	} 
-	else if (currentSection.compare(LOCATIONBLOCK) == 0) 
+	}
+	else if (currentSection.compare(LOCATIONBLOCK) == 0)
 	{
 		if (!checkValidDirectory(line))
 			configError("Directory does not exist.", lineNumber);
-		currentServer.addToVectorMap(vStack, line);
+		currentServer->addToVectorMap(vStack, line);
 	}
 }

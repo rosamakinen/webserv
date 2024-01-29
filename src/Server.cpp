@@ -7,8 +7,6 @@ Server::Server()
 
 Server::~Server()
 {
-	if (this->_socket)
-		delete this->_socket;
 	this->_locations.clear();
 }
 
