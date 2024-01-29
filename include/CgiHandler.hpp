@@ -3,6 +3,7 @@
 
 #include "WebServer.hpp"
 #include "HttpRequest.hpp"
+#include "FileHandler.hpp"
 
 class CgiHandler
 {

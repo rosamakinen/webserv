@@ -2,40 +2,19 @@
 #include "../include/CgiHandler.hpp"
 #include "CgiHandler.hpp"
 
-
-static std::map<std::string, std::string> initFromGetenv()
-{
-	std::map<std::string, std::string> envMap;
-	const char* serverEnviroment[24] =
-	{
-	"DOCUMENT_ROOT", "GATEWAY_INTERFACE",   
-	"HTTP_ACCEPT", "HTTP_ACCEPT_ENCODING",             
-	"HTTP_ACCEPT_LANGUAGE", "HTTP_CONNECTION",         
-	"HTTP_HOST", "HTTP_USER_AGENT", "PATH",            
-	"QUERY_STRING", "REMOTE_ADDR", "REMOTE_PORT",      
-	"REQUEST_METHOD", "REQUEST_URI", "SCRIPT_FILENAME",
-	"SCRIPT_NAME", "SERVER_ADDR",    
-	"SERVER_NAME","SERVER_PORT","SERVER_PROTOCOL",     
-	"SERVER_SIGNATURE","SERVER_SOFTWARE" 
-	};
-
-	for (int i = 0; i < 24; ++i)
-    {
-		std::string key = serverEnviroment[i];
-		std::string value = getenv(key.c_str());
-
-		envMap.insert(std::pair<std::string, std::string>(key, value));
-    }
-
-	return envMap;
-}
-
 static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request)
 {
-	std::map<std::string, std::string> cgiEnvironment = initFromGetenv();
+	std::map<std::string, std::string> cgiEnvironment;
+
 	cgiEnvironment["PATH_INFO"] = request.getUri();
-	for (const auto &pair : cgiEnvironment)
-		std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
+	cgiEnvironment["GATEWAY_INTERFACE"] = GATEWAY_VERSION;
+	cgiEnvironment["SERVER_PROTOCOL"] = HTTP_VERSION;
+	cgiEnvironment["REQUEST_METHOD"] = request.translateMethod(request.getMethod());
+	cgiEnvironment["SCRIPT_FILENAME"] = FileHandler::getFilePath(request.getUri());
+
+	// cgiEnvironment["SERVER_PORT"] = if needed;
+	// cgiEnvironment["QUERY_STIRNG"] = if needed;
+	// cgiEnvironment["REQUEST_URI"] = request.getUri(); if needed
 
 	return cgiEnvironment;
 }
@@ -47,10 +26,33 @@ static int	executeChild()
 	return 0;
 }
 
-int executeCgi(HttpRequest request)
+static char **transferToString(std::map<std::string, std::string> cgiEnvironment)
 {
-	// TODO prepare params
+	char **environmentString = NULL;
+	environmentString = new char*[cgiEnvironment.size() + 1]; 
+	int i = 0;
+
+	for (std::map<std::string, std::string>::iterator it = cgiEnvironment.begin(); it != cgiEnvironment.end(); ++it)
+	{
+		environmentString[i] = strdup((it->first + "=" + it->second).c_str());
+		i++;
+	}
+	environmentString[i] = nullptr;
+	
+	return environmentString;
+}
+
+int CgiHandler::executeCgi(HttpRequest request)
+{
+	
 	std::map<std::string, std::string> cgiEnvironment = initCgiEnvironment(request);
+	char **variableString = transferToString(cgiEnvironment);
+
+	for (int i = 0; variableString[i] != nullptr; i++)
+		std::cout << variableString[i] << std::endl;
+
+	//TODO: prepare shebang in array[0] prepare cgifile path in array[1] for execve
+
 	int status = 0;
 
 	int pipe_in[2];
@@ -80,6 +82,12 @@ int executeCgi(HttpRequest request)
 		status = executeChild();
 		exit(status);
 	}
+
+	//TODO: make a function to free the strArray?
+
+	for (int i = 0; variableString[i]; i++)
+		delete [] variableString[i];
+	delete [] variableString;
 
 	//TODO: wait for the child process to stop, close pipes etc.
 	// Time out, dont wait forever for child to execute

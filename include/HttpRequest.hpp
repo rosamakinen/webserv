@@ -32,6 +32,7 @@ class HttpRequest
 		const std::string			getHost() const;
 		const std::string			getBody() const;
 		const int&					getContentLength() const;
+		std::string					translateMethod(HttpRequest::METHOD method) const;
 
 	private:
 		static const std::string	_allowedMethods[];
