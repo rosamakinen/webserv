@@ -6,10 +6,6 @@ Client::Client()  : _response(nullptr), _request(nullptr), _status(NONE)
 
 Client::~Client()
 {
-	if (this->_response)
-		delete this->_response;
-	if (this->_request)
-		delete this->_request;
 }
 
 void Client::setResponse(HttpResponse *response)

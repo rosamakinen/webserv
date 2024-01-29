@@ -8,6 +8,7 @@
 #include "ExceptionManager.hpp"
 #include "Client.hpp"
 #include "CgiHandler.hpp"
+#include "Server.hpp"
 
 class CgiHandler;
 
@@ -17,5 +18,5 @@ class HttpRequestHandler
 		HttpRequestHandler();
 		~HttpRequestHandler();
 
-		void	handleRequest(Client *client);
+		void	handleRequest(Client *client, Server *server);
 };

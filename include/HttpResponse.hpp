@@ -4,6 +4,7 @@
 #include "WebServer.hpp"
 #include "Exceptions.hpp"
 #include "FileHandler.hpp"
+#include "Server.hpp"
 
 class HttpResponse
 {
@@ -11,7 +12,10 @@ class HttpResponse
 		static std::map<std::string, std::string> _contentTypes;
 
 		~HttpResponse(void);
-		HttpResponse(const std::pair<unsigned int, std::string> &status, const std::string& resourcePath);
+		HttpResponse(
+			const std::pair<unsigned int, std::string> &status,
+			const std::string& resourcePath,
+			Server *server);
 
 		void	setBody(const std::string body);
 		void	setStatus(const std::pair<unsigned int, std::string> &status);
