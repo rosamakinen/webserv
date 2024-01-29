@@ -1,6 +1,6 @@
 #include "../include/Client.hpp"
 
-Client::Client()
+Client::Client()  : _response(nullptr), _request(nullptr), _status(NONE)
 {
 }
 

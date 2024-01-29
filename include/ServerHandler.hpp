@@ -16,11 +16,13 @@ class ServerHandler
 		std::vector<pollfd> _pollfds;
 		std::map<int, Client*> _clients;
 
+		void	initServers(std::vector<Server*>& servers);
+
 		void	isCallValid(const int fd, const std::string errorMsg, int closeFd);
 
-		bool	incomingClient(int fd, std::vector<Server>& servers);
+		bool	incomingClient(int fd, std::vector<Server*>& servers);
 		void	handleNewClient(Socket *socket);
-		void	handlePollEvents(std::vector<Server>& servers);
+		void	handlePollEvents(std::vector<Server*>& servers);
 
 		void	handleIncomingRequest(pollfd *fd);
 		void	handleOutgoingResponse(pollfd *fd);
@@ -37,5 +39,5 @@ class ServerHandler
 		~ServerHandler();
 
 		void	addNewPoll(int fd);
-		void	runServers(std::vector<Server>& servers);
+		void	runServers(std::vector<Server*>& servers);
 };
