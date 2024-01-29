@@ -63,7 +63,7 @@ static bool checkValidDirectory(const std::string& line)
 	std::string firstWord;
 	iss >> firstWord;
 
-	if (firstWord == "directory")
+	if (firstWord.compare("directory") == 0)
 	{
 		std::string directoryPath;
 		if (iss >> directoryPath)
