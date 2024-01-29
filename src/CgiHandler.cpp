@@ -38,7 +38,7 @@ static char **transferToString(std::map<std::string, std::string> cgiEnvironment
 		i++;
 	}
 	environmentString[i] = nullptr;
-	
+
 	return environmentString;
 }
 
@@ -46,12 +46,9 @@ int CgiHandler::executeCgi(HttpRequest request)
 {
 	
 	std::map<std::string, std::string> cgiEnvironment = initCgiEnvironment(request);
-	char **variableString = transferToString(cgiEnvironment);
+	char **variableArray = transferToString(cgiEnvironment);
 
-	for (int i = 0; variableString[i] != nullptr; i++)
-		std::cout << variableString[i] << std::endl;
-
-	//TODO: prepare shebang in array[0] prepare cgifile path in array[1] for execve
+	//TODO: prepare shebang to array[0] prepare cgifile path to array[1] for execve
 
 	int status = 0;
 
@@ -85,11 +82,12 @@ int CgiHandler::executeCgi(HttpRequest request)
 
 	//TODO: make a function to free the strArray?
 
-	for (int i = 0; variableString[i]; i++)
-		delete [] variableString[i];
-	delete [] variableString;
+	for (int i = 0; variableArray[i]; i++)
+		delete [] variableArray[i];
+	delete [] variableArray;
 
 	//TODO: wait for the child process to stop, close pipes etc.
 	// Time out, dont wait forever for child to execute
+	
 	return status;
 }
