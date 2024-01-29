@@ -51,6 +51,12 @@
 				margin-top: 20px;
 			}
 
+			.piccard {
+				background-color: white;
+				padding: 20px;
+				margin-top: 20px;
+			}
+
 			/* Clear floats after the columns */
 			.row:after {
 				content: "";
@@ -76,7 +82,7 @@
 		</style>
 	</head>
 		<div class="header">
-			<h2>Blog Name</h2>
+			<h2>Hippie Hitchiker</h2>
 		</div>
 
 		<div class="row">
@@ -84,31 +90,37 @@
 			<div class="card">
 				<h2>TITLE HEADING</h2>
 				<h5>Title description, Dec 7, 2017</h5>
-				<img src="picture2.jpeg"><br>
-				<p>Some text..</p>
+				<img src="./pictures/hippievan.jpeg"><br>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris iaculis, ex et viverra commodo, sem enim fringilla enim, sit amet laoreet odio justo vel diam. Ut semper mattis facilisis. In sapien felis, auctor in orci sit amet, euismod condimentum mi. Nunc gravida massa et finibus posuere. Cras nisi lectus, maximus nec pulvinar at, placerat quis lorem. Cras vitae mollis dui.</p>
 			</div>
 			<div class="card">
 				<h2>TITLE HEADING</h2>
-				<h5>Title description, Sep 2, 2017</h5>
-				<div class="fakeimg" style="height:200px;">Image</div>
-				<p>Some text..</p>
+				<h5>Title description, May 10, 2017</h5>
+				<img src="./pictures/forest.jpeg"><br>
+				<p>Pellentesque eu magna libero. Aliquam feugiat lectus nec dictum rhoncus. Integer dapibus interdum neque in tincidunt. Aenean venenatis scelerisque ante vel rhoncus. Mauris eros nisi, lacinia in mi a, venenatis venenatis dolor. Suspendisse nisl purus, ultrices sed nulla id, rutrum faucibus nisl. Suspendisse potenti. Integer vitae orci ex. Vivamus mattis risus ut dui lobortis, eget sodales erat ultrices.</p>
+			</div>
+			<div class="card">
+				<h2>TITLE HEADING</h2>
+				<h5>Title description, Sep 5, 2016</h5>
+				<img src="./pictures/field.jpeg"><br>
+				<p>Mauris ornare ante diam, quis sodales quam pulvinar at. Cras a urna in augue placerat hendrerit. Donec lobortis ipsum et risus aliquam, quis convallis velit interdum. Nulla facilisi. Quisque dictum porta nibh, sit amet efficitur massa. Nunc arcu nunc, molestie quis lacus ac, dignissim varius leo.</p>
 			</div>
 			</div>
 			<div class="rightcolumn">
 			<div class="card">
 				<h2>About Me</h2>
-				<div class="fakeimg" style="height:100px;">Image</div>
-				<p>Some text about me in culpa qui officia deserunt mollit anim..</p>
+				<img src="./pictures/aboutme.jpeg"><br>
+				<p>Aenean sed sollicitudin nunc, vitae blandit lorem. Phasellus sed enim a tortor maximus facilisis nec vitae tortor.</p>
 			</div>
 			<div class="card">
-				<h3>Popular Post</h3>
-				<div class="fakeimg">Image</div><br>
-				<div class="fakeimg">Image</div>
+				<h3>Upload files</h3>
+					<form enctype = "multipart/form-data" action = "./cgi-bin/upload.py" method = "post">
+						<p>Upload: <input type = "file" name = "filename" /></p>
+						<p><input type = "submit" value = "Upload" /></p>
+					</form>
+				</div>
 			</div>
-			<div class="card">
-				<h3>Follow Me</h3>
-				<p>Some text..</p>
-			</div>
+			<div class="piccard">
 			</div>
 		</div>
 

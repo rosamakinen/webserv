@@ -1,5 +1,6 @@
 
 #include "../include/Server.hpp"
+#include "Server.hpp"
 
 Server::Server()
 {
@@ -46,7 +47,6 @@ bool	Server::isValueForKey(std::string location, std::string key, std::string va
 	return true;
 }
 
-//Setters
 void	Server::setName(std::string serverName)
 {
 	this->_name = serverName;

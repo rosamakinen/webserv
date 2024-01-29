@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <fstream>
+#include <sys/types.h>
+#include <dirent.h>
 
 class FileHandler
 {
@@ -11,5 +13,6 @@ class FileHandler
 		static std::string getErrorFileContent(unsigned int status);
 		static std::string getFileResource(std::string path, std::ios_base::openmode mode);
 		static std::string getFilePath(std::string relativePath);
+		static std::string buildDirListing(std::string full_path);
 		static std::string readBinary(std::ifstream &file);
 };

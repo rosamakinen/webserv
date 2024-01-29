@@ -18,7 +18,7 @@ Server& initServer()
 int main(int argc, char **argv)
 {
 	if (argc != 2 || !argv[1])
-	{	
+	{
 			std::cout << "This is a placeholder for the default config.";
 			return 0;
 	}
@@ -37,8 +37,9 @@ int main(int argc, char **argv)
 		servers.clear();
 	}
 	catch(const std::logic_error& e)
-		{
-			std::cerr << e.what() << '\n';
-		}
+	{
+		std::cerr << e.what() << '\n';
+	}
+
 	return 0;
 }

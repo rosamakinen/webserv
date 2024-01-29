@@ -16,6 +16,7 @@
 #define MAINBLOCK			"main"
 #define LOCATIONBLOCK		"location"
 #define CGI_LOCATION		"/cgi-bin"
+#define AUTO_INDEX			"autoindex"
 
 #define HTTP_GET			"GET"
 #define HTTP_POST			"POST"

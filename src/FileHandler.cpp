@@ -1,5 +1,6 @@
 #include "../include/FileHandler.hpp"
 #include "../include/WebServer.hpp"
+#include "FileHandler.hpp"
 
 std::string FileHandler::getFilePath(std::string relativePath)
 {
@@ -9,12 +10,73 @@ std::string FileHandler::getFilePath(std::string relativePath)
 	return std::string(file_path).append(relativePath);
 }
 
+std::string FileHandler::buildDirListing(std::string full_path)
+{
+	DIR *dir_path = opendir(full_path.c_str());
+	if (!dir_path)
+		throw NotFoundException("Could not create directory listing");
+
+	std::string html;
+	html.append("<html>\n");
+	html.append("<head>\n");
+	html.append("<title>Listing of ");
+	html.append(full_path.c_str());
+	html.append("</title>\n");
+	html.append("</head>\n");
+	html.append("<body>\n");
+	html.append("<h1>Listing of ");
+	html.append(full_path);
+	html.append("</h1>\n");
+	html.append("<table style=\"width:80%; font_size: 15px\">\n");
+	html.append("<hr>\n");
+	html.append("<th style=\"text-align: left\"> File name </th>\n");
+	html.append("<th style=\"text-align: left\"> Last modified </th>\n");
+	html.append("<th style=\"text-align: left\"> File size </th>\n");
+
+	struct stat file_status;
+	struct dirent *directory;
+	while ((directory = readdir(dir_path)))
+	{
+		if (strcmp(directory->d_name, ".") == 0)
+			continue;
+		std::string file_path = full_path + directory->d_name;
+		stat(file_path.c_str(), &file_status);
+		html.append("<tr>\n");
+		html.append("<td>\n");
+		html.append("<a href=\"");
+		html.append(directory->d_name);
+		if (S_ISDIR(file_status.st_mode))
+			html.append("/");
+		html.append("\">");
+		html.append(directory->d_name);
+		if (S_ISDIR(file_status.st_mode))
+			html.append("/");
+		html.append("</a>\n");
+		html.append("</td>\n");
+		html.append("<td>\n");
+		html.append(ctime(&file_status.st_mtime));
+		html.append("</td>\n");
+		html.append("<td>\n");
+		if (!S_ISDIR(file_status.st_mode))
+			html.append(std::to_string(file_status.st_size));
+		html.append("</td>\n");
+		html.append("</tr>\n");
+	}
+
+	html.append("</table>\n");
+	html.append("<hr>\n");
+	html.append("</body>\n");
+	html.append("</html>\n");
+
+	return html;
+}
+
 std::string FileHandler::getFileResource(std::string path, std::ios_base::openmode mode)
 {
 	std::ifstream file;
 	std::string full_path = getFilePath(path);
 	if (full_path[full_path.length() - 1] == '/')
-		full_path.append("index.html");
+		return buildDirListing(full_path);
 
 	file.open(full_path, mode);
 	if (!file.is_open() || file.fail() || file.bad())
