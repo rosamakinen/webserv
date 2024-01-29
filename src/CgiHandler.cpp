@@ -6,7 +6,7 @@ static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request
 {
 	std::map<std::string, std::string> cgiEnvironment;
 
-	cgiEnvironment["PATH_INFO"] = request.getUri();
+	cgiEnvironment["REQUEST_URI"] = request.getUri();
 	cgiEnvironment["GATEWAY_INTERFACE"] = GATEWAY_VERSION;
 	cgiEnvironment["SERVER_PROTOCOL"] = HTTP_VERSION;
 	cgiEnvironment["REQUEST_METHOD"] = request.translateMethod(request.getMethod());
@@ -14,7 +14,8 @@ static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request
 
 	// cgiEnvironment["SERVER_PORT"] = if needed;
 	// cgiEnvironment["QUERY_STIRNG"] = if needed;
-	// cgiEnvironment["REQUEST_URI"] = request.getUri(); if needed
+	// cgiEnvironment["PATH_INFO"] = request.getUri(); if needed
+	// other env variables if needed
 
 	return cgiEnvironment;
 }
