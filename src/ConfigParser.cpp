@@ -144,11 +144,10 @@ void ConfigParser::checkMain(const std::string& keyword, const std::string& valu
 	{
 		if (value.empty())
 			configError("No server name provided.", lineNumber);
-		currentServer.setName(value);
+		currentServer->setName(value);
 	}
 	else if (keyword.compare(PARSESIZE) == 0)
-		currentServer.setClientMaxBodySize(std::stol(value));
-	// TODO: check other keywords?
+		currentServer->setClientMaxBodySize(std::stol(value));
 }
 
 void ConfigParser::parseConfig(const std::string& filename)
