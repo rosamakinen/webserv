@@ -1,12 +1,14 @@
 
 #include "../include/Server.hpp"
 
-Server::Server()
+Server::Server() : _socket(nullptr)
 {
 }
 
 Server::~Server()
 {
+	if (this->_socket)
+		delete this->_socket;
 	this->_locations.clear();
 }
 
