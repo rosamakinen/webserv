@@ -7,7 +7,9 @@
 #include "FileHandler.hpp"
 #include "ExceptionManager.hpp"
 #include "Client.hpp"
+#include "CgiHandler.hpp"
 
+class CgiHandler;
 
 class HttpRequestHandler
 {

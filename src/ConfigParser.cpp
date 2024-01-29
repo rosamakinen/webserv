@@ -11,7 +11,7 @@ ConfigParser::~ConfigParser()
 
 static void configError(const std::string& str, size_t lineNumber)
 {
-	std::string base = "Config File Error: ";
+	std::string base = "Config File Error: " + str;
 	base.append(" Line: ").append(std::to_string(lineNumber));
 	throw ConfigurationException(base);
 }
