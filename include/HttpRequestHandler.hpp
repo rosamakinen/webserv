@@ -10,8 +10,6 @@
 #include "CgiHandler.hpp"
 #include "Server.hpp"
 
-class CgiHandler;
-
 class HttpRequestHandler
 {
 	public:
