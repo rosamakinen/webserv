@@ -2,7 +2,7 @@
 #include "../include/Server.hpp"
 #include "Server.hpp"
 
-Server::Server()
+Server::Server() : _socket(nullptr)
 {
 }
 
