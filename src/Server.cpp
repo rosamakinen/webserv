@@ -2,7 +2,7 @@
 #include "../include/Server.hpp"
 #include "Server.hpp"
 
-Server::Server() : _socket(nullptr)
+Server::Server()
 {
 }
 
@@ -145,5 +145,6 @@ const std::vector<std::string>*	Server::getLocationValue(std::string location, s
 		if (innerIter != inner.end())
 			return &(innerIter->second);
 	}
-	return NULL;
+
+	return nullptr;
 }

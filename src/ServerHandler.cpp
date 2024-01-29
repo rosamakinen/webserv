@@ -17,6 +17,9 @@ ServerHandler::~ServerHandler()
 
 	if (!_pollfds.empty())
 		_pollfds.clear();
+
+	if (!_serverPolls.empty())
+		_serverPolls.clear();
 }
 
 void ServerHandler::initServers(std::vector<Server*>& servers)
@@ -25,10 +28,10 @@ void ServerHandler::initServers(std::vector<Server*>& servers)
 	{
 		if (server != nullptr)
 		{
-			if (server->getClientMaxBodySize() == 0)
+			if (server->getClientMaxBodySize() <= 0)
 				server->setClientMaxBodySize(MESSAGE_BUFFER);
 			server->setSocket();
-			addNewPoll(server->getSocket()->getFd());
+			addNewPoll(server, server->getSocket()->getFd(), false);
 		}
 	}
 }
@@ -43,12 +46,14 @@ void ServerHandler::isCallValid(const int fd, const std::string errorMsg, int cl
 	}
 }
 
-void ServerHandler::addNewPoll(int fd)
+void ServerHandler::addNewPoll(Server *server, int fd, bool addServer)
 {
 	_pollfds.push_back({fd, POLLIN, 0});
+	if (addServer)
+		_serverPolls.insert(std::pair<int, Server*>(fd, server));
 }
 
-void ServerHandler::handleNewClient(Socket *socket)
+void ServerHandler::handleNewClient(Socket *socket, Server *server)
 {
 	int newClientFd = -1;
 	while (1)
@@ -56,7 +61,7 @@ void ServerHandler::handleNewClient(Socket *socket)
 		newClientFd = socket->acceptConnection();
 		if (newClientFd < 0)
 			break ;
-		addNewPoll(newClientFd);
+		addNewPoll(server, newClientFd, true);
 	}
 }
 
@@ -126,12 +131,21 @@ bool ServerHandler::incomingClient(int fd, std::vector<Server*> &servers)
 		Socket *socket = (*it)->getSocket();
 		if (fd == socket->getFd())
 		{
-			handleNewClient(socket);
+			handleNewClient(socket, *it);
 			return true;
 		}
 	}
 
 	return false;
+}
+
+Server *ServerHandler::getServer(int fd)
+{
+	std::map<int, Server*>::iterator it = _serverPolls.find(fd);
+	if (it == _serverPolls.end())
+		return nullptr;
+
+	return it->second;
 }
 
 void ServerHandler::handleIncomingRequest(pollfd *fd)
@@ -150,13 +164,16 @@ void ServerHandler::handleIncomingRequest(pollfd *fd)
 		client = it->second;
 
 	std::string requestString = readRequest(fd->fd, MESSAGE_BUFFER);
+	Server *server = getServer(fd->fd);
+	if (server == nullptr)
+		throw NotFoundException("No such server found");
 	HttpRequestParser requestParser;
 	HttpRequest *request = requestParser.parseHttpRequest(requestString);
 	client->setRequest(request);
 
 	// TODO: separate to handler part
 	HttpRequestHandler requestHandler;
-	requestHandler.handleRequest(client);
+	requestHandler.handleRequest(client, server);
 	fd->events = POLLOUT;
 }
 
@@ -167,13 +184,15 @@ void ServerHandler::handleOutgoingResponse(pollfd *fd)
 		return;
 	writeResponse(fd->fd, HttpResponseParser::Parse(*it->second->getResponse()));
 
+	delete it->second->getRequest();
+	delete it->second->getResponse();
 	delete it->second;
 	_clients.erase(it);
 }
 
 void ServerHandler::handleOutgoingError(const Exception& e, pollfd *fd)
 {
-	HttpResponse *response = new HttpResponse(ExceptionManager::getErrorStatus(e), "");
+	HttpResponse *response = new HttpResponse(ExceptionManager::getErrorStatus(e), "", nullptr);
 	std::map<int, Client*>::iterator it = _clients.find(fd->fd);
 	if (it != _clients.end())
 	{

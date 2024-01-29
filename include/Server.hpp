@@ -43,5 +43,4 @@ class Server
 		size_t	getLocationCount() const;
 		size_t	getLocationCount(std::string location) const;
 		const std::vector<std::string>*	getLocationValue(std::string location, std::string key) const;
-
 };

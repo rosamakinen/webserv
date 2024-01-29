@@ -68,14 +68,24 @@ std::string FileHandler::buildDirListing(std::string full_path)
 	html.append("</body>\n");
 	html.append("</html>\n");
 
+	closedir(dir_path);
+
 	return html;
 }
 
-std::string FileHandler::getFileResource(std::string path, std::ios_base::openmode mode)
+static bool isAutoIndexAllowed(std::string path, Server *server)
+{
+	const std::vector<std::string> *values = server->getLocationValue(path, AUTO_INDEX);
+	if (values != nullptr && values->size() >= 1 && values->front().compare("true") == 0)
+		return true;
+	throw ForbiddenException("Directory listing not allowed for this location");
+}
+
+std::string FileHandler::getFileResource(std::string path, std::ios_base::openmode mode, Server *server)
 {
 	std::ifstream file;
 	std::string full_path = getFilePath(path);
-	if (full_path[full_path.length() - 1] == '/')
+	if (full_path[full_path.length() - 1] == '/' && isAutoIndexAllowed(path, server))
 		return buildDirListing(full_path);
 
 	file.open(full_path, mode);
