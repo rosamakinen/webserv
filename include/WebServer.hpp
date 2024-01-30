@@ -4,6 +4,7 @@
 #define MESSAGE_BUFFER		1048576
 
 #define HTTP_VERSION		"HTTP/1.1"
+#define GATEWAY_VERSION		"CGI/1.1"
 #define HTTP_LINEBREAK		"\r\n"
 #define SPACE				" "
 #define WHITESPACE			" \t"
