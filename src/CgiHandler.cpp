@@ -15,11 +15,13 @@ static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request
 }
 
 
-static int	executeChild(char **cgiArguments, char **environmentString)
+static int	executeChild(char **argumentString, char **environmentString)
 {
-	std::cout << cgiArguments << environmentString << std::endl;
-	// int result = execve(path_to_command(bin/python-command), command_with_flags(from-te-cgi-bin-directory), environment_variables);
-	return 0;
+	int result = execve(argumentString[0], argumentString, environmentString);
+	if (result == -1)
+		throw InternalException("Excecve failed");
+	std::cout << "result from execve is: " << result << std::endl;
+	return result;
 }
 
 static char **transferToString(std::map<std::string, std::string> cgiEnvironment)
@@ -60,8 +62,7 @@ std::string findShebang(std::string fullPath)
 
 char **getArguments(HttpRequest request)
 {
-	//TODO: prepare shebang, to array[0], check that we can execute, prepare cgifile path to array[1] for execve.
-	//for execve you give (cgiArguments[0], cgiArguments, environmentString;)
+	//right to execute???
 
 	char **argumentString = new char*[3];
 
@@ -114,9 +115,12 @@ int CgiHandler::executeCgi(HttpRequest request)
 		close(pipe_out[1]);
 
 		status = executeChild(argumentString, environmentString);
+		std::cout << "status:: " << status << std::endl;
+
 		exit(status);
 	}
 
+	std::cout << "we run untill the end" << std::endl;
 	//TODO: make a function to free the strArray?
 
 	for (int i = 0; environmentString[i]; i++)
