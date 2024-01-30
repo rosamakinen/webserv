@@ -53,12 +53,12 @@ void HttpRequestParser::parseRequestLine(
 void HttpRequestParser::validateMethod(std::string& uri, Util::METHOD method, Server *server)
 {
 	const std::vector<std::string> *values = server->getLocationValue(uri, HTTP_METHOD);
-	if (values != nullptr && values->size() < 1)
+	if (values == nullptr || values->size() < 1)
 		throw MethodNotAllowedException("Requested method is not allowed for the location");
 
-	for (std::string value : *values)
+	for (std::vector<std::string>::const_iterator it = values->begin(); it != values->end(); it++)
 	{
-		if (value.compare(Util::translateMethod(method)) == 0)
+		if (it->compare(Util::translateMethod(method)) == 0)
 			return;
 	}
 
