@@ -35,7 +35,7 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 	return request;
 }
 
-void HttpRequestParser::parseRequestLine(std::string &requestLine, HttpRequest::METHOD& method, std::string &uri, std::map<std::string, std::string>& parameters, std::string &version, Server *server)
+void HttpRequestParser::parseRequestLine(std::string &requestLine, Util::METHOD& method, std::string &uri, std::map<std::string, std::string>& parameters, std::string &version, Server *server)
 {
 	if (requestLine.empty())
 		throw BadRequestException("Empty requestline");
@@ -51,14 +51,14 @@ void HttpRequestParser::validateMethod(std::string& uri, Util::METHOD method, Se
 {
 	const std::vector<std::string> *values = server->getLocationValue(uri, HTTP_METHOD);
 	if (values == nullptr || values->size() < 1)
-		throw MethodNotAllowedException("Requested method is not allowed for the location");
+		return;//throw MethodNotAllowedException("Requested method is not allowed for the location");
 
 	for (std::vector<std::string>::const_iterator it = values->begin(); it != values->end(); it++)
 	{
 		if (it->compare(Util::translateMethod(method)) == 0)
 			return;
 	}
-
+	return;
 	throw MethodNotAllowedException("Requested method is not allowed for the location");
 }
 
