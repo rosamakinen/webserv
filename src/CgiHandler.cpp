@@ -13,18 +13,7 @@ static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request
 	cgiEnvironment["SERVER_SOFTWARE"] = "SillyLittleSoftware/1.0";
 	cgiEnvironment["SERVER_NAME"] = "127.0.0.1";
 	
-
 	return cgiEnvironment;
-}
-
-
-static int	executeChild(char **argumentString, char **environmentString)
-{
-	int result = execve(argumentString[0], argumentString, environmentString);
-	if (result == -1)
-		throw InternalException("Excecve failed");
-	std::cout << "result from execve is: " << result << std::endl;
-	return result;
 }
 
 static char **transferToString(std::map<std::string, std::string> cgiEnvironment)
@@ -66,13 +55,10 @@ std::string findShebang(std::string fullPath)
 
 char **getArguments(HttpRequest request)
 {
-	//right to execute???
-
 	char **argumentString = new char*[3];
 
 	std::string fullPath = FileHandler::getFilePath(request.getUri());
 	std::string shebang = findShebang(fullPath);
-	std::cout << "shebang isss: " << shebang << std::endl;
 
 	argumentString[0] = strdup(shebang.c_str());
 	argumentString[1] = strdup(fullPath.c_str());
@@ -81,17 +67,20 @@ char **getArguments(HttpRequest request)
 	return argumentString;
 }
 
+static int	executeChild(char **argumentString, char **environmentString)
+{
+	int result = execve(argumentString[0], argumentString, environmentString);
+	if (result == -1)
+		throw InternalException("Excecve failed");
+	return result;
+}
+
 int CgiHandler::executeCgi(HttpRequest request)
 {
 	
 	std::map<std::string, std::string> cgiEnvironment = initCgiEnvironment(request);
 	char **environmentString = transferToString(cgiEnvironment);
 	char **argumentString = getArguments(request);
-	
-	for (int i = 0; argumentString[i]; i++)
-		std::cout << "argument String::" << argumentString[i] << std::endl;
-
-
 	int status = 0;
 
 	int pipe_in[2];
