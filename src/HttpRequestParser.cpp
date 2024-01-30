@@ -50,9 +50,9 @@ void HttpRequestParser::parseRequestLine(
 	version = parseVersion(requestLine);
 }
 
-void HttpRequestParser::validateMethod(std::string uri, HttpRequest::METHOD method, Server *server)
+void HttpRequestParser::validateMethod(std::string& uri, HttpRequest::METHOD method, Server *server)
 {
-	std::cout << "Looking for location: " << uri << " for method " << method << std::endl;
+	std::cout << "Looking for location: '" << uri << "' for method '" << method << "'" << std::endl;
 	const std::vector<std::string> *values = server->getLocationValue(uri, HTTP_METHOD);
 	if (values != nullptr && values->size() >= 1)
 		throw MethodNotAllowedException("Requested method is not allowed for the location");
@@ -68,16 +68,17 @@ void HttpRequestParser::validateMethod(std::string uri, HttpRequest::METHOD meth
 
 HttpRequest::METHOD HttpRequestParser::parseMethod(std::string &requestLine)
 {
-	HttpRequest::METHOD method = HttpRequest::METHOD::NONE;
-
 	if (compareAndSubstring("GET ", requestLine) == 0)
-		method = HttpRequest::METHOD::GET;
+		return HttpRequest::METHOD::GET;
 	else if (compareAndSubstring("POST ", requestLine) == 0)
-		method = HttpRequest::METHOD::POST;
+		return HttpRequest::METHOD::POST;
 	else if (compareAndSubstring("DELETE ", requestLine) == 0)
-		method = HttpRequest::METHOD::DELETE;
-	parseMethodStr(requestLine);
-	return method;
+		return HttpRequest::METHOD::DELETE;
+	else
+	{
+		parseMethodStr(requestLine);
+		return HttpRequest::METHOD::NONE;
+	}
 }
 
 void HttpRequestParser::parseCgiMethod(HttpRequest::METHOD &method, std::string &uri)
