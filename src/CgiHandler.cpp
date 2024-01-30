@@ -48,11 +48,11 @@ std::string findShebang(std::string fullPath)
 	if (file.is_open() == true)
 	{
 		std::getline(file, line);
-		if (line.empty() == true)
+		if (line.empty() == false)
 		{
-			std::cout << "no line wtf" << std::endl;
+			if (line.compare(0, 2, PREFIX_SHEBANG) == 0)
+				line.erase(0, 2);
 		}
-
 		file.close();
 	}
 	return line;
@@ -82,6 +82,9 @@ int CgiHandler::executeCgi(HttpRequest request)
 	std::map<std::string, std::string> cgiEnvironment = initCgiEnvironment(request);
 	char **environmentString = transferToString(cgiEnvironment);
 	char **argumentString = getArguments(request);
+	
+	for (int i = 0; argumentString[i]; i++)
+		std::cout << "argument String::" << argumentString[i] << std::endl;
 
 
 	int status = 0;
