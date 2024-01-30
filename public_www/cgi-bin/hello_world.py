@@ -1,8 +1,8 @@
-#!/usr/bin/pythons
+#!/usr/bin/python3
 
 # Get data from fields
-first_name = form.getvalue('first_name')
-last_name = form.getvalue('last_name')
+ first_name = form.getvalue('first_name')
+ last_name = form.getvalue('last_name')
 
 print ("Content-type:text/html")
 print()

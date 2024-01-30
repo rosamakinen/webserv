@@ -10,6 +10,9 @@ static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request
 	cgiEnvironment["SERVER_PROTOCOL"] = HTTP_VERSION;
 	cgiEnvironment["REQUEST_METHOD"] = request.translateMethod(request.getMethod());
 	cgiEnvironment["SCRIPT_FILENAME"] = FileHandler::getFilePath(request.getUri());
+	cgiEnvironment["SERVER_SOFTWARE"] = "SillyLittleSoftware/1.0";
+	cgiEnvironment["SERVER_NAME"] = "127.0.0.1";
+	
 
 	return cgiEnvironment;
 }
@@ -33,7 +36,8 @@ static char **transferToString(std::map<std::string, std::string> cgiEnvironment
 	for (std::map<std::string, std::string>::iterator it = cgiEnvironment.begin(); it != cgiEnvironment.end(); ++it)
 	{
 		std::string base = it->first;
-		base.append("=").append(it->second);
+		base.append("=");
+		base.append(it->second);
 		environmentString[i] = strdup(base.c_str());
 		i++;
 	}
