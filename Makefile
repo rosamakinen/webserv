@@ -45,7 +45,6 @@ H_FILES =	Exceptions \
 			Socket \
 			Server \
 			ExceptionManager \
-			Util \
 			HttpResponseParser \
 			FileHandler \
 			Client \
