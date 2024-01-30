@@ -169,6 +169,10 @@ void ServerHandler::handleIncomingRequest(pollfd *fd)
 		throw NotFoundException("No such server found");
 	HttpRequestParser requestParser;
 	HttpRequest *request = requestParser.parseHttpRequest(requestString);
+	for (std::pair<std::string, std::string> param : request->getParameters())
+	{
+		std::cout << param.first << ", " << param.second << std::endl;
+	}
 	client->setRequest(request);
 
 	// TODO: separate to handler part

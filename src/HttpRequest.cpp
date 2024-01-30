@@ -83,9 +83,9 @@ std::string 				HttpRequest::translateMethod(HttpRequest::METHOD method) const
 	return nullptr;
 }
 
-void HttpRequest::setParameters(std::string &uri)
+void HttpRequest::setParameters(std::map<std::string, std::string> parameters)
 {
-	std::cout << "Uri parameters " << uri << std::endl;
+	this->_parameters = parameters;
 }
 
 const std::map<std::string, std::string> HttpRequest::getParameters()

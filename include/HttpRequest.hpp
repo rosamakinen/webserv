@@ -34,7 +34,7 @@ class HttpRequest
 		const int&					getContentLength() const;
 		std::string					translateMethod(HttpRequest::METHOD method) const;
 
-		void setParameters(std::string& uri);
+		void setParameters(std::map<std::string, std::string> parameters);
 		const std::map<std::string, std::string> getParameters();
 
 	private:

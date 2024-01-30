@@ -32,6 +32,7 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput)
 
 	std::string host = getHeaderValue(headers, "Host");
 	HttpRequest *request = new HttpRequest(method, version, uri, host, "body", 14);
+	request->setParameters(parameters);
 	return request;
 }
 
