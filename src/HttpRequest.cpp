@@ -1,5 +1,6 @@
 
 #include "../include/HttpRequest.hpp"
+#include "HttpRequest.hpp"
 
 HttpRequest::HttpRequest(
 	Util::METHOD method,
@@ -19,6 +20,7 @@ HttpRequest::HttpRequest(
 
 HttpRequest::~HttpRequest()
 {
+	_parameters.clear();
 }
 
 Util::METHOD	HttpRequest::getMethod() const
@@ -49,4 +51,14 @@ const std::string			HttpRequest::getBody() const
 const int&					HttpRequest::getContentLength() const
 {
 	return this->_contentLength;
+}
+
+void HttpRequest::setParameters(std::map<std::string, std::string> parameters)
+{
+	this->_parameters = parameters;
+}
+
+const std::map<std::string, std::string> HttpRequest::getParameters()
+{
+	return this->_parameters;
 }
