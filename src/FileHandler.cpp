@@ -19,7 +19,6 @@ std::string FileHandler::getFilePath(std::string relativePath)
 	char file_path[MESSAGE_BUFFER];
 	getcwd(file_path, MESSAGE_BUFFER);
 
-	std::cout << "Absolute Path: " << std::string(file_path).append(relativePath) << std::endl;
 	return std::string(file_path).append(relativePath);
 }
 
@@ -104,10 +103,9 @@ std::string FileHandler::getFileResource(std::string path, std::ios_base::openmo
 		workingPath = workingDir->at(0);
 	else
 		throw BadRequestException("Directory key has missing or invalid values.");
-	path = workingPath.append(workingFile);
-	
-	std::string full_path = getFilePath(path);
-	if (full_path[full_path.length() - 1] == '/' && isAutoIndexAllowed(workingPath, server))
+
+	std::string full_path = getFilePath(workingPath.append(workingFile));
+	if (full_path[full_path.length() - 1] == '/' && isAutoIndexAllowed(getDirectoryFromUri(path), server))
 		return buildDirListing(full_path);
 
 	file.open(full_path, mode);
