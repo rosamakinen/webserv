@@ -1,5 +1,6 @@
 
 #include "../include/HttpRequest.hpp"
+#include "HttpRequest.hpp"
 
 HttpRequest::HttpRequest(
 	HttpRequest::METHOD method,
@@ -19,6 +20,7 @@ HttpRequest::HttpRequest(
 
 HttpRequest::~HttpRequest()
 {
+	_parameters.clear();
 }
 
 HttpRequest::METHOD	HttpRequest::getMethod() const
@@ -74,9 +76,19 @@ std::string 				HttpRequest::translateMethod(HttpRequest::METHOD method) const
 		case HttpRequest::METHOD::CGI_POST :
 			return HTTP_POST;
 		break;
-		
+
 		default:
 		break;
 	}
 	return nullptr;
+}
+
+void HttpRequest::setParameters(std::string &uri)
+{
+	std::cout << "Uri parameters " << uri << std::endl;
+}
+
+const std::map<std::string, std::string> HttpRequest::getParameters()
+{
+	return this->_parameters;
 }

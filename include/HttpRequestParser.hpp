@@ -11,11 +11,12 @@
 class HttpRequestParser
 {
 	private:
-		void					parseRequestLine(std::string &requestLine, HttpRequest::METHOD &method, std::string &uri, std::string &version);
+		void					parseParameters(std::string uri, std::map<std::string, std::string>& parameters);
+		void					parseRequestLine(std::string &requestLine, HttpRequest::METHOD &method, std::string &uri, std::map<std::string, std::string>& parameters, std::string &version);
 		HttpRequest::METHOD		parseMethod(std::string &requestLine);
 		const std::string		parseVersion(std::string &requestLine);
 		const std::string		parseMethodStr(std::string &requestLine);
-		const std::string		parseUri(std::string &requestLine);
+		const std::string		parseUri(std::string &requestLine, std::map<std::string, std::string>& parameters);
 		const std::string		getHeaderValue(std::map<std::string, std::string> &headers, std::string toFind);
 		void					parseHeader(const std::string &request, std::map<std::string, std::string> &headers);
 		void					findBody(std::string newLine, bool &bodyFound);

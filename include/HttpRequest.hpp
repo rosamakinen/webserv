@@ -34,15 +34,19 @@ class HttpRequest
 		const int&					getContentLength() const;
 		std::string					translateMethod(HttpRequest::METHOD method) const;
 
+		void setParameters(std::string& uri);
+		const std::map<std::string, std::string> getParameters();
+
 	private:
 		static const std::string	_allowedMethods[];
 
-		HttpRequest::METHOD				_method;
-		const std::string			_version;
-		const std::string			_uri;
-		const std::string			_host;
-		const std::string			_body;
-		const int					_contentLength;
+		HttpRequest::METHOD	_method;
+		const std::string	_version;
+		const std::string	_uri;
+		const std::string	_host;
+		const std::string	_body;
+		const int			_contentLength;
+		std::map<std::string, std::string> _parameters;
 
 		HttpRequest(void);
 };
