@@ -73,7 +73,7 @@ char **getArguments(HttpRequest request)
 	argumentString[1] = strdup(fullPath.c_str());
 	argumentString[2] = nullptr;
 
-	return argumentStri
+	return argumentString;
 }
 
 int CgiHandler::executeCgi(HttpRequest request)

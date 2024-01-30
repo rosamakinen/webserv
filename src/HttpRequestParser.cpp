@@ -90,7 +90,7 @@ bool HttpRequestParser::validateCgi(std::string uri)
 	std::string suffix = ".py";
 	std::string fullPath = FileHandler::getFilePath(uri);
 
-	if (access(fullPath.c_str(), X_OK) == 0)
+	if (access(fullPath.c_str(), F_OK) == 0)
 	{
 		size_t pos = fullPath.find(suffix);
 		if (pos != std::string::npos)
