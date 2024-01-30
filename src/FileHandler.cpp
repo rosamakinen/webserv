@@ -90,7 +90,12 @@ std::string FileHandler::getFileResource(std::string path, std::ios_base::openmo
 
 	file.open(full_path, mode);
 	if (!file.is_open() || file.fail() || file.bad())
-		throw NotFoundException("Could not open file for reading");
+	{
+		std::string message = "Could not open file ";
+		message.append(full_path);
+		message.append(" for reading");
+		throw NotFoundException(message);
+	}
 
 	std::string body;
 	if (mode == std::ios::binary)
@@ -116,8 +121,13 @@ std::string FileHandler::getFileResource(std::string path, std::ios_base::openmo
 std::string FileHandler::getFileContent(std::string path)
 {
 	std::ifstream file(getFilePath(path));
-	if (!file.is_open())
-		throw FileException("Could not open file for reading");
+	if (!file.is_open() || file.fail() || file.bad())
+	{
+		std::string message = "Could not open file ";
+		message.append(path);
+		message.append(" for reading");
+		throw FileException(message);
+	}
 
 	std::string line;
 	std::string body;
@@ -135,8 +145,13 @@ std::string FileHandler::getErrorFileContent(unsigned int status)
 
 	std::string path(getFilePath(relativePath));
 	std::ifstream file(path);
-	if (!file.is_open())
-		throw FileException("Could not open file for reading");
+	if (!file.is_open() || file.fail() || file.bad())
+	{
+		std::string message = "Could not open file ";
+		message.append(path);
+		message.append(" for reading");
+		throw FileException(message);
+	}
 
 	std::string line;
 	std::string body;
