@@ -17,7 +17,6 @@ static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request
 
 static int	executeChild()
 {
-	// int result = execve(path_to_command(bin/python-command), command_with_flags(from-te-cgi-bin-directory), environment_variables);
 	return 0;
 }
 
