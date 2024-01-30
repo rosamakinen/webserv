@@ -15,8 +15,9 @@ static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request
 }
 
 
-static int	executeChild()
+static int	executeChild(char **cgiArguments, char **environmentString)
 {
+	std::cout << cgiArguments << environmentString << std::endl;
 	// int result = execve(path_to_command(bin/python-command), command_with_flags(from-te-cgi-bin-directory), environment_variables);
 	return 0;
 }
@@ -39,13 +40,49 @@ static char **transferToString(std::map<std::string, std::string> cgiEnvironment
 	return environmentString;
 }
 
+std::string findShebang(std::string fullPath)
+{
+	std::ifstream file(fullPath);
+	std::string	line;
+	
+	if (file.is_open() == true)
+	{
+		std::getline(file, line);
+		if (line.empty() == true)
+		{
+			std::cout << "no line wtf" << std::endl;
+		}
+
+		file.close();
+	}
+	return line;
+}
+
+char **getArguments(HttpRequest request)
+{
+	//TODO: prepare shebang, to array[0], check that we can execute, prepare cgifile path to array[1] for execve.
+	//for execve you give (cgiArguments[0], cgiArguments, environmentString;)
+
+	char **argumentString = new char*[3];
+
+	std::string fullPath = FileHandler::getFilePath(request.getUri());
+	std::string shebang = findShebang(fullPath);
+	std::cout << "shebang isss: " << shebang << std::endl;
+
+	argumentString[0] = strdup(shebang.c_str());
+	argumentString[1] = strdup(fullPath.c_str());
+	argumentString[2] = nullptr;
+
+	return argumentStri
+}
+
 int CgiHandler::executeCgi(HttpRequest request)
 {
 	
 	std::map<std::string, std::string> cgiEnvironment = initCgiEnvironment(request);
-	char **variableArray = transferToString(cgiEnvironment);
+	char **environmentString = transferToString(cgiEnvironment);
+	char **argumentString = getArguments(request);
 
-	//TODO: prepare shebang to array[0] prepare cgifile path to array[1] for execve
 
 	int status = 0;
 
@@ -73,15 +110,19 @@ int CgiHandler::executeCgi(HttpRequest request)
 		close(pipe_out[0]);
 		close(pipe_out[1]);
 
-		status = executeChild();
+		status = executeChild(argumentString, environmentString);
 		exit(status);
 	}
 
 	//TODO: make a function to free the strArray?
 
-	for (int i = 0; variableArray[i]; i++)
-		delete [] variableArray[i];
-	delete [] variableArray;
+	for (int i = 0; environmentString[i]; i++)
+		delete [] environmentString[i];
+	delete [] environmentString;
+
+	for (int i = 0; argumentString[i]; i++)
+		delete [] argumentString[i];
+	delete [] argumentString;
 
 	//TODO: wait for the child process to stop, close pipes etc.
 	// Time out, dont wait forever for child to execute
