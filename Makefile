@@ -20,6 +20,7 @@ CUT			=	\033[K
 
 #source files
 SRC_FILES	=	main \
+				Util \
 				CgiHandler \
 				HttpRequest \
 				HttpRequestParser \
@@ -28,7 +29,6 @@ SRC_FILES	=	main \
 				Socket \
 				Server \
 				ExceptionManager \
-				Timer \
 				HttpResponseParser \
 				FileHandler \
 				ConfigParser \
@@ -36,8 +36,8 @@ SRC_FILES	=	main \
 				ServerHandler
 
 H_FILES =	Exceptions \
+			Util \
 			CgiHandler \
-			Timer \
 			HttpRequest \
 			HttpRequestParser \
 			HttpRequestHandler \
@@ -45,7 +45,7 @@ H_FILES =	Exceptions \
 			Socket \
 			Server \
 			ExceptionManager \
-			Timer \
+			Util \
 			HttpResponseParser \
 			FileHandler \
 			Client \

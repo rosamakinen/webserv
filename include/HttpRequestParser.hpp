@@ -11,8 +11,8 @@
 class HttpRequestParser
 {
 	private:
-		void	parseRequestLine(std::string &requestLine, HttpRequest::METHOD &method, std::string &uri, std::string &version, Server *server);
-		HttpRequest::METHOD	parseMethod(std::string &requestLine);
+		void	parseRequestLine(std::string &requestLine, Util::METHOD &method, std::string &uri, std::string &version, Server *server);
+		Util::METHOD	parseMethod(std::string &requestLine);
 		const std::string	parseVersion(std::string &requestLine);
 		const std::string	parseMethodStr(std::string &requestLine);
 		const std::string	parseUri(std::string &requestLine);
@@ -21,10 +21,10 @@ class HttpRequestParser
 		void	findBody(std::string newLine, bool &bodyFound);
 		void	parseBody(std::string newLine, std::string &body);
 		int		compareAndSubstring(std::string method, std::string &requestLine);
-		void	parseCgiMethod(HttpRequest::METHOD &method, std::string &uri);
+		void	parseCgiMethod(Util::METHOD &method, std::string &uri);
 		bool	findCgi(std::string uri);
 		bool	validateCgi(std::string uri);
-		void	validateMethod(std::string& uri, HttpRequest::METHOD method, Server *server);
+		void	validateMethod(std::string& uri, Util::METHOD method, Server *server);
 
 	public:
 		HttpRequestParser();

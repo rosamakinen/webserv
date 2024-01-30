@@ -5,7 +5,7 @@
 #include <cstdlib>
 
 #include "HttpResponse.hpp"
-#include "Timer.hpp"
+#include "Util.hpp"
 #include "Server.hpp"
 
 class HttpResponseParser

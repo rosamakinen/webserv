@@ -8,7 +8,7 @@ static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request
 	cgiEnvironment["REQUEST_URI"] = request.getUri();
 	cgiEnvironment["GATEWAY_INTERFACE"] = GATEWAY_VERSION;
 	cgiEnvironment["SERVER_PROTOCOL"] = HTTP_VERSION;
-	cgiEnvironment["REQUEST_METHOD"] = request.translateMethod(request.getMethod());
+	cgiEnvironment["REQUEST_METHOD"] = Util::translateMethod(request.getMethod());
 	cgiEnvironment["SCRIPT_FILENAME"] = FileHandler::getFilePath(request.getUri());
 
 	return cgiEnvironment;
@@ -23,7 +23,7 @@ static int	executeChild()
 static char **transferToString(std::map<std::string, std::string> cgiEnvironment)
 {
 	char **environmentString = NULL;
-	environmentString = new char*[cgiEnvironment.size() + 1]; 
+	environmentString = new char*[cgiEnvironment.size() + 1];
 	int i = 0;
 
 	for (std::map<std::string, std::string>::iterator it = cgiEnvironment.begin(); it != cgiEnvironment.end(); ++it)
@@ -40,7 +40,7 @@ static char **transferToString(std::map<std::string, std::string> cgiEnvironment
 
 int CgiHandler::executeCgi(HttpRequest request)
 {
-	
+
 	std::map<std::string, std::string> cgiEnvironment = initCgiEnvironment(request);
 	char **variableArray = transferToString(cgiEnvironment);
 
@@ -84,6 +84,7 @@ int CgiHandler::executeCgi(HttpRequest request)
 
 	//TODO: wait for the child process to stop, close pipes etc.
 	// Time out, dont wait forever for child to execute
-	
+	// Read httprequest from the stdout to write to the client
+
 	return status;
 }
