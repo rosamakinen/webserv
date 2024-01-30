@@ -19,6 +19,7 @@
 #define CGI_LOCATION		"/cgi-bin"
 #define AUTO_INDEX			"autoindex"
 #define CONFIG_TRUE			"true"
+#define LOCAL_DIR			"directory"
 
 #define HTTP_METHOD			"method"
 #define HTTP_GET			"GET"

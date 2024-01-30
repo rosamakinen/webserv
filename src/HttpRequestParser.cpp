@@ -4,6 +4,12 @@ HttpRequestParser::HttpRequestParser() {}
 
 HttpRequestParser::~HttpRequestParser() {}
 
+static std::string getDirectoryFromUri(const std::string& uri)
+{
+	size_t pos = uri.find_last_of('/');
+	return (pos == std::string::npos) ? "" : uri.substr(0, pos + 1);
+}
+
 HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Server *server)
 {
 	std::stringstream					ss(requestInput);
@@ -42,17 +48,19 @@ void HttpRequestParser::parseRequestLine(
 {
 	if (requestLine.empty())
 		throw BadRequestException("Empty requestline");
-
 	method = parseMethod(requestLine);
 	uri = parseUri(requestLine);
+	//todo validate location exists
 	validateMethod(uri, method, server);
 	parseCgiMethod(method, uri);
+
 	version = parseVersion(requestLine);
 }
 
 void HttpRequestParser::validateMethod(std::string& uri, Util::METHOD method, Server *server)
 {
-	const std::vector<std::string> *values = server->getLocationValue(uri, HTTP_METHOD);
+	const std::vector<std::string> *values = server->getLocationValue(getDirectoryFromUri(uri), HTTP_METHOD);
+
 	if (values == nullptr || values->size() < 1)
 		throw MethodNotAllowedException("Requested method is not allowed for the location");
 

@@ -225,6 +225,7 @@ void ConfigParser::processLine(const std::string &line)
 		iss >> currentLocation;
 		if (currentLocation.empty())
 			configError("Unnamed location.", lineNumber);
+
 	}
 	else if (currentSection.compare(LOCATIONBLOCK) == 0)
 	{
