@@ -1,15 +1,51 @@
 
-#include "../include/CgiHandler.hpp"
+#include "CgiHandler.hpp"
+
+static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request)
+{
+	std::map<std::string, std::string> cgiEnvironment;
+
+	cgiEnvironment["REQUEST_URI"] = request.getUri();
+	cgiEnvironment["GATEWAY_INTERFACE"] = GATEWAY_VERSION;
+	cgiEnvironment["SERVER_PROTOCOL"] = HTTP_VERSION;
+	cgiEnvironment["REQUEST_METHOD"] = request.translateMethod(request.getMethod());
+	cgiEnvironment["SCRIPT_FILENAME"] = FileHandler::getFilePath(request.getUri());
+
+	return cgiEnvironment;
+}
+
 
 static int	executeChild()
 {
-	// int result = execve(path_to_command(bin/python-command), command_with_flags(from-te-cgi-bin-directory), environment_variables);
 	return 0;
 }
 
-int executeCgi()
+static char **transferToString(std::map<std::string, std::string> cgiEnvironment)
 {
-	// TODO prepare para
+	char **environmentString = NULL;
+	environmentString = new char*[cgiEnvironment.size() + 1]; 
+	int i = 0;
+
+	for (std::map<std::string, std::string>::iterator it = cgiEnvironment.begin(); it != cgiEnvironment.end(); ++it)
+	{
+		std::string base = it->first;
+		base.append("=").append(it->second);
+		environmentString[i] = strdup(base.c_str());
+		i++;
+	}
+	environmentString[i] = nullptr;
+
+	return environmentString;
+}
+
+int CgiHandler::executeCgi(HttpRequest request)
+{
+	
+	std::map<std::string, std::string> cgiEnvironment = initCgiEnvironment(request);
+	char **variableArray = transferToString(cgiEnvironment);
+
+	//TODO: prepare shebang to array[0] prepare cgifile path to array[1] for execve
+
 	int status = 0;
 
 	int pipe_in[2];
@@ -40,7 +76,14 @@ int executeCgi()
 		exit(status);
 	}
 
-	// TODO: wait for the child process to stop, close pipes etc.
+	//TODO: make a function to free the strArray?
+
+	for (int i = 0; variableArray[i]; i++)
+		delete [] variableArray[i];
+	delete [] variableArray;
+
+	//TODO: wait for the child process to stop, close pipes etc.
 	// Time out, dont wait forever for child to execute
+	
 	return status;
 }
