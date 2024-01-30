@@ -15,8 +15,9 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 	std::stringstream					ss(requestInput);
 	std::string requestLine, uri, version;
 	Util::METHOD method;
+	std::map<std::string, std::string> parameters;
 	getline(ss, requestLine);
-	parseRequestLine(requestLine, method, uri, version, server);
+	parseRequestLine(requestLine, method, uri, parameters, version, server);
 
 	std::map<std::string, std::string>	headers;
 	while (getline(ss, requestLine))
@@ -36,21 +37,16 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 
 	std::string host = getHeaderValue(headers, "Host");
 	HttpRequest *request = new HttpRequest(method, version, uri, host, "body", 14);
+	request->setParameters(parameters);
 	return request;
 }
 
-void HttpRequestParser::parseRequestLine(
-	std::string &requestLine,
-	Util::METHOD& method,
-	std::string &uri,
-	std::string &version,
-	Server *server)
+void HttpRequestParser::parseRequestLine(std::string &requestLine, Util::METHOD& method, std::string &uri, std::map<std::string, std::string>& parameters, std::string &version, Server *server)
 {
 	if (requestLine.empty())
 		throw BadRequestException("Empty requestline");
 	method = parseMethod(requestLine);
-	uri = parseUri(requestLine);
-	//todo validate location exists
+	uri = parseUri(requestLine, parameters);
 	validateMethod(uri, method, server);
 	parseCgiMethod(method, uri);
 
@@ -121,7 +117,7 @@ bool HttpRequestParser::validateCgi(std::string uri)
 	std::string suffix = ".py";
 	std::string fullPath = FileHandler::getFilePath(uri);
 
-	if (access(fullPath.c_str(), F_OK) == 0)
+	if (access(fullPath.c_str(), X_OK) == 0)
 	{
 		size_t pos = fullPath.find(suffix);
 		if (pos != std::string::npos)
@@ -160,18 +156,43 @@ const std::string HttpRequestParser::parseMethodStr(std::string &requestLine)
 	return method;
 }
 
-const std::string HttpRequestParser::parseUri(std::string &requestLine)
+void HttpRequestParser::parseParameters(std::string uri, std::map<std::string, std::string>& parameters)
+{
+	std::stringstream input(uri.append("&"));
+	std::string segment;
+	while (std::getline(input, segment, '&'))
+	{
+		size_t pos = segment.find('=');
+		std::string key = segment.substr(0, pos);
+		std::string value = segment.substr(pos + 1, segment.length());
+		if (pos == std::string::npos || key.empty() || value.empty())
+			throw BadRequestException("Invalid request parameter");
+
+		std::pair<std::map<std::string, std::string>::iterator, bool> result;
+		result = parameters.insert(std::pair<std::string, std::string>(key, value));
+		if (result.second == false)
+			throw BadRequestException("Duplicate request parameter");
+	}
+}
+
+const std::string HttpRequestParser::parseUri(std::string &requestLine, std::map<std::string, std::string>& parameters)
 {
 	std::string uri;
 
 	size_t uriPos = requestLine.find('?');
 	size_t paramPos = requestLine.find(' ');
 	if (uriPos < paramPos)
+	{
 		uri = requestLine.substr(0, uriPos);
+		requestLine = requestLine.substr(uriPos + 1, requestLine.length());
+		parseParameters(requestLine.substr(0, requestLine.find(' ')), parameters);
+	}
 	else
+	{
 		uri = requestLine.substr(0, paramPos);
+		requestLine = requestLine.substr(paramPos, requestLine.length());
+	}
 
-	requestLine = requestLine.substr(paramPos, requestLine.length());
 	return uri;
 }
 

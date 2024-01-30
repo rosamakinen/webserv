@@ -1,4 +1,4 @@
-#!/usr/bin/pythons
+#!/usr/bin/python
 
 # Get data from fields
 first_name = form.getvalue('first_name')
