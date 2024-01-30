@@ -4,6 +4,9 @@
 #include "WebServer.hpp"
 #include "HttpRequest.hpp"
 #include "FileHandler.hpp"
+#include <fstream>
+#include <iostream>
+#include <string>
 
 class CgiHandler
 {
