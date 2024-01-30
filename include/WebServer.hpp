@@ -17,7 +17,9 @@
 #define LOCATIONBLOCK		"location"
 #define CGI_LOCATION		"/cgi-bin"
 #define AUTO_INDEX			"autoindex"
+#define CONFIG_TRUE			"true"
 
+#define HTTP_METHOD			"method"
 #define HTTP_GET			"GET"
 #define HTTP_POST			"POST"
 #define HTTP_DELETE			"DELETE"

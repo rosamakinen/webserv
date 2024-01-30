@@ -2,7 +2,7 @@ NAME		=	webserv
 
 CC			=	c++
 
-CFLAGS		=	-std=c++11 -Wall -Werror -Wextra #-fsanitize=undefined,address
+CFLAGS		=	-std=c++11 -Wall -Werror -Wextra -fsanitize=undefined,address
 
 # directories
 SRC_DIR		=	src/
