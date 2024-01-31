@@ -1,6 +1,44 @@
 
 #include "CgiHandler.hpp"
 
+static const char *transferToString(std::map<std::string, std::string> input)
+{
+	std::string base = "";
+
+	for (std::map<std::string, std::string>::iterator it = input.begin(); it != input.end(); it++)
+	{
+		base.append(it->first);
+		base.append("=");
+		base.append(it->second);
+		base.append("&");
+	   std::cout << base << std::endl;
+	}
+	base.pop_back();
+	const char *string = base.c_str();
+	return string;
+}
+
+
+static char **transferToStringArray(std::map<std::string, std::string> input)
+{
+	char **stringArray = NULL;
+	stringArray = new char*[input.size() + 1];
+	int i = 0;
+
+	for (std::map<std::string, std::string>::iterator it = input.begin(); it != input.end(); it++)
+	{
+		std::string base = it->first;
+		base.append("=");
+		base.append(it->second);
+		stringArray[i] = strdup(base.c_str());
+		i++;
+	}
+	stringArray[i] = nullptr;
+
+	return stringArray;
+}
+
+
 static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request)
 {
 	std::map<std::string, std::string> cgiEnvironment;
@@ -12,40 +50,22 @@ static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request
 	cgiEnvironment["SCRIPT_FILENAME"] = FileHandler::getFilePath(request.getUri());
 	cgiEnvironment["SERVER_SOFTWARE"] = "SillyLittleSoftware/1.0";
 	cgiEnvironment["SERVER_NAME"] = "127.0.0.1";
-	
+	cgiEnvironment["QUERY_STRING"] = transferToString(request.getParameters());
+
 	return cgiEnvironment;
 }
 
-static char **transferToString(std::map<std::string, std::string> cgiEnvironment)
-{
-	char **environmentString = NULL;
-	environmentString = new char*[cgiEnvironment.size() + 1]; 
-	int i = 0;
-
-	for (std::map<std::string, std::string>::iterator it = cgiEnvironment.begin(); it != cgiEnvironment.end(); ++it)
-	{
-		std::string base = it->first;
-		base.append("=");
-		base.append(it->second);
-		environmentString[i] = strdup(base.c_str());
-		i++;
-	}
-	environmentString[i] = nullptr;
-
-	return environmentString;
-}
-
-std::string findShebang(std::string fullPath)
+std::string findInterpreterPath(std::string fullPath)
 {
 	std::ifstream file(fullPath);
 	std::string	line;
-	
+
 	if (file.is_open() == true)
 	{
 		std::getline(file, line);
 		if (line.empty() == false)
 		{
-			if (line.compare(0, 2, PREFIX_SHEBANG) == 0)
+			if (line.compare(0, 2, SHEBANG) == 0)
 				line.erase(0, 2);
 		}
 		file.close();
@@ -58,7 +78,7 @@ char **getArguments(HttpRequest request)
 	char **argumentString = new char*[3];
 
 	std::string fullPath = FileHandler::getFilePath(request.getUri());
-	std::string shebang = findShebang(fullPath);
+	std::string shebang = findInterpreterPath(fullPath);
 
 	argumentString[0] = strdup(shebang.c_str());
 	argumentString[1] = strdup(fullPath.c_str());
@@ -77,9 +97,9 @@ static int	executeChild(char **argumentString, char **environmentString)
 
 int CgiHandler::executeCgi(HttpRequest request)
 {
-	
+
 	std::map<std::string, std::string> cgiEnvironment = initCgiEnvironment(request);
-	char **environmentString = transferToString(cgiEnvironment);
+	char **environmentString = transferToStringArray(cgiEnvironment);
 	char **argumentString = getArguments(request);
 	int status = 0;
 
@@ -108,12 +128,10 @@ int CgiHandler::executeCgi(HttpRequest request)
 		close(pipe_out[1]);
 
 		status = executeChild(argumentString, environmentString);
-		std::cout << "status:: " << status << std::endl;
 
 		exit(status);
 	}
 
-	std::cout << "we run untill the end" << std::endl;
 	//TODO: make a function to free the strArray?
 
 	for (int i = 0; environmentString[i]; i++)
@@ -126,6 +144,7 @@ int CgiHandler::executeCgi(HttpRequest request)
 
 	//TODO: wait for the child process to stop, close pipes etc.
 	// Time out, dont wait forever for child to execute
-	
+	// Read httprequest from the stdout to write to the client
+
 	return status;
 }

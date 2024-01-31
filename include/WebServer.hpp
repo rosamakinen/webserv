@@ -8,7 +8,7 @@
 #define HTTP_LINEBREAK		"\r\n"
 #define SPACE				" "
 #define WHITESPACE			" \t"
-#define PREFIX_SHEBANG		"#!"
+#define SHEBANG				"#!"
 
 #define PARSEHOST			"host"
 #define PARSELISTEN			"listen"

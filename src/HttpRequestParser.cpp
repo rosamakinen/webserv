@@ -26,13 +26,15 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput)
 	{
 		if (requestLine.compare("\r") == 0)
 			break;
-		std::cout << "Parsing line '" << requestLine << "'"<< std::endl;
 		parseBody(requestLine, body);
 	}
+
+	//TODO: when we actually submit the form, the parameters get parsed to the body, and we need to retrieve those from there
 
 	std::string host = getHeaderValue(headers, "Host");
 	HttpRequest *request = new HttpRequest(method, version, uri, host, "body", 14);
 	request->setParameters(parameters);
+
 	return request;
 }
 
@@ -111,7 +113,6 @@ int	HttpRequestParser::compareAndSubstring(std::string method, std::string &requ
 	}
 	return 1;
 }
-
 
 const std::string HttpRequestParser::parseVersion(std::string &requestLine)
 {
