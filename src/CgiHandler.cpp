@@ -8,18 +8,18 @@ static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request
 	cgiEnvironment["REQUEST_URI"] = request.getUri();
 	cgiEnvironment["GATEWAY_INTERFACE"] = GATEWAY_VERSION;
 	cgiEnvironment["SERVER_PROTOCOL"] = HTTP_VERSION;
-	cgiEnvironment["REQUEST_METHOD"] = request.translateMethod(request.getMethod());
+	cgiEnvironment["REQUEST_METHOD"] = Util::translateMethod(request.getMethod());
 	cgiEnvironment["SCRIPT_FILENAME"] = FileHandler::getFilePath(request.getUri());
 	cgiEnvironment["SERVER_SOFTWARE"] = "SillyLittleSoftware/1.0";
 	cgiEnvironment["SERVER_NAME"] = "127.0.0.1";
-	
+
 	return cgiEnvironment;
 }
 
 static char **transferToString(std::map<std::string, std::string> cgiEnvironment)
 {
 	char **environmentString = NULL;
-	environmentString = new char*[cgiEnvironment.size() + 1]; 
+	environmentString = new char*[cgiEnvironment.size() + 1];
 	int i = 0;
 
 	for (std::map<std::string, std::string>::iterator it = cgiEnvironment.begin(); it != cgiEnvironment.end(); ++it)
@@ -39,7 +39,7 @@ std::string findShebang(std::string fullPath)
 {
 	std::ifstream file(fullPath);
 	std::string	line;
-	
+
 	if (file.is_open() == true)
 	{
 		std::getline(file, line);
@@ -77,7 +77,7 @@ static int	executeChild(char **argumentString, char **environmentString)
 
 int CgiHandler::executeCgi(HttpRequest request)
 {
-	
+
 	std::map<std::string, std::string> cgiEnvironment = initCgiEnvironment(request);
 	char **environmentString = transferToString(cgiEnvironment);
 	char **argumentString = getArguments(request);
@@ -126,6 +126,7 @@ int CgiHandler::executeCgi(HttpRequest request)
 
 	//TODO: wait for the child process to stop, close pipes etc.
 	// Time out, dont wait forever for child to execute
-	
+	// Read httprequest from the stdout to write to the client
+
 	return status;
 }

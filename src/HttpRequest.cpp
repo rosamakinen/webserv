@@ -3,7 +3,7 @@
 #include "HttpRequest.hpp"
 
 HttpRequest::HttpRequest(
-	HttpRequest::METHOD method,
+	Util::METHOD method,
 	const std::string& version,
 	const std::string& uri,
 	const std::string& host,
@@ -23,7 +23,7 @@ HttpRequest::~HttpRequest()
 	_parameters.clear();
 }
 
-HttpRequest::METHOD	HttpRequest::getMethod() const
+Util::METHOD	HttpRequest::getMethod() const
 {
 	return this->_method;
 }
@@ -51,36 +51,6 @@ const std::string			HttpRequest::getBody() const
 const int&					HttpRequest::getContentLength() const
 {
 	return this->_contentLength;
-}
-
-std::string 				HttpRequest::translateMethod(HttpRequest::METHOD method) const
-{
-	switch (method)
-	{
-		case HttpRequest::METHOD::GET :
-			return HTTP_GET;
-		break;
-
-		case HttpRequest::METHOD::POST :
-			return HTTP_POST;
-		break;
-
-		case HttpRequest::METHOD::DELETE :
-			return HTTP_DELETE;
-		break;
-
-		case HttpRequest::METHOD::CGI_GET :
-			return HTTP_GET;
-		break;
-
-		case HttpRequest::METHOD::CGI_POST :
-			return HTTP_POST;
-		break;
-
-		default:
-		break;
-	}
-	return nullptr;
 }
 
 void HttpRequest::setParameters(std::map<std::string, std::string> parameters)

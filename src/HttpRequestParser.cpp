@@ -4,14 +4,20 @@ HttpRequestParser::HttpRequestParser() {}
 
 HttpRequestParser::~HttpRequestParser() {}
 
-HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput)
+static std::string getDirectoryFromUri(const std::string& uri)
+{
+	size_t pos = uri.find_last_of('/');
+	return (pos == std::string::npos) ? "" : uri.substr(0, pos + 1);
+}
+
+HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Server *server)
 {
 	std::stringstream					ss(requestInput);
 	std::string requestLine, uri, version;
-	HttpRequest::METHOD method;
+	Util::METHOD method;
 	std::map<std::string, std::string> parameters;
 	getline(ss, requestLine);
-	parseRequestLine(requestLine, method, uri, parameters, version);
+	parseRequestLine(requestLine, method, uri, parameters, version, server);
 
 	std::map<std::string, std::string>	headers;
 	while (getline(ss, requestLine))
@@ -26,7 +32,6 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput)
 	{
 		if (requestLine.compare("\r") == 0)
 			break;
-		std::cout << "Parsing line '" << requestLine << "'"<< std::endl;
 		parseBody(requestLine, body);
 	}
 
@@ -36,41 +41,61 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput)
 	return request;
 }
 
-void HttpRequestParser::parseRequestLine(std::string &requestLine, HttpRequest::METHOD& method, std::string &uri, std::map<std::string, std::string>& parameters, std::string &version)
+void HttpRequestParser::parseRequestLine(std::string &requestLine, Util::METHOD& method, std::string &uri, std::map<std::string, std::string>& parameters, std::string &version, Server *server)
 {
 	if (requestLine.empty())
 		throw BadRequestException("Empty requestline");
-
 	method = parseMethod(requestLine);
 	uri = parseUri(requestLine, parameters);
+	validateMethod(uri, method, server);
 	parseCgiMethod(method, uri);
+
 	version = parseVersion(requestLine);
 }
 
-HttpRequest::METHOD HttpRequestParser::parseMethod(std::string &requestLine)
+void HttpRequestParser::validateMethod(std::string& uri, Util::METHOD method, Server *server)
 {
-	if (compareAndSubstring("GET ", requestLine) == 0)
-		return HttpRequest::METHOD::GET;
-	else if (compareAndSubstring("POST ", requestLine) == 0)
-		return HttpRequest::METHOD::POST;
-	else if (compareAndSubstring("DELETE ", requestLine) == 0)
-		return HttpRequest::METHOD::DELETE;
-	parseMethodStr(requestLine);
-	return HttpRequest::METHOD::NONE;
+	const std::vector<std::string> *values = server->getLocationValue(getDirectoryFromUri(uri), HTTP_METHOD);
+
+	if (values == nullptr || values->size() < 1)
+		throw MethodNotAllowedException("Requested method is not allowed for the location");
+
+	for (std::vector<std::string>::const_iterator it = values->begin(); it != values->end(); it++)
+	{
+		if (it->compare(Util::translateMethod(method)) == 0)
+			return;
+	}
+
+	throw MethodNotAllowedException("Requested method is not allowed for the location");
 }
 
-void HttpRequestParser::parseCgiMethod(HttpRequest::METHOD &method, std::string &uri)
+Util::METHOD HttpRequestParser::parseMethod(std::string &requestLine)
+{
+	if (compareAndSubstring("GET ", requestLine) == 0)
+		return Util::METHOD::GET;
+	else if (compareAndSubstring("POST ", requestLine) == 0)
+		return Util::METHOD::POST;
+	else if (compareAndSubstring("DELETE ", requestLine) == 0)
+		return Util::METHOD::DELETE;
+	else
+	{
+		parseMethodStr(requestLine);
+		return Util::METHOD::NONE;
+	}
+}
+
+void HttpRequestParser::parseCgiMethod(Util::METHOD &method, std::string &uri)
 {
 	if (findCgi(uri) == true)
 	{
-		if (method == HttpRequest::METHOD::GET)
+		if (method == Util::METHOD::GET)
 		{
-			method = HttpRequest::METHOD::CGI_GET;
+			method = Util::METHOD::CGI_GET;
 			return ;
 		}
-		if (method == HttpRequest::METHOD::POST)
+		if (method == Util::METHOD::POST)
 		{
-			method = HttpRequest::METHOD::CGI_POST;
+			method = Util::METHOD::CGI_POST;
 			return ;
 		}
 	}
