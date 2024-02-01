@@ -2,6 +2,18 @@
 #include "../include/WebServer.hpp"
 #include "FileHandler.hpp"
 
+static std::string getDirectoryFromUri(const std::string& uri)
+{
+	size_t pos = uri.find_last_of('/');
+	return (pos == std::string::npos) ? "" : uri.substr(0, pos + 1);
+}
+
+static std::string getFileFromUri(const std::string& uri)
+{
+	size_t pos = uri.find_last_of('/');
+	return (pos == std::string::npos) ? uri : uri.substr(pos + 1);
+}
+
 std::string FileHandler::getFilePath(std::string relativePath)
 {
 	char file_path[MESSAGE_BUFFER];
@@ -84,13 +96,26 @@ static bool isAutoIndexAllowed(std::string path, Server *server)
 std::string FileHandler::getFileResource(std::string path, std::ios_base::openmode mode, Server *server)
 {
 	std::ifstream file;
-	std::string full_path = getFilePath(path);
-	if (full_path[full_path.length() - 1] == '/' && isAutoIndexAllowed(path, server))
+	std::string workingPath = getDirectoryFromUri(path), workingFile = getFileFromUri(path);
+
+	const std::vector<std::string>* workingDir = server->getLocationValue(workingPath, LOCAL_DIR);
+	if (workingDir != nullptr && workingDir->size() == 1)
+		workingPath = workingDir->at(0);
+	else
+		throw BadRequestException("Directory key has missing or invalid values.");
+
+	std::string full_path = getFilePath(workingPath.append(workingFile));
+	if (full_path[full_path.length() - 1] == '/' && isAutoIndexAllowed(getDirectoryFromUri(path), server))
 		return buildDirListing(full_path);
 
 	file.open(full_path, mode);
 	if (!file.is_open() || file.fail() || file.bad())
-		throw NotFoundException("Could not open file for reading");
+	{
+		std::string message = "Could not open file ";
+		message.append(full_path);
+		message.append(" for reading");
+		throw NotFoundException(message);
+	}
 
 	std::string body;
 	if (mode == std::ios::binary)
@@ -116,8 +141,13 @@ std::string FileHandler::getFileResource(std::string path, std::ios_base::openmo
 std::string FileHandler::getFileContent(std::string path)
 {
 	std::ifstream file(getFilePath(path));
-	if (!file.is_open())
-		throw FileException("Could not open file for reading");
+	if (!file.is_open() || file.fail() || file.bad())
+	{
+		std::string message = "Could not open file ";
+		message.append(path);
+		message.append(" for reading");
+		throw FileException(message);
+	}
 
 	std::string line;
 	std::string body;
@@ -135,8 +165,13 @@ std::string FileHandler::getErrorFileContent(unsigned int status)
 
 	std::string path(getFilePath(relativePath));
 	std::ifstream file(path);
-	if (!file.is_open())
-		throw FileException("Could not open file for reading");
+	if (!file.is_open() || file.fail() || file.bad())
+	{
+		std::string message = "Could not open file ";
+		message.append(path);
+		message.append(" for reading");
+		throw FileException(message);
+	}
 
 	std::string line;
 	std::string body;

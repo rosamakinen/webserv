@@ -45,7 +45,7 @@ static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request
 	cgiEnvironment["REQUEST_URI"] = request.getUri();
 	cgiEnvironment["GATEWAY_INTERFACE"] = GATEWAY_VERSION;
 	cgiEnvironment["SERVER_PROTOCOL"] = HTTP_VERSION;
-	cgiEnvironment["REQUEST_METHOD"] = request.translateMethod(request.getMethod());
+	cgiEnvironment["REQUEST_METHOD"] = Util::translateMethod(request.getMethod());
 	cgiEnvironment["SCRIPT_FILENAME"] = FileHandler::getFilePath(request.getUri());
 	cgiEnvironment["SERVER_SOFTWARE"] = "SillyLittleSoftware/1.0"; //fetch from config?
 	cgiEnvironment["SERVER_NAME"] = "127.0.0.1"; //fetch from config?
@@ -97,6 +97,7 @@ static int	executeChild(char **argumentString, char **environmentString)
 int CgiHandler::executeCgi(HttpRequest request)
 {
 
+
 	std::map<std::string, std::string> cgiEnvironment = initCgiEnvironment(request);
 	char **environmentString = transferToStringArray(cgiEnvironment);
 	char **argumentString = getArguments(request);
@@ -143,7 +144,6 @@ int CgiHandler::executeCgi(HttpRequest request)
 
 	//TODO: wait for the child process to stop, close pipes etc.
 	// Time out, dont wait forever for child to execute
-	// Read httprequest from the stdout to write to the client
 
 	return status;
 }

@@ -27,5 +27,6 @@ int main(int argc, char **argv)
 	{
 		std::cerr << e.what() << '\n';
 	}
+
 	return 0;
 }

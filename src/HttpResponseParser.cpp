@@ -14,7 +14,7 @@ std::string HttpResponseParser::Parse(const HttpResponse &response)
 	responseString.append(HTTP_LINEBREAK);
 
 	responseString.append("Date: ");
-	responseString.append(Timer::GetTimeDateString());
+	responseString.append(Util::getTimeDateString());
 	responseString.append(HTTP_LINEBREAK);
 	responseString.append("Content-Length: ");
 	responseString.append(std::to_string(response.getContentLenght()));

@@ -90,6 +90,7 @@ void ServerHandler::closeConnection(int fd)
 				it->fd = -1;
 			}
 			_pollfds.erase(it);
+			_serverPolls.erase(it->fd);
 			break;
 		}
 	}
@@ -166,9 +167,9 @@ void ServerHandler::handleIncomingRequest(pollfd *fd)
 	std::string requestString = readRequest(fd->fd, MESSAGE_BUFFER);
 	Server *server = getServer(fd->fd);
 	if (server == nullptr)
-		throw NotFoundException("No such server found");
+		throw InternalException("No such server found");
 	HttpRequestParser requestParser;
-	HttpRequest *request = requestParser.parseHttpRequest(requestString);
+	HttpRequest *request = requestParser.parseHttpRequest(requestString, server);
 	client->setRequest(request);
 
 	// TODO: separate to handler part
