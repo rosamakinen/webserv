@@ -2,7 +2,7 @@
 #include "../include/WebServer.hpp"
 #include "../include/Util.hpp"
 
-const std::string Util::GetTimeDateString()
+const std::string Util::getTimeDateString()
 {
 	// Initialize timezone information
 	tzset();

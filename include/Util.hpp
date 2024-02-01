@@ -16,6 +16,6 @@ class Util
 			DELETE
 		};
 
-		static const std::string	GetTimeDateString();
+		static const std::string	getTimeDateString();
 		static const std::string	translateMethod(Util::METHOD method);
 };
