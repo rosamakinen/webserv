@@ -12,6 +12,10 @@ if form_input == None:
 
 parts = form_input.split("&")
 
+if len(parts) != 2:
+	print("CGI service error")
+	sys.exit()
+
 first_name = parts[0].split("=")[1]
 last_name = parts[1].split("=")[1]
 

@@ -11,7 +11,6 @@ static const char *transferToString(std::map<std::string, std::string> input)
 		base.append("=");
 		base.append(it->second);
 		base.append("&");
-	   std::cout << base << std::endl;
 	}
 	base.pop_back();
 	const char *string = base.c_str();
@@ -48,8 +47,8 @@ static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request
 	cgiEnvironment["SERVER_PROTOCOL"] = HTTP_VERSION;
 	cgiEnvironment["REQUEST_METHOD"] = request.translateMethod(request.getMethod());
 	cgiEnvironment["SCRIPT_FILENAME"] = FileHandler::getFilePath(request.getUri());
-	cgiEnvironment["SERVER_SOFTWARE"] = "SillyLittleSoftware/1.0";
-	cgiEnvironment["SERVER_NAME"] = "127.0.0.1";
+	cgiEnvironment["SERVER_SOFTWARE"] = "SillyLittleSoftware/1.0"; //fetch from config?
+	cgiEnvironment["SERVER_NAME"] = "127.0.0.1"; //fetch from config?
 	cgiEnvironment["QUERY_STRING"] = transferToString(request.getParameters());
 
 	return cgiEnvironment;
@@ -132,7 +131,7 @@ int CgiHandler::executeCgi(HttpRequest request)
 		exit(status);
 	}
 
-	//TODO: make a function to free the strArray?
+	//TODO: make a function to free the string arrays?
 
 	for (int i = 0; environmentString[i]; i++)
 		delete [] environmentString[i];
