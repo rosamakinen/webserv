@@ -50,10 +50,17 @@ void HttpRequestParser::parseRequestLine(std::string &requestLine, Util::METHOD&
 		throw BadRequestException("Empty requestline");
 	method = parseMethod(requestLine);
 	uri = parseUri(requestLine, parameters);
+	validateLocation(uri, server);
 	validateMethod(uri, method, server);
 	parseCgiMethod(method, uri);
 
 	version = parseVersion(requestLine);
+}
+
+void HttpRequestParser::validateLocation(std::string& uri, Server *server)
+{
+	if (!server->isLocationInServer(getDirectoryFromUri(uri)))
+		throw ForbiddenException("Access forbidden");
 }
 
 void HttpRequestParser::validateMethod(std::string& uri, Util::METHOD method, Server *server)

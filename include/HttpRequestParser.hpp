@@ -26,6 +26,7 @@ class HttpRequestParser
 		bool 	findCgi(std::string uri);
 		bool	validateCgi(std::string uri);
 		void	validateMethod(std::string& uri, Util::METHOD method, Server *server);
+		void 	validateLocation(std::string& uri, Server *server);
 
 	public:
 		HttpRequestParser();
