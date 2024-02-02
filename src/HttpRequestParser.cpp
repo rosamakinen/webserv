@@ -60,7 +60,7 @@ void HttpRequestParser::parseRequestLine(std::string &requestLine, Util::METHOD&
 void HttpRequestParser::validateLocation(std::string& uri, Server *server)
 {
 	if (!server->isLocationInServer(getDirectoryFromUri(uri)))
-		throw ForbiddenException("Access forbidden");
+		throw NotFoundException("Location does not exist");
 }
 
 void HttpRequestParser::validateMethod(std::string& uri, Util::METHOD method, Server *server)
