@@ -1,10 +1,12 @@
 
 #include "CgiHandler.hpp"
 
-static const char *transferToString(std::map<std::string, std::string> input)
+static std::string transferToString(std::map<std::string, std::string> input)
 {
 	std::string base = "";
 
+	if (input.empty())
+		return base;
 	for (std::map<std::string, std::string>::iterator it = input.begin(); it != input.end(); it++)
 	{
 		base.append(it->first);
@@ -13,8 +15,8 @@ static const char *transferToString(std::map<std::string, std::string> input)
 		base.append("&");
 	}
 	base.pop_back();
-	const char *string = base.c_str();
-	return string;
+
+	return base;
 }
 
 
@@ -76,7 +78,9 @@ char **getArguments(HttpRequest request)
 {
 	char **argumentString = new char*[3];
 
-	std::string fullPath = FileHandler::getFilePath(request.getUri());
+	std::string base = "/public_www/";
+	base.append(request.getUri());
+	std::string fullPath = FileHandler::getFilePath(base);
 	std::string shebang = findInterpreterPath(fullPath);
 
 	argumentString[0] = strdup(shebang.c_str());
@@ -90,18 +94,36 @@ static int	executeChild(char **argumentString, char **environmentString)
 {
 	int result = execve(argumentString[0], argumentString, environmentString);
 	if (result == -1)
-		throw InternalException("Excecve failed");
+		exit(1);
 	return result;
 }
 
-int CgiHandler::executeCgi(HttpRequest request)
+
+std::string	readCgi(int *pipe_out)
 {
+	std::string	response;
+	char		buffer[5000];
+	int			readBytes;
 
+	close(pipe_out[1]);
+	while (1)
+	{
+		readBytes = read(pipe_out[0], buffer, sizeof(buffer));
+		if (readBytes <= 0)
+			break;
+		buffer[readBytes - 1] = '\0';
+		response.append(buffer);
+	}
+	close(pipe_out[0]);
+	return response;
+}
 
+std::string	CgiHandler::executeCgi(HttpRequest request)
+{
 	std::map<std::string, std::string> cgiEnvironment = initCgiEnvironment(request);
 	char **environmentString = transferToStringArray(cgiEnvironment);
 	char **argumentString = getArguments(request);
-	int status = 0;
+	std::string response;
 
 	int pipe_in[2];
 	if (pipe(pipe_in) < 0)
@@ -115,7 +137,8 @@ int CgiHandler::executeCgi(HttpRequest request)
 
 		throw InternalException("Piping output failed");
 	}
-
+	int savedIn = dup(STDIN_FILENO);
+	int savedOut = dup(STDOUT_FILENO);
 	int pid = fork();
 	if (pid == 0)
 	{
@@ -127,10 +150,22 @@ int CgiHandler::executeCgi(HttpRequest request)
 		close(pipe_out[0]);
 		close(pipe_out[1]);
 
-		status = executeChild(argumentString, environmentString);
-
-		exit(status);
+		executeChild(argumentString, environmentString);
+		exit(0);
 	}
+	else
+	{
+		int status;
+		waitpid(pid, &status, 0);
+		close(pipe_in[0]);
+		close(pipe_in[1]);
+		response = readCgi(pipe_out);
+		close(pipe_out[0]);
+		close(pipe_out[1]);
+	}
+
+	dup2(savedIn, STDIN_FILENO);
+	dup2(savedOut, STDOUT_FILENO);
 
 	//TODO: make a function to free the string arrays?
 
@@ -142,8 +177,5 @@ int CgiHandler::executeCgi(HttpRequest request)
 		delete [] argumentString[i];
 	delete [] argumentString;
 
-	//TODO: wait for the child process to stop, close pipes etc.
-	// Time out, dont wait forever for child to execute
-
-	return status;
+	return response;
 }
