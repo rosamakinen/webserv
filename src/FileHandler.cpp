@@ -140,7 +140,7 @@ std::string FileHandler::getFileContent(std::string path)
 
 std::string FileHandler::getErrorFileContent(unsigned int status)
 {
-	std::string relativePath("/public_www/error_pages/");
+	std::string relativePath(DEFAULT_ERRORPAGES_PATH);
 	relativePath.append(std::to_string(status)).append(".html");
 
 	std::string path(getFilePath(relativePath));

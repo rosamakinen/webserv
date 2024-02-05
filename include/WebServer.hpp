@@ -23,6 +23,8 @@
 #define LOCAL_DIR			"directory"
 #define INDEX				"index"
 
+#define DEFAULT_ERRORPAGES_PATH "/public_www/error_pages/"
+
 #define HTTP_METHOD			"method"
 #define HTTP_GET			"GET"
 #define HTTP_POST			"POST"
