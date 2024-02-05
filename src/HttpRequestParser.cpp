@@ -4,12 +4,6 @@ HttpRequestParser::HttpRequestParser() {}
 
 HttpRequestParser::~HttpRequestParser() {}
 
-static std::string getDirectoryFromUri(const std::string& uri)
-{
-	size_t pos = uri.find_last_of('/');
-	return (pos == std::string::npos) ? "" : uri.substr(0, pos + 1);
-}
-
 HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Server *server)
 {
 	std::stringstream					ss(requestInput);
@@ -50,15 +44,22 @@ void HttpRequestParser::parseRequestLine(std::string &requestLine, Util::METHOD&
 		throw BadRequestException("Empty requestline");
 	method = parseMethod(requestLine);
 	uri = parseUri(requestLine, parameters);
+	validateLocation(uri, server);
 	validateMethod(uri, method, server);
-	parseCgiMethod(method, uri);
+	parseCgiMethod(method, uri, server);
 
 	version = parseVersion(requestLine);
 }
 
+void HttpRequestParser::validateLocation(std::string& uri, Server *server)
+{
+	if (!server->isLocationInServer(Util::getDirectoryFromUri(uri)))
+		throw NotFoundException("Location does not exist");
+}
+
 void HttpRequestParser::validateMethod(std::string& uri, Util::METHOD method, Server *server)
 {
-	const std::vector<std::string> *values = server->getLocationValue(getDirectoryFromUri(uri), HTTP_METHOD);
+	const std::vector<std::string> *values = server->getLocationValue(Util::getDirectoryFromUri(uri), HTTP_METHOD);
 
 	if (values == nullptr || values->size() < 1)
 		throw MethodNotAllowedException("Requested method is not allowed for the location");
@@ -87,9 +88,15 @@ Util::METHOD HttpRequestParser::parseMethod(std::string &requestLine)
 	}
 }
 
-void HttpRequestParser::parseCgiMethod(Util::METHOD &method, std::string &uri)
+void HttpRequestParser::parseCgiMethod(Util::METHOD &method, std::string &uri, Server *server)
 {
-	if (findCgi(uri) == true)
+	std::string workingPath = Util::getDirectoryFromUri(uri), workingFile = Util::getFileFromUri(uri);
+
+	const std::vector<std::string>* workingDir = server->getLocationValue(workingPath, LOCAL_DIR);
+	if (workingDir != nullptr && workingDir->size() == 1)
+		workingPath = workingDir->at(0);
+	workingPath.append(workingFile);
+	if (findCgi(workingPath) == true)
 	{
 		if (method == Util::METHOD::GET)
 		{

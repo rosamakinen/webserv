@@ -1,6 +1,7 @@
 
 #include "../include/WebServer.hpp"
 #include "../include/Util.hpp"
+#include "Util.hpp"
 
 const std::string Util::getTimeDateString()
 {
@@ -45,4 +46,16 @@ const std::string Util::translateMethod(Util::METHOD method)
 	}
 
 	return nullptr;
+}
+
+std::string Util::getDirectoryFromUri(const std::string& uri)
+{
+	size_t pos = uri.find_last_of('/');
+	return (pos == std::string::npos) ? "" : uri.substr(0, pos + 1);
+}
+
+std::string Util::getFileFromUri(const std::string& uri)
+{
+	size_t pos = uri.find_last_of('/');
+	return (pos == std::string::npos) ? uri : uri.substr(pos + 1);
 }

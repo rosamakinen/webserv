@@ -1,18 +1,6 @@
 #include "../include/FileHandler.hpp"
 #include "../include/WebServer.hpp"
-#include "FileHandler.hpp"
-
-static std::string getDirectoryFromUri(const std::string& uri)
-{
-	size_t pos = uri.find_last_of('/');
-	return (pos == std::string::npos) ? "" : uri.substr(0, pos + 1);
-}
-
-static std::string getFileFromUri(const std::string& uri)
-{
-	size_t pos = uri.find_last_of('/');
-	return (pos == std::string::npos) ? uri : uri.substr(pos + 1);
-}
+#include "../include/Util.hpp"
 
 std::string FileHandler::getFilePath(std::string relativePath)
 {
@@ -96,7 +84,7 @@ static bool isAutoIndexAllowed(std::string path, Server *server)
 std::string FileHandler::getFileResource(std::string path, std::ios_base::openmode mode, Server *server)
 {
 	std::ifstream file;
-	std::string workingPath = getDirectoryFromUri(path), workingFile = getFileFromUri(path);
+	std::string workingPath = Util::getDirectoryFromUri(path), workingFile = Util::getFileFromUri(path);
 
 	const std::vector<std::string>* workingDir = server->getLocationValue(workingPath, LOCAL_DIR);
 	if (workingDir != nullptr && workingDir->size() == 1)
@@ -105,7 +93,7 @@ std::string FileHandler::getFileResource(std::string path, std::ios_base::openmo
 		throw BadRequestException("Directory key has missing or invalid values.");
 
 	std::string full_path = getFilePath(workingPath.append(workingFile));
-	if (full_path[full_path.length() - 1] == '/' && isAutoIndexAllowed(getDirectoryFromUri(path), server))
+	if (full_path[full_path.length() - 1] == '/' && isAutoIndexAllowed(Util::getDirectoryFromUri(path), server))
 		return buildDirListing(full_path);
 
 	file.open(full_path, mode);

@@ -22,10 +22,11 @@ class HttpRequestParser
 		void	findBody(std::string newLine, bool &bodyFound);
 		void	parseBody(std::string newLine, std::string &body);
 		int		compareAndSubstring(std::string method, std::string &requestLine);
-		void	parseCgiMethod(Util::METHOD &method, std::string &uri);
+		void	parseCgiMethod(Util::METHOD &method, std::string &uri, Server *server);
 		bool 	findCgi(std::string uri);
 		bool	validateCgi(std::string uri);
 		void	validateMethod(std::string& uri, Util::METHOD method, Server *server);
+		void 	validateLocation(std::string& uri, Server *server);
 
 	public:
 		HttpRequestParser();
