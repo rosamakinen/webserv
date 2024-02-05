@@ -38,8 +38,7 @@ std::ios_base::openmode HttpResponse::setContentType(std::string resourcePath)
 
 HttpResponse::HttpResponse(
 	const std::pair<unsigned int, std::string> &status,
-	const std::string& resourcePath,
-	Server *server)
+	HttpRequest *request)
 	: _contentLenght(0),
 	_status(status)
 {
@@ -48,8 +47,8 @@ HttpResponse::HttpResponse(
 	else
 	{
 		// TODO add redirection from configurated root to the index html
-		std::ios_base::openmode mode = setContentType(resourcePath);
-		setBody(FileHandler::getFileResource(resourcePath, mode, server));
+		std::ios_base::openmode mode = setContentType(request->getResourcePath());
+		setBody(FileHandler::getFileResource(request, mode));
 	}
 }
 

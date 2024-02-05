@@ -73,34 +73,26 @@ std::string FileHandler::buildDirListing(std::string full_path)
 	return html;
 }
 
-static bool isAutoIndexAllowed(std::string path, Server *server)
+std::string FileHandler::getFileResource(HttpRequest *request, std::ios_base::openmode mode)
 {
-	const std::vector<std::string> *values = server->getLocationValue(path, AUTO_INDEX);
-	if (values != nullptr && values->size() >= 1 && values->front().compare("true") == 0)
-		return true;
-	throw ForbiddenException("Directory listing not allowed for this location");
-}
+	std::string fullPath = getFilePath(request->getResourcePath());
 
-std::string FileHandler::getFileResource(std::string path, std::ios_base::openmode mode, Server *server)
-{
+	struct stat file_status;
+	stat(fullPath.c_str(), &file_status);
+	if (S_ISDIR(file_status.st_mode))
+	{
+		if (request->getIsDirListing())
+			return buildDirListing(fullPath);
+
+		throw NotFoundException("Directory found but not accessable for directory listing");
+	}
+
 	std::ifstream file;
-	std::string workingPath = Util::getDirectoryFromUri(path), workingFile = Util::getFileFromUri(path);
-
-	const std::vector<std::string>* workingDir = server->getLocationValue(workingPath, LOCAL_DIR);
-	if (workingDir != nullptr && workingDir->size() == 1)
-		workingPath = workingDir->at(0);
-	else
-		throw BadRequestException("Directory key has missing or invalid values.");
-
-	std::string full_path = getFilePath(workingPath.append(workingFile));
-	if (full_path[full_path.length() - 1] == '/' && isAutoIndexAllowed(Util::getDirectoryFromUri(path), server))
-		return buildDirListing(full_path);
-
-	file.open(full_path, mode);
+	file.open(fullPath, mode);
 	if (!file.is_open() || file.fail() || file.bad())
 	{
 		std::string message = "Could not open file ";
-		message.append(full_path);
+		message.append(fullPath);
 		message.append(" for reading");
 		throw NotFoundException(message);
 	}
