@@ -1,5 +1,5 @@
 
-#include "CgiHandler.hpp"
+#include "../include/CgiHandler.hpp"
 
 static const char *transferToString(std::map<std::string, std::string> input)
 {

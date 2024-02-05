@@ -22,6 +22,7 @@
 #define CONFIG_TRUE			"true"
 #define LOCAL_DIR			"directory"
 #define INDEX				"index"
+#define ERRORPAGEBLOCK		"error_page"
 
 #define DEFAULT_ERRORPAGES_PATH "/public_www/error_pages/"
 

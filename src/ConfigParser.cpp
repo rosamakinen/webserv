@@ -57,13 +57,13 @@ static bool directoryExists(const std::string& path)
 	return (info.st_mode & S_IFDIR) != 0;
 }
 
-static bool checkValidDirectory(const std::string& line)
+static bool checkValidDirectory(const std::string& line, std::string key)
 {
 	std::istringstream iss(line);
 	std::string firstWord;
 	iss >> firstWord;
 
-	if (firstWord.compare("directory") == 0)
+	if (firstWord.compare(key) == 0)
 	{
 		std::string directoryPath;
 		if (iss >> directoryPath)
@@ -90,7 +90,7 @@ static void uniChecker(const std::vector<Server *> servers)
 		if (!uniqueNames.insert(name).second)
 			throw ConfigurationException("Duplicate name detected.");
 		if (!uniqueHostPortCombos.insert(hostPortCombo).second)
-			throw ConfigurationException("Duplicate IP/Port combination detected.");
+			throw ConfigurationException("Duplicate IP:Port combination detected.");
 	}
 }
 
@@ -207,10 +207,10 @@ void ConfigParser::processLine(const std::string &line)
 
 	if (keyword.compare(SERVERBLOCK) == 0)
 		checkServer();
-	if (keyword.compare(MAINBLOCK) == 0 || keyword.compare(LOCATIONBLOCK) == 0)
+	if (keyword.compare(MAINBLOCK) == 0 || keyword.compare(LOCATIONBLOCK) == 0 || keyword.compare(ERRORPAGEBLOCK))
 	{
 		if (sectionStack.size() != 1)
-			configError("Main and location blocks must be a direct child of server.", lineNumber);
+			configError("Main, location and error page blocks must be a direct child of server.", lineNumber);
 		currentSection = keyword;
 	}
 	if (currentSection.compare(MAINBLOCK) == 0)
@@ -229,8 +229,24 @@ void ConfigParser::processLine(const std::string &line)
 	}
 	else if (currentSection.compare(LOCATIONBLOCK) == 0)
 	{
-		if (!checkValidDirectory(line))
-			configError("Directory does not exist.", lineNumber);
+		if (!checkValidDirectory(line, "directory"))
+			configError("Directory does not exist", lineNumber);
 		currentServer->addToVectorMap(vStack, line);
+	}
+	else if (currentSection.compare(ERRORPAGEBLOCK) == 0)
+	{
+		if (!checkValidDirectory(line, "index"))
+			configError("Error page does not exist", lineNumber);
+		std::istringstream keyStream(line);
+		std::string statusS;
+		keyStream >> statusS;
+		int status = std::stoi(statusS);
+
+		std::istringstream valueStream(line);
+		std::string value;
+		valueStream >> value;
+
+		if (!currentServer->addErrorPage(status, value))
+			throw ConfigurationException("Failed to add duplicate error page for server configuration");
 	}
 }

@@ -1,6 +1,5 @@
 
 #include "../include/Server.hpp"
-#include "Server.hpp"
 
 Server::Server()
 {
@@ -91,6 +90,13 @@ void	Server::addToVectorMap(vectorMap &vMap, std::string line)
 	vMap.insert(std::pair<std::string, std::vector<std::string> >(key, vstrings));
 }
 
+bool Server::addErrorPage(int status, std::string index)
+{
+	std::pair<std::map<int, std::string>::iterator, bool> result;
+	result = this->_errorpages.insert(std::pair<int, std::string>(status, index));
+	return result.second;
+}
+
 //Getters
 std::string	Server::getName() const
 {
@@ -147,4 +153,12 @@ const std::vector<std::string>*	Server::getLocationValue(std::string location, s
 	}
 
 	return nullptr;
+}
+
+std::string Server::getErrorPageIndex(int status)
+{
+	std::map<int, std::string>::iterator it = this->_errorpages.find(status);
+	if (it == this->_errorpages.end())
+		return nullptr;
+	return it->second;
 }
