@@ -1,5 +1,4 @@
 #include "../include/ConfigParser.hpp"
-#include "../include/Server.hpp"
 
 ConfigParser::ConfigParser() : lineNumber(1)
 {
@@ -120,7 +119,38 @@ void ConfigParser::checkServer()
 	this->servers.push_back(currentServer);
 }
 
-void ConfigParser::checkMain(const std::string& keyword, const std::string& value)
+std::vector<int> ConfigParser::validErrorStatusCodes =
+{
+	400,
+	403,
+	404,
+	405,
+	500,
+	504
+};
+
+bool ConfigParser::invalidErrorPageConfig(int status, std::string path)
+{
+	for (std::vector<int>::iterator it = validErrorStatusCodes.begin(); ; it++)
+	{
+		if (status == *it)
+			break;
+		if (it == validErrorStatusCodes.end())
+			return false;
+	}
+
+	if (path.empty() || path.length() <= 5 || (path.substr(path.length() - 5, path.length()).compare(EXT_HTML) != 0))
+		return false;
+
+	std::string fullPath = FileHandler::getFilePath(path);
+	struct stat file_status;
+	if ((stat(fullPath.c_str(), &file_status) != 0) || S_ISDIR(file_status.st_mode))
+		return false;
+
+	return true;
+}
+
+void ConfigParser::checkMain(const std::string& keyword, const std::string& value, const std::string path)
 {
 	if (this->servers.empty())
 		configError("No server defined for main block.", lineNumber);
@@ -148,6 +178,14 @@ void ConfigParser::checkMain(const std::string& keyword, const std::string& valu
 	}
 	else if (keyword.compare(PARSESIZE) == 0)
 		currentServer->setClientMaxBodySize(std::stol(value));
+	else if (keyword.compare(ERRORPAGE_LOCATION) == 0)
+	{
+		if (value.empty() || path.empty())
+			configError("Invalid error page configuration.", lineNumber);
+		int status = std::stoi(value);
+		if (!invalidErrorPageConfig(status, path))
+			configError("Invalid status code or file path for error page.", lineNumber);
+	}
 }
 
 void ConfigParser::parseConfig(const std::string& filename)
@@ -184,7 +222,6 @@ void ConfigParser::parseConfig(const std::string& filename)
 		}
 		if (!this->servers.empty())
 		{
-			std::cout << "currentSection: '" << currentSection << "', line" <<  processLine << std::endl;
 			Server* currentServer = this->servers.back();
 			if (sectionStack.size() == 1 && vStack.size() != 0)
 			{
@@ -208,7 +245,7 @@ void ConfigParser::processLine(const std::string &line)
 
 	if (keyword.compare(SERVERBLOCK) == 0)
 		checkServer();
-	if (keyword.compare(MAINBLOCK) == 0 || keyword.compare(LOCATIONBLOCK) == 0 || keyword.compare(ERRORPAGEBLOCK) == 0)
+	if (keyword.compare(MAINBLOCK) == 0 || keyword.compare(LOCATIONBLOCK) == 0)
 	{
 		if (sectionStack.size() != 1)
 			configError("Main, location and error page blocks must be direct children of server.", lineNumber);
@@ -219,7 +256,9 @@ void ConfigParser::processLine(const std::string &line)
 	{
 		std::string value;
 		iss >> value;
-		checkMain(keyword, value);
+		std::string path;
+		iss >> path;
+		checkMain(keyword, value, path);
 	}
 
 	if (keyword.compare(LOCATIONBLOCK) == 0)
@@ -228,12 +267,6 @@ void ConfigParser::processLine(const std::string &line)
 		if (currentLocation.empty())
 			configError("Unnamed location.", lineNumber);
 
-	}
-	else if (keyword.compare(ERRORPAGEBLOCK) == 0)
-	{
-		if (!checkValidDirectory(line, "index"))
-			configError("Error page does not exist.", lineNumber);
-		iss >> currentStatus;
 	}
 	else if (currentSection.compare(LOCATIONBLOCK) == 0)
 	{

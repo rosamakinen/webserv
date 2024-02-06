@@ -5,7 +5,10 @@
 #include <fstream>
 #include <sys/types.h>
 #include <dirent.h>
+
 #include "HttpRequest.hpp"
+#include "WebServer.hpp"
+#include "Util.hpp"
 
 class FileHandler
 {

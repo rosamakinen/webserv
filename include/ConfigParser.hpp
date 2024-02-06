@@ -2,6 +2,9 @@
 
 #include "../include/WebServer.hpp"
 #include "../include/Server.hpp"
+#include "../include/FileHandler.hpp"
+
+#include <string>
 
 class ConfigParser
 {
@@ -17,14 +20,14 @@ private:
 	std::vector<std::string> sectionStack;
 	std::string currentSection;
 	std::string currentLocation;
-	int currentStatus;
 	size_t lineNumber;
 	vectorMap vStack;
-	std::pair<int, std::string> currentErrorPagePair;
+
+	static std::vector<int> validErrorStatusCodes;
 
 	void checkServer();
-	void checkMain(const std::string& keyword, const std::string& value);
+	void checkMain(const std::string& keyword, const std::string& value, const std::string path);
+	bool invalidErrorPageConfig(int status, std::string path);
 	void processLine(const std::string &line);
-
 };
 
