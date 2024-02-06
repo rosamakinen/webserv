@@ -99,22 +99,21 @@ static int	executeChild(char **argumentString, char **environmentString)
 }
 
 
-std::string	readCgi(int *pipe_out)
+std::string	readCgi(int pipe_out)
 {
 	std::string	response;
 	char		buffer[5000];
 	int			readBytes;
 
-	close(pipe_out[1]);
 	while (1)
 	{
-		readBytes = read(pipe_out[0], buffer, sizeof(buffer));
+		readBytes = read(pipe_out, buffer, sizeof(buffer));
 		if (readBytes <= 0)
 			break;
-		buffer[readBytes - 1] = '\0';
+		// buffer[readBytes - 1] = '\0';
 		response.append(buffer);
 	}
-	close(pipe_out[0]);
+	close(pipe_out);
 	return response;
 }
 
@@ -137,17 +136,20 @@ std::string	CgiHandler::executeCgi(HttpRequest request)
 
 		throw InternalException("Piping output failed");
 	}
-	int savedIn = dup(STDIN_FILENO);
-	int savedOut = dup(STDOUT_FILENO);
+
+	// int savedIn = dup(STDIN_FILENO);
+	// int savedOut = dup(STDOUT_FILENO);
+
 	int pid = fork();
 	if (pid == 0)
 	{
+		close(pipe_in[1]);
+		close(pipe_out[0]);
+
 		dup2(pipe_in[0],  STDIN_FILENO);
 		dup2(pipe_out[1],  STDOUT_FILENO);
 
 		close(pipe_in[0]);
-		close(pipe_in[1]);
-		close(pipe_out[0]);
 		close(pipe_out[1]);
 
 		executeChild(argumentString, environmentString);
@@ -159,13 +161,12 @@ std::string	CgiHandler::executeCgi(HttpRequest request)
 		waitpid(pid, &status, 0);
 		close(pipe_in[0]);
 		close(pipe_in[1]);
-		response = readCgi(pipe_out);
-		close(pipe_out[0]);
 		close(pipe_out[1]);
+		response = readCgi(pipe_out[0]);
 	}
 
-	dup2(savedIn, STDIN_FILENO);
-	dup2(savedOut, STDOUT_FILENO);
+	// dup2(savedIn, STDIN_FILENO);
+	// dup2(savedOut, STDOUT_FILENO);
 
 	//TODO: make a function to free the string arrays?
 

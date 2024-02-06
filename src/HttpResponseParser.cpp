@@ -4,7 +4,10 @@
 std::string HttpResponseParser::Parse(const HttpResponse &response)
 {
 	if (response.getCgiResponse().empty() == false)
+	{
+		std::cout << "response:  " << response.getCgiResponse() << std::endl;
 		return response.getCgiResponse();
+	}
 
 	std::string responseString;
 

@@ -6,19 +6,20 @@ HttpRequestParser::~HttpRequestParser() {}
 
 HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Server *server)
 {
-	std::stringstream					ss(requestInput);
-	std::string requestLine, uri, version;
-	Util::METHOD method;
-	std::map<std::string, std::string> parameters;
-	getline(ss, requestLine);
-	parseRequestLine(requestLine, method, uri, parameters, version, server);
+	HttpRequest *request = new HttpRequest();
+	std::stringstream ss(requestInput);
+	std::string requestLine;
 
-	std::map<std::string, std::string>	headers;
+	// Parse the request line
+	getline(ss, requestLine);
+	parseRequestLine(requestLine, request, server);
+
+	// Parse the headers
 	while (getline(ss, requestLine))
 	{
 		if (requestLine.compare("\r") == 0)
 			break;
-		parseHeader(requestLine, headers);
+		parseHeader(requestLine, request);
 	}
 
 	std::string	body = "";
@@ -29,41 +30,43 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 		parseBody(requestLine, body);
 	}
 
-	//TODO: when we actually submit the form, the parameters get parsed to the body, and we need to retrieve those from there
-
-	std::string host = getHeaderValue(headers, "Host");
-	HttpRequest *request = new HttpRequest(method, version, uri, host, "body", 14);
-	request->setParameters(parameters);
-
+	request->setHost(request->getHeader("Host"));
 	return request;
 }
 
-void HttpRequestParser::parseRequestLine(std::string &requestLine, Util::METHOD& method, std::string &uri, std::map<std::string, std::string>& parameters, std::string &version, Server *server)
+void HttpRequestParser::parseRequestLine(std::string &requestLine, HttpRequest *request, Server *server)
 {
 	if (requestLine.empty())
 		throw BadRequestException("Empty requestline");
-	method = parseMethod(requestLine);
-	uri = parseUri(requestLine, parameters);
-	validateLocation(uri, server);
-	validateMethod(uri, method, server);
-	parseCgiMethod(method, uri, server);
-
-	version = parseVersion(requestLine);
+	parseMethod(requestLine, request);
+	parseUri(requestLine, request);
+	parseDirectoryAndLocation(request, server);
+	validateMethod(request, server);
+	parseIndexPathAndDirectoryListing(request, server);
+	validateVersion(requestLine);
 }
 
-void HttpRequestParser::validateLocation(std::string& uri, Server *server)
+void HttpRequestParser::parseDirectoryAndLocation(HttpRequest *request, Server *server)
 {
-	if (!server->isLocationInServer(Util::getDirectoryFromUri(uri)))
+	std::string directoryPath = Util::getDirectoryFromUri(request->getUri());
+	if (!server->isLocationInServer(directoryPath))
 		throw NotFoundException("Location does not exist");
+	request->setLocation(directoryPath);
+
+	const std::vector<std::string>* workingDir = server->getLocationValue(directoryPath, LOCAL_DIR);
+	if (workingDir == nullptr && workingDir->size() != 1)
+		throw BadRequestException("Location has missing or invalid values");
+
+	request->setDirectory(workingDir->front());
 }
 
-void HttpRequestParser::validateMethod(std::string& uri, Util::METHOD method, Server *server)
+void HttpRequestParser::validateMethod(HttpRequest *request, Server *server)
 {
-	const std::vector<std::string> *values = server->getLocationValue(Util::getDirectoryFromUri(uri), HTTP_METHOD);
-
+	const std::vector<std::string> *values = server->getLocationValue(request->getLocation(), HTTP_METHOD);
 	if (values == nullptr || values->size() < 1)
 		throw MethodNotAllowedException("Requested method is not allowed for the location");
 
+	Util::METHOD method = request->getMethod();
 	for (std::vector<std::string>::const_iterator it = values->begin(); it != values->end(); it++)
 	{
 		if (it->compare(Util::translateMethod(method)) == 0)
@@ -73,42 +76,63 @@ void HttpRequestParser::validateMethod(std::string& uri, Util::METHOD method, Se
 	throw MethodNotAllowedException("Requested method is not allowed for the location");
 }
 
-Util::METHOD HttpRequestParser::parseMethod(std::string &requestLine)
+void HttpRequestParser::parseMethod(std::string &requestLine, HttpRequest *request)
 {
+	Util::METHOD method = Util::METHOD::NONE;
 	if (compareAndSubstring("GET ", requestLine) == 0)
-		return Util::METHOD::GET;
+		method = Util::METHOD::GET;
 	else if (compareAndSubstring("POST ", requestLine) == 0)
-		return Util::METHOD::POST;
+		method = Util::METHOD::POST;
 	else if (compareAndSubstring("DELETE ", requestLine) == 0)
-		return Util::METHOD::DELETE;
+		method = Util::METHOD::DELETE;
+	else
+		parseMethodStr(requestLine);
+
+	request->setMethod(method);
+}
+
+void HttpRequestParser::parseIndexPathAndDirectoryListing(HttpRequest *request, Server *server)
+{
+	std::string uri = request->getUri();
+	if (uri[uri.length() - 1] == '/')
+	{
+		const std::vector<std::string> *indexValues = server->getLocationValue(request->getLocation(), INDEX);
+		if (indexValues != nullptr)
+		{
+			std::string indexPath = request->getDirectory();
+			indexPath.append(indexValues->front());
+			request->setResourcePath(indexPath);
+			return;
+		}
+
+		const std::vector<std::string> *autoIndexValues = server->getLocationValue(request->getLocation(), AUTO_INDEX);
+		if (autoIndexValues != nullptr && autoIndexValues->size() >= 1 && autoIndexValues->front().compare("true") == 0)
+		{
+			request->setResourcePath(request->getDirectory());
+			request->setIsDirListing(true);
+			return;
+		}
+
+		throw ForbiddenException("Autoindexing not enabled for requested resource");
+	}
 	else
 	{
-		parseMethodStr(requestLine);
-		return Util::METHOD::NONE;
+		std::string indexPath = request->getDirectory();
+		indexPath.append(Util::getFileFromUri(request->getUri()));
+		request->setResourcePath(indexPath);
 	}
 }
 
-void HttpRequestParser::parseCgiMethod(Util::METHOD &method, std::string &uri, Server *server)
+void HttpRequestParser::parseCgiMethod(HttpRequest *request)
 {
-	std::string workingPath = Util::getDirectoryFromUri(uri), workingFile = Util::getFileFromUri(uri);
+	Util::METHOD method = request->getMethod();
+	if (!findCgi(request->getResourcePath()))
+		return ;
 
-	const std::vector<std::string>* workingDir = server->getLocationValue(workingPath, LOCAL_DIR);
-	if (workingDir != nullptr && workingDir->size() == 1)
-		workingPath = workingDir->at(0);
-	workingPath.append(workingFile);
-	if (findCgi(workingPath) == true)
-	{
-		if (method == Util::METHOD::GET)
-		{
-			method = Util::METHOD::CGI_GET;
-			return ;
-		}
-		if (method == Util::METHOD::POST)
-		{
-			method = Util::METHOD::CGI_POST;
-			return ;
-		}
-	}
+	if (method == Util::METHOD::GET)
+		request->setMethod(Util::METHOD::CGI_GET);
+	else if (method == Util::METHOD::POST)
+		request->setMethod(Util::METHOD::CGI_POST);
 }
 
 bool HttpRequestParser::findCgi(std::string uri)
@@ -122,10 +146,10 @@ bool HttpRequestParser::findCgi(std::string uri)
 	return false;
 }
 
-bool HttpRequestParser::validateCgi(std::string uri)
+bool HttpRequestParser::validateCgi(std::string path)
 {
 	std::string suffix = ".py";
-	std::string fullPath = FileHandler::getFilePath(uri);
+	std::string fullPath = FileHandler::getFilePath(path);
 
 	if (access(fullPath.c_str(), X_OK) == 0)
 	{
@@ -133,6 +157,7 @@ bool HttpRequestParser::validateCgi(std::string uri)
 		if (pos != std::string::npos)
 			return true;
 	}
+
 	throw BadRequestException("Bad CGI request");
 	return false;
 }
@@ -147,11 +172,10 @@ int	HttpRequestParser::compareAndSubstring(std::string method, std::string &requ
 	return 1;
 }
 
-const std::string HttpRequestParser::parseVersion(std::string &requestLine)
+void HttpRequestParser::validateVersion(std::string &requestLine)
 {
 	if (requestLine.compare(HTTP_VERSION) == 0)
-		throw BadRequestException("Wrong Http version");
-	return HTTP_VERSION;
+		throw BadRequestException("Unsupported HTTP version");
 }
 
 const std::string HttpRequestParser::parseMethodStr(std::string &requestLine)
@@ -184,10 +208,10 @@ void HttpRequestParser::parseParameters(std::string uri, std::map<std::string, s
 	}
 }
 
-const std::string HttpRequestParser::parseUri(std::string &requestLine, std::map<std::string, std::string>& parameters)
+void HttpRequestParser::parseUri(std::string &requestLine, HttpRequest *request)
 {
 	std::string uri;
-
+	std::map<std::string, std::string> parameters;
 	size_t uriPos = requestLine.find('?');
 	size_t paramPos = requestLine.find(' ');
 	if (uriPos < paramPos)
@@ -202,7 +226,8 @@ const std::string HttpRequestParser::parseUri(std::string &requestLine, std::map
 		requestLine = requestLine.substr(paramPos, requestLine.length());
 	}
 
-	return uri;
+	request->setUri(uri);
+	request->setParameters(parameters);
 }
 
 const std::string HttpRequestParser::getHeaderValue(std::map<std::string, std::string> &headers, std::string toFind)
@@ -215,7 +240,7 @@ const std::string HttpRequestParser::getHeaderValue(std::map<std::string, std::s
 	return it->second;
 }
 
-void HttpRequestParser::parseHeader(const std::string &line, std::map<std::string, std::string> &headers)
+void HttpRequestParser::parseHeader(const std::string &line, HttpRequest *request)
 {
 	size_t pos = line.find(':');
 	if (pos != std::string::npos)
@@ -224,17 +249,9 @@ void HttpRequestParser::parseHeader(const std::string &line, std::map<std::strin
 		std::string value = line.substr(pos + 2);
 		value.replace(value.length() - 1, value.length(), "");
 
-		std::pair<std::map<std::string, std::string>::iterator, bool> result;
-		result = headers.insert(std::pair<std::string, std::string>(key, value));
-		if (result.second == false)
+		if (!request->setHeader(key, value))
 			throw BadRequestException("Duplicate header found");
 	}
-}
-
-void HttpRequestParser::findBody(std::string newLine, bool &bodyFound)
-{
-	if (bodyFound == false && newLine.compare(HTTP_LINEBREAK))
-		bodyFound = true;
 }
 
 void HttpRequestParser::parseBody(std::string newLine, std::string &body)

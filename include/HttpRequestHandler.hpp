@@ -16,5 +16,5 @@ class HttpRequestHandler
 		HttpRequestHandler();
 		~HttpRequestHandler();
 
-		void	handleRequest(Client *client, Server *server);
+		void	handleRequest(Client *client);
 };

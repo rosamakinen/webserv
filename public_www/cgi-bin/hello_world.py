@@ -2,23 +2,27 @@
 
 import os
 import sys
+from datetime import datetime
 
-# Get data from fields
+# Get data from form
 form_input = os.environ.get('QUERY_STRING')
 
-# form_input = "first_name=rosa&last_name=rmrmr"
+if not form_input:
+	date_time = datetime.now()
+	html_content = f"<html>Hello this is CGI error </html>" #how to access the error pages here? can we put out our own error??
+	response = f"HTTP/1.1 400 Bad Request\r\nDate: {date_time}\r\nContent-Type: text/html\r\nContent-Length: {len(html_content)} \r\n\r\n"
+	sys.stdout.write(response + html_content)
+	exit()
 
-if form_input == None:
-	output = "500 internal CGI error"
-	sys.stdout.write(output)
-	sys.exit
 
 parts = form_input.split("&")
 
 if len(parts) != 2:
-	output = "500 internal CGI error"
-	sys.stdout.write(output)
-	sys.exit
+	date_time = datetime.now()
+	html_content = f"<html>Hello this is CGI error </html>" #how to access the error pages here? can we put out our own error??
+	response = f"HTTP/1.1 400 Bad Request\r\nDate: {date_time}\r\nContent-Type: text/html\r\nContent-Length: {len(html_content)} \r\n\r\n"
+	sys.stdout.write(response + html_content)
+	exit()
 
 first_name = parts[0].split("=")[1]
 last_name = parts[1].split("=")[1]
@@ -34,8 +38,9 @@ last_name = parts[1].split("=")[1]
 # print ('</body>')
 # print ('</html>')
 
-html_content = f"<html>Hello {first_name} {last_name} </html>"
-response = f"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: {len(html_content)} \r\n\r\n"
+date_time = datetime.now()
+html_content = f"<html><head>Hello {first_name} {last_name} </head></html>"
+response = f"HTTP/1.1 200 OK\r\nDate: {date_time}\r\nContent-Type: text/html\r\nContent-Length: {len(html_content)} \r\n\r\n"
 sys.stdout.write(response + html_content)
 
 # Write a valid httpresponse to stdout

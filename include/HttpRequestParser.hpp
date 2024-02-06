@@ -2,6 +2,7 @@
 #pragma once
 
 #include "HttpRequest.hpp"
+#include "Server.hpp"
 #include "FileHandler.hpp"
 #include <string>
 #include <iostream>
@@ -11,22 +12,22 @@
 class HttpRequestParser
 {
 	private:
-		void	parseParameters(std::string uri, std::map<std::string, std::string>& parameters);
-		void	parseRequestLine(std::string &requestLine, Util::METHOD &method, std::string &uri, std::map<std::string, std::string>& parameters, std::string &version, Server *server);
-		Util::METHOD		parseMethod(std::string &requestLine);
-		const std::string		parseVersion(std::string &requestLine);
-		const std::string		parseMethodStr(std::string &requestLine);
-		const std::string		parseUri(std::string &requestLine, std::map<std::string, std::string>& parameters);
-		const std::string		getHeaderValue(std::map<std::string, std::string> &headers, std::string toFind);
-		void	parseHeader(const std::string &request, std::map<std::string, std::string> &headers);
-		void	findBody(std::string newLine, bool &bodyFound);
-		void	parseBody(std::string newLine, std::string &body);
-		int		compareAndSubstring(std::string method, std::string &requestLine);
-		void	parseCgiMethod(Util::METHOD &method, std::string &uri, Server *server);
-		bool 	findCgi(std::string uri);
-		bool	validateCgi(std::string uri);
-		void	validateMethod(std::string& uri, Util::METHOD method, Server *server);
-		void 	validateLocation(std::string& uri, Server *server);
+		void parseParameters(std::string uri, std::map<std::string, std::string>& parameters);
+		void parseUri(std::string &requestLine, HttpRequest *request);
+		void parseRequestLine(std::string &requestLine, HttpRequest *request, Server *server);
+		void parseDirectoryAndLocation(HttpRequest *request, Server *server);
+		void validateMethod(HttpRequest *request, Server *server);
+		void parseMethod(std::string &requestLine, HttpRequest *request);
+		void parseIndexPathAndDirectoryListing(HttpRequest *request, Server *server);
+		void parseHeader(const std::string &line, HttpRequest *request);
+		void validateVersion(std::string &requestLine);
+		const std::string parseMethodStr(std::string &requestLine);
+		const std::string getHeaderValue(std::map<std::string, std::string> &headers, std::string toFind);
+		void parseBody(std::string newLine, std::string &body);
+		int compareAndSubstring(std::string method, std::string &requestLine);
+		void parseCgiMethod(HttpRequest *request);
+		bool findCgi(std::string uri);
+		bool validateCgi(std::string uri);
 
 	public:
 		HttpRequestParser();
