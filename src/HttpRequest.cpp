@@ -1,20 +1,7 @@
 
 #include "../include/HttpRequest.hpp"
-#include "HttpRequest.hpp"
 
-HttpRequest::HttpRequest(
-	Util::METHOD method,
-	const std::string& version,
-	const std::string& uri,
-	const std::string& host,
-	const std::string body,
-	const int& contentLength
-	) : _method(method),
-	_version(version),
-	_uri(uri),
-	_host(host),
-	_body(body),
-	_contentLength(contentLength)
+HttpRequest::HttpRequest() : _version("HTTP/1.1"), _isDirListing(false)
 {
 }
 
@@ -23,32 +10,92 @@ HttpRequest::~HttpRequest()
 	_parameters.clear();
 }
 
-Util::METHOD	HttpRequest::getMethod() const
+void HttpRequest::setMethod(Util::METHOD method)
+{
+	this->_method = method;
+}
+
+void HttpRequest::setDirectory(std::string directoryPath)
+{
+	this->_directory = directoryPath;
+}
+
+void HttpRequest::setUri(std::string uri)
+{
+	this->_uri = uri;
+}
+
+void HttpRequest::setHost(std::string host)
+{
+	this->_host = host;
+}
+
+void HttpRequest::setLocation(std::string location)
+{
+	this->_location = location;
+}
+
+void HttpRequest::setResourcePath(std::string path)
+{
+	this->_resourcePath = path;
+}
+
+void HttpRequest::appendBody(std::string body)
+{
+	this->_body.append(body);
+}
+
+void HttpRequest::setContentLength(int contentLength)
+{
+	this->_contentLength = contentLength;
+}
+
+void HttpRequest::setIsDirListing(bool isDirListing)
+{
+	this->_isDirListing = isDirListing;
+}
+
+bool HttpRequest::getIsDirListing()
+{
+	return this->_isDirListing;
+}
+
+Util::METHOD HttpRequest::getMethod() const
 {
 	return this->_method;
 }
 
-const std::string			HttpRequest::getVersion() const
+std::string HttpRequest::getLocation() const
 {
-	return this->_version;
+	return this->_location;
 }
 
-const std::string			HttpRequest::getUri() const
+std::string HttpRequest::getResourcePath() const
+{
+	return this->_resourcePath;
+}
+
+std::string HttpRequest::getDirectory() const
+{
+	return this->_directory;
+}
+
+const std::string HttpRequest::getUri() const
 {
 	return this->_uri;
 }
 
-const std::string			HttpRequest::getHost() const
+const std::string HttpRequest::getHost() const
 {
 	return this->_host;
 }
 
-const std::string			HttpRequest::getBody() const
+const std::string HttpRequest::getBody() const
 {
 	return this->_body;
 }
 
-const int&					HttpRequest::getContentLength() const
+const int& HttpRequest::getContentLength() const
 {
 	return this->_contentLength;
 }
@@ -58,7 +105,27 @@ void HttpRequest::setParameters(std::map<std::string, std::string> parameters)
 	this->_parameters = parameters;
 }
 
-const std::map<std::string, std::string> HttpRequest::getParameters()
+std::map<std::string, std::string> HttpRequest::getParameters()
 {
 	return this->_parameters;
+}
+
+std::map<std::string, std::string> HttpRequest::getHeaders()
+{
+	return this->_headers;
+}
+
+bool HttpRequest::setHeader(std::string key, std::string value)
+{
+	std::pair<std::map<std::string, std::string>::iterator, bool> result;
+	result = this->_headers.insert(std::pair<std::string, std::string>(key, value));
+	return result.second;
+}
+
+const std::string HttpRequest::getHeader(std::string key)
+{
+	std::map<std::string, std::string>::iterator it = this->_headers.find(key);
+	if (it == this->_headers.end())
+		return nullptr;
+	return it->second;
 }

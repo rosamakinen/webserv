@@ -174,7 +174,7 @@ void ServerHandler::handleIncomingRequest(pollfd *fd)
 
 	// TODO: separate to handler part
 	HttpRequestHandler requestHandler;
-	requestHandler.handleRequest(client, server);
+	requestHandler.handleRequest(client);
 	fd->events = POLLOUT;
 }
 
@@ -193,7 +193,7 @@ void ServerHandler::handleOutgoingResponse(pollfd *fd)
 
 void ServerHandler::handleOutgoingError(const Exception& e, pollfd *fd)
 {
-	HttpResponse *response = new HttpResponse(ExceptionManager::getErrorStatus(e), "", nullptr);
+	HttpResponse *response = new HttpResponse(ExceptionManager::getErrorStatus(e), nullptr);
 	std::map<int, Client*>::iterator it = _clients.find(fd->fd);
 	if (it != _clients.end())
 	{

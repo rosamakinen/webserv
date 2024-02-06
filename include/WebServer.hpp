@@ -17,10 +17,13 @@
 #define SERVERBLOCK			"server"
 #define MAINBLOCK			"main"
 #define LOCATIONBLOCK		"location"
-#define CGI_LOCATION		"/cgi-bin"
+#define CGI_LOCATION		"cgi-bin"
 #define AUTO_INDEX			"autoindex"
 #define CONFIG_TRUE			"true"
 #define LOCAL_DIR			"directory"
+#define INDEX				"index"
+
+#define DEFAULT_ERRORPAGES_PATH "/public_www/error_pages/"
 
 #define HTTP_METHOD			"method"
 #define HTTP_GET			"GET"
