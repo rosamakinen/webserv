@@ -184,6 +184,7 @@ void ConfigParser::parseConfig(const std::string& filename)
 		}
 		if (!this->servers.empty())
 		{
+			std::cout << "currentSection: '" << currentSection << "', line" <<  processLine << std::endl;
 			Server* currentServer = this->servers.back();
 			if (sectionStack.size() == 1 && vStack.size() != 0)
 			{
@@ -207,12 +208,13 @@ void ConfigParser::processLine(const std::string &line)
 
 	if (keyword.compare(SERVERBLOCK) == 0)
 		checkServer();
-	if (keyword.compare(MAINBLOCK) == 0 || keyword.compare(LOCATIONBLOCK) == 0 || keyword.compare(ERRORPAGEBLOCK))
+	if (keyword.compare(MAINBLOCK) == 0 || keyword.compare(LOCATIONBLOCK) == 0 || keyword.compare(ERRORPAGEBLOCK) == 0)
 	{
 		if (sectionStack.size() != 1)
 			configError("Main, location and error page blocks must be direct children of server.", lineNumber);
 		currentSection = keyword;
 	}
+
 	if (currentSection.compare(MAINBLOCK) == 0)
 	{
 		std::string value;
@@ -227,26 +229,16 @@ void ConfigParser::processLine(const std::string &line)
 			configError("Unnamed location.", lineNumber);
 
 	}
+	else if (keyword.compare(ERRORPAGEBLOCK) == 0)
+	{
+		if (!checkValidDirectory(line, "index"))
+			configError("Error page does not exist.", lineNumber);
+		iss >> currentStatus;
+	}
 	else if (currentSection.compare(LOCATIONBLOCK) == 0)
 	{
 		if (!checkValidDirectory(line, "directory"))
 			configError("Directory does not exist.", lineNumber);
 		currentServer->addToVectorMap(vStack, line);
-	}
-	else if (currentSection.compare(ERRORPAGEBLOCK) == 0)
-	{
-		if (!checkValidDirectory(line, "index"))
-			configError("Error page does not exist.", lineNumber);
-		std::istringstream keyStream(line);
-		std::string statusS;
-		keyStream >> statusS;
-		int status = std::stoi(statusS);
-
-		std::istringstream valueStream(line);
-		std::string value;
-		valueStream >> value;
-
-		if (!currentServer->addErrorPage(status, value))
-			throw ConfigurationException("Failed to add duplicate error page for server configuration.");
 	}
 }

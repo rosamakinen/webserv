@@ -17,8 +17,10 @@ private:
 	std::vector<std::string> sectionStack;
 	std::string currentSection;
 	std::string currentLocation;
+	int currentStatus;
 	size_t lineNumber;
 	vectorMap vStack;
+	std::pair<int, std::string> currentErrorPagePair;
 
 	void checkServer();
 	void checkMain(const std::string& keyword, const std::string& value);
