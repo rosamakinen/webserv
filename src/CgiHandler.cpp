@@ -77,10 +77,8 @@ char **getArguments(HttpRequest request)
 	char **argumentString = new char*[3];
 
 	std::string fullPath = FileHandler::getFilePath(request.getResourcePath());
-
-	std::cout << "fullPath " << fullPath << std::endl;
-
 	std::string shebang = findInterpreterPath(fullPath);
+
 	argumentString[0] = strdup(shebang.c_str());
 	argumentString[1] = strdup(fullPath.c_str());
 	argumentString[2] = nullptr;
