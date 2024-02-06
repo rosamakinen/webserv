@@ -1,6 +1,5 @@
 
 #include "../include/HttpResponse.hpp"
-#include "HttpResponse.hpp"
 
 std::map<std::string, std::string> _contenttypes =
 {
@@ -33,6 +32,8 @@ std::ios_base::openmode HttpResponse::setContentType(std::string resourcePath)
 		return std::ifstream::in;
 	else if (contentTypeSet(resourcePath, EXT_JPEG))
 		return std::ifstream::binary;
+
+	throw UnsupportedMediaTypeException("Server does not support the media type");
 	return std::ifstream::in;
 }
 
@@ -44,7 +45,10 @@ HttpResponse::HttpResponse(
 	_status(status)
 {
 	if (this->getStatus().first != 200)
+	{
+		this->_contentType = _contenttypes.find(EXT_HTML)->second;
 		setBody(FileHandler::getErrorFileContent(status.first, server));
+	}
 	else
 	{
 		// TODO add redirection from configurated root to the index html

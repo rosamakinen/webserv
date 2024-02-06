@@ -16,6 +16,8 @@ std::pair<unsigned int, std::string> ExceptionManager::getErrorStatus(const Exce
 		return std::pair<unsigned int, std::string>(404, "Not Found");
 	else if (typeid(e) == typeid(ForbiddenException))
 		return std::pair<unsigned int, std::string>(403, "Forbidden");
+	else if (typeid(e) == typeid(UnsupportedMediaTypeException))
+		return std::pair<unsigned int, std::string>(415, "Unsupported Media Type");
 
 	// If we fall all the way down here, let's just give a 500
 	return std::pair<unsigned int, std::string>(500, "Internal Server Error");
