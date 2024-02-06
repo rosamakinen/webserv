@@ -92,7 +92,6 @@ void	Server::addToVectorMap(vectorMap &vMap, std::string line)
 
 bool Server::addErrorPage(int status, std::string index)
 {
-	std::cout << "Added error page" << std::endl;
 	std::pair<std::map<int, std::string>::iterator, bool> result;
 	result = this->_errorpages.insert(std::pair<int, std::string>(status, index));
 	return result.second;
@@ -156,7 +155,7 @@ const std::vector<std::string>*	Server::getLocationValue(std::string location, s
 	return nullptr;
 }
 
-std::string Server::getErrorPageIndex(int status)
+std::string Server::getErrorPagePath(int status)
 {
 	std::map<int, std::string>::iterator it = this->_errorpages.find(status);
 	if (it == this->_errorpages.end())

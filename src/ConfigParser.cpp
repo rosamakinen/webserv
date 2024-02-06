@@ -182,9 +182,21 @@ void ConfigParser::checkMain(const std::string& keyword, const std::string& valu
 	{
 		if (value.empty() || path.empty())
 			configError("Invalid error page configuration.", lineNumber);
-		int status = std::stoi(value);
+		int status = 0;
+		try
+		{
+			status = std::stoi(value);
+		}
+		catch(const std::exception& e)
+		{
+			configError("Invalid status code.", lineNumber);
+		}
+
 		if (!invalidErrorPageConfig(status, path))
-			configError("Invalid status code or file path for error page.", lineNumber);
+			configError("Invalid error page configuration.", lineNumber);
+
+		if (!currentServer->addErrorPage(status, path))
+			configError("Duplicate error page configuration.", lineNumber);
 	}
 }
 
