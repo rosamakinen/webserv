@@ -14,7 +14,8 @@ class HttpResponse
 		~HttpResponse(void);
 		HttpResponse(
 			const std::pair<unsigned int, std::string> &status,
-			HttpRequest *request);
+			HttpRequest *request,
+			Server *server);
 
 		void	setBody(const std::string body);
 		void	setStatus(const std::pair<unsigned int, std::string> &status);

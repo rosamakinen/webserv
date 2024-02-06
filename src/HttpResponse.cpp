@@ -38,12 +38,13 @@ std::ios_base::openmode HttpResponse::setContentType(std::string resourcePath)
 
 HttpResponse::HttpResponse(
 	const std::pair<unsigned int, std::string> &status,
-	HttpRequest *request)
+	HttpRequest *request,
+	Server *server)
 	: _contentLenght(0),
 	_status(status)
 {
 	if (this->getStatus().first != 200)
-		setBody(FileHandler::getErrorFileContent(status.first));
+		setBody(FileHandler::getErrorFileContent(status.first, server));
 	else
 	{
 		// TODO add redirection from configurated root to the index html

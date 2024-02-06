@@ -155,7 +155,7 @@ const std::vector<std::string>*	Server::getLocationValue(std::string location, s
 	return nullptr;
 }
 
-std::string Server::getErrorPagePath(int status)
+const std::string Server::getErrorPagePath(int status)
 {
 	std::map<int, std::string>::iterator it = this->_errorpages.find(status);
 	if (it == this->_errorpages.end())
