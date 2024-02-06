@@ -19,7 +19,6 @@ static std::string transferToString(std::map<std::string, std::string> input)
 	return base;
 }
 
-
 static char **transferToStringArray(std::map<std::string, std::string> input)
 {
 	char **stringArray = NULL;
@@ -39,7 +38,6 @@ static char **transferToStringArray(std::map<std::string, std::string> input)
 	return stringArray;
 }
 
-
 static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request)
 {
 	std::map<std::string, std::string> cgiEnvironment;
@@ -48,7 +46,7 @@ static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request
 	cgiEnvironment["GATEWAY_INTERFACE"] = GATEWAY_VERSION;
 	cgiEnvironment["SERVER_PROTOCOL"] = HTTP_VERSION;
 	cgiEnvironment["REQUEST_METHOD"] = Util::translateMethod(request.getMethod());
-	cgiEnvironment["SCRIPT_FILENAME"] = FileHandler::getFilePath(request.getUri());
+	cgiEnvironment["SCRIPT_FILENAME"] = FileHandler::getFilePath(request.getResourcePath());
 	cgiEnvironment["SERVER_SOFTWARE"] = "SillyLittleSoftware/1.0"; //fetch from config?
 	cgiEnvironment["SERVER_NAME"] = "127.0.0.1"; //fetch from config?
 	cgiEnvironment["QUERY_STRING"] = transferToString(request.getParameters());
@@ -78,11 +76,11 @@ char **getArguments(HttpRequest request)
 {
 	char **argumentString = new char*[3];
 
-	std::string base = "/public_www/";
-	base.append(request.getUri());
-	std::string fullPath = FileHandler::getFilePath(base);
-	std::string shebang = findInterpreterPath(fullPath);
+	std::string fullPath = FileHandler::getFilePath(request.getResourcePath());
 
+	std::cout << "fullPath " << fullPath << std::endl;
+
+	std::string shebang = findInterpreterPath(fullPath);
 	argumentString[0] = strdup(shebang.c_str());
 	argumentString[1] = strdup(fullPath.c_str());
 	argumentString[2] = nullptr;
@@ -110,7 +108,6 @@ std::string	readCgi(int pipe_out)
 		readBytes = read(pipe_out, buffer, sizeof(buffer));
 		if (readBytes <= 0)
 			break;
-		// buffer[readBytes - 1] = '\0';
 		response.append(buffer);
 	}
 	close(pipe_out);
@@ -137,9 +134,6 @@ std::string	CgiHandler::executeCgi(HttpRequest request)
 		throw InternalException("Piping output failed");
 	}
 
-	// int savedIn = dup(STDIN_FILENO);
-	// int savedOut = dup(STDOUT_FILENO);
-
 	int pid = fork();
 	if (pid == 0)
 	{
@@ -164,9 +158,6 @@ std::string	CgiHandler::executeCgi(HttpRequest request)
 		close(pipe_out[1]);
 		response = readCgi(pipe_out[0]);
 	}
-
-	// dup2(savedIn, STDIN_FILENO);
-	// dup2(savedOut, STDOUT_FILENO);
 
 	//TODO: make a function to free the string arrays?
 

@@ -43,6 +43,7 @@ void HttpRequestParser::parseRequestLine(std::string &requestLine, HttpRequest *
 	parseDirectoryAndLocation(request, server);
 	validateMethod(request, server);
 	parseIndexPathAndDirectoryListing(request, server);
+	parseCgiMethod(request);
 	validateVersion(requestLine);
 }
 
