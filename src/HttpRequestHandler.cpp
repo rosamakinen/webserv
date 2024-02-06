@@ -36,8 +36,9 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 		{
 			//these clauses are added here so we wouldnt segfault untill we have the proper actions
 			std::cout << "we would execute get request cgi here" << std::endl;
-			CgiHandler::executeCgi(*client->getRequest());
+			std::string cgiResponse = CgiHandler::executeCgi(*client->getRequest());
 			HttpResponse *response = new HttpResponse(std::pair<unsigned int, std::string>(200, "OK"), client->getRequest(), server);
+			response->setCgiResponse(cgiResponse);
 			client->setResponse(response);
 			client->setStatus(Client::STATUS::OUTGOING);
 			return;
@@ -47,8 +48,9 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 		{
 			//these clauses are added here so we wouldnt segfault untill we have the proper actions
 			std::cout << "we would execute post request cgi here" << std::endl;
-			CgiHandler::executeCgi(*client->getRequest());
+			std::string cgiResponse = CgiHandler::executeCgi(*client->getRequest());
 			HttpResponse *response = new HttpResponse(std::pair<unsigned int, std::string>(200, "OK"), client->getRequest(), server);
+			response->setCgiResponse(cgiResponse);
 			client->setResponse(response);
 			client->setStatus(Client::STATUS::OUTGOING);
 			return;

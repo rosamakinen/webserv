@@ -37,6 +37,7 @@ std::ios_base::openmode HttpResponse::setContentType(std::string resourcePath)
 	return std::ifstream::in;
 }
 
+
 HttpResponse::HttpResponse(
 	const std::pair<unsigned int, std::string> &status,
 	HttpRequest *request,
@@ -59,6 +60,11 @@ HttpResponse::HttpResponse(
 
 HttpResponse::~HttpResponse(void)
 {
+}
+
+void HttpResponse::setCgiResponse(std::string input)
+{
+	this->_cgiResponse = input;
 }
 
 void HttpResponse::setBody(const std::string body)
@@ -90,4 +96,9 @@ const std::string HttpResponse::getBody() const
 const std::pair<unsigned int, std::string> HttpResponse::getStatus() const
 {
 	return this->_status;
+}
+
+const std::string HttpResponse::getCgiResponse() const
+{
+	return this->_cgiResponse;
 }

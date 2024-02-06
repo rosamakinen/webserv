@@ -3,6 +3,11 @@
 
 std::string HttpResponseParser::Parse(const HttpResponse &response)
 {
+	if (response.getCgiResponse().empty() == false)
+	{
+		return response.getCgiResponse();
+	}
+
 	std::string responseString;
 
 	responseString.append(HTTP_VERSION);
