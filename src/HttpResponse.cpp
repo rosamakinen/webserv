@@ -32,8 +32,6 @@ std::ios_base::openmode HttpResponse::setContentType(std::string resourcePath)
 		return std::ifstream::in;
 	else if (contentTypeSet(resourcePath, EXT_JPEG))
 		return std::ifstream::binary;
-
-	throw UnsupportedMediaTypeException("Server does not support the media type");
 	return std::ifstream::in;
 }
 
