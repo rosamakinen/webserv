@@ -210,7 +210,7 @@ void ConfigParser::processLine(const std::string &line)
 	if (keyword.compare(MAINBLOCK) == 0 || keyword.compare(LOCATIONBLOCK) == 0 || keyword.compare(ERRORPAGEBLOCK))
 	{
 		if (sectionStack.size() != 1)
-			configError("Main, location and error page blocks must be a direct child of server.", lineNumber);
+			configError("Main, location and error page blocks must be direct children of server.", lineNumber);
 		currentSection = keyword;
 	}
 	if (currentSection.compare(MAINBLOCK) == 0)
@@ -230,13 +230,13 @@ void ConfigParser::processLine(const std::string &line)
 	else if (currentSection.compare(LOCATIONBLOCK) == 0)
 	{
 		if (!checkValidDirectory(line, "directory"))
-			configError("Directory does not exist", lineNumber);
+			configError("Directory does not exist.", lineNumber);
 		currentServer->addToVectorMap(vStack, line);
 	}
 	else if (currentSection.compare(ERRORPAGEBLOCK) == 0)
 	{
 		if (!checkValidDirectory(line, "index"))
-			configError("Error page does not exist", lineNumber);
+			configError("Error page does not exist.", lineNumber);
 		std::istringstream keyStream(line);
 		std::string statusS;
 		keyStream >> statusS;
@@ -247,6 +247,6 @@ void ConfigParser::processLine(const std::string &line)
 		valueStream >> value;
 
 		if (!currentServer->addErrorPage(status, value))
-			throw ConfigurationException("Failed to add duplicate error page for server configuration");
+			throw ConfigurationException("Failed to add duplicate error page for server configuration.");
 	}
 }

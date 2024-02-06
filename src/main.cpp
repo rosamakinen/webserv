@@ -18,10 +18,12 @@ int main(int argc, char **argv)
 		configParse.parseConfig(configFile);
 		std::vector<Server *> servers =  configParse.getServers();
 
-		ServerHandler serverHandler;
+		std::cout << servers.front()->getErrorPageIndex(400) << std::endl;
 
-		serverHandler.runServers(servers);
-		servers.clear();
+		//ServerHandler serverHandler;
+
+		//serverHandler.runServers(servers);
+		//servers.clear();
 	}
 	catch(const std::logic_error& e)
 	{
