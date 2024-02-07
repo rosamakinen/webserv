@@ -38,6 +38,32 @@ static char **transferToStringArray(std::map<std::string, std::string> input)
 	return stringArray;
 }
 
+static std::string getQueryString(HttpRequest request)
+{
+	std::string query;
+
+	switch (request.getMethod())
+	{
+		case Util::METHOD::CGI_GET:
+		{
+			query = transferToString(request.getParameters());
+			return query;
+			break;
+		}
+
+		case Util::METHOD::CGI_POST:
+		{
+			query = request.getBody();
+			return query;
+			break;
+		}
+
+		default:
+			throw BadRequestException("Bad query");
+	}
+	return nullptr;
+}
+
 static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request)
 {
 	std::map<std::string, std::string> cgiEnvironment;
@@ -49,10 +75,10 @@ static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request
 	cgiEnvironment["SCRIPT_FILENAME"] = FileHandler::getFilePath(request.getResourcePath());
 	cgiEnvironment["SERVER_SOFTWARE"] = "SillyLittleSoftware/1.0"; //fetch from config?
 	cgiEnvironment["SERVER_NAME"] = "127.0.0.1"; //fetch from config?
-	cgiEnvironment["QUERY_STRING"] = transferToString(request.getParameters());
-
+	cgiEnvironment["QUERY_STRING"] = getQueryString(request);
 	return cgiEnvironment;
 }
+
 
 std::string findInterpreterPath(std::string fullPath)
 {

@@ -9,8 +9,20 @@ form_input = os.environ.get('QUERY_STRING')
 
 if not form_input:
 	date_time = datetime.now()
-	html_content = f"<html>Hello this is CGI error </html>" #how to access the error pages here? can we put out our own error??
-	response = f"HTTP/1.1 400 Bad Request\r\nDate: {date_time}\r\nContent-Type: text/html\r\nContent-Length: {len(html_content)} \r\n\r\n"
+	html_content = f"""<!DOCTYPE html>
+	<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>500 Internal Server Error</title>
+	</head>
+	<body>
+	<center>
+		<h1>Internal Server Error</h1>
+	</center>
+  	</body>
+	</html>"""
+	response = f"HTTP/1.1 500 Internal Server Error\r\nDate: {date_time}\r\nContent-Type: text/html\r\nContent-Length: {len(html_content)} \r\n\r\n"
 	sys.stdout.write(response + html_content)
 	exit()
 
@@ -19,8 +31,20 @@ parts = form_input.split("&")
 
 if len(parts) != 2:
 	date_time = datetime.now()
-	html_content = f"<html>Hello this is CGI error </html>" #how to access the error pages here? can we put out our own error??
-	response = f"HTTP/1.1 400 Bad Request\r\nDate: {date_time}\r\nContent-Type: text/html\r\nContent-Length: {len(html_content)} \r\n\r\n"
+	html_content = f"""<!DOCTYPE html>
+	<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>500 Internal Server Error</title>
+	</head>
+	<body>
+	<center>
+		<h1>Internal Server Error</h1>
+	</center>
+  	</body>
+	</html>"""
+	response = f"HTTP/1.1 500 Internal Server Error\r\nDate: {date_time}\r\nContent-Type: text/html\r\nContent-Length: {len(html_content)} \r\n\r\n"
 	sys.stdout.write(response + html_content)
 	exit()
 
