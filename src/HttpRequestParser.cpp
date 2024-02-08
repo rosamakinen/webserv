@@ -119,14 +119,16 @@ void HttpRequestParser::parseIndexPathAndDirectoryListing(HttpRequest *request, 
 	{
 		std::string indexPath = request->getDirectory();
 		indexPath.append(Util::getFileFromUri(request->getUri()));
-		request->setResourcePath(indexPath);
+		request->setResourcePath(indexPath); // leak comes after setting the ResourcePath
 	}
 }
 
 void HttpRequestParser::parseCgiMethod(HttpRequest *request)
 {
 	Util::METHOD method = request->getMethod();
-	if (!findCgi(request->getResourcePath()))
+	std::string path = request->getResourcePath();
+
+	if (!findCgi(path))
 		return ;
 
 	if (method == Util::METHOD::GET)
@@ -150,14 +152,12 @@ bool HttpRequestParser::validateCgi(std::string path)
 {
 	std::string suffix = ".py";
 	std::string fullPath = FileHandler::getFilePath(path);
-
 	if (access(fullPath.c_str(), X_OK) == 0)
 	{
 		size_t pos = fullPath.find(suffix);
 		if (pos != std::string::npos)
 			return true;
 	}
-
 	throw BadRequestException("Bad CGI request");
 	return false;
 }

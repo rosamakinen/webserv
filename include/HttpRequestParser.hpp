@@ -27,7 +27,7 @@ class HttpRequestParser
 		int compareAndSubstring(std::string method, std::string &requestLine);
 		void parseCgiMethod(HttpRequest *request);
 		bool findCgi(std::string uri);
-		bool validateCgi(std::string uri);
+		bool validateCgi(std::string path);
 
 	public:
 		HttpRequestParser();
