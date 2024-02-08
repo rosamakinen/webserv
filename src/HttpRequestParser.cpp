@@ -27,9 +27,8 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 	{
 		if (requestLine.compare("\r") == 0)
 			break;
-		parseBody(requestLine, body);
+		request->appendBody(requestLine);
 	}
-
 	request->setHost(request->getHeader("Host"));
 	return request;
 }
