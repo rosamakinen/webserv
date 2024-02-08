@@ -1,10 +1,12 @@
 
 #include "CgiHandler.hpp"
 
-static const char *transferToString(std::map<std::string, std::string> input)
+static std::string transferToString(std::map<std::string, std::string> input)
 {
 	std::string base = "";
 
+	if (input.empty())
+		return base;
 	for (std::map<std::string, std::string>::iterator it = input.begin(); it != input.end(); it++)
 	{
 		base.append(it->first);
@@ -13,10 +15,9 @@ static const char *transferToString(std::map<std::string, std::string> input)
 		base.append("&");
 	}
 	base.pop_back();
-	const char *string = base.c_str();
-	return string;
-}
 
+	return base;
+}
 
 static char **transferToStringArray(std::map<std::string, std::string> input)
 {
@@ -37,6 +38,31 @@ static char **transferToStringArray(std::map<std::string, std::string> input)
 	return stringArray;
 }
 
+static std::string getQueryString(HttpRequest request)
+{
+	std::string query;
+
+	switch (request.getMethod())
+	{
+		case Util::METHOD::CGI_GET:
+		{
+			query = transferToString(request.getParameters());
+			return query;
+			break;
+		}
+
+		case Util::METHOD::CGI_POST:
+		{
+			query = request.getBody();
+			return query;
+			break;
+		}
+
+		default:
+			throw BadRequestException("Bad query");
+	}
+	return nullptr;
+}
 
 static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request)
 {
@@ -46,13 +72,13 @@ static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request
 	cgiEnvironment["GATEWAY_INTERFACE"] = GATEWAY_VERSION;
 	cgiEnvironment["SERVER_PROTOCOL"] = HTTP_VERSION;
 	cgiEnvironment["REQUEST_METHOD"] = Util::translateMethod(request.getMethod());
-	cgiEnvironment["SCRIPT_FILENAME"] = FileHandler::getFilePath(request.getUri());
+	cgiEnvironment["SCRIPT_FILENAME"] = FileHandler::getFilePath(request.getResourcePath());
 	cgiEnvironment["SERVER_SOFTWARE"] = "SillyLittleSoftware/1.0"; //fetch from config?
 	cgiEnvironment["SERVER_NAME"] = "127.0.0.1"; //fetch from config?
-	cgiEnvironment["QUERY_STRING"] = transferToString(request.getParameters());
-
+	cgiEnvironment["QUERY_STRING"] = getQueryString(request);
 	return cgiEnvironment;
 }
+
 
 std::string findInterpreterPath(std::string fullPath)
 {
@@ -76,7 +102,7 @@ char **getArguments(HttpRequest request)
 {
 	char **argumentString = new char*[3];
 
-	std::string fullPath = FileHandler::getFilePath(request.getUri());
+	std::string fullPath = FileHandler::getFilePath(request.getResourcePath());
 	std::string shebang = findInterpreterPath(fullPath);
 
 	argumentString[0] = strdup(shebang.c_str());
@@ -90,18 +116,34 @@ static int	executeChild(char **argumentString, char **environmentString)
 {
 	int result = execve(argumentString[0], argumentString, environmentString);
 	if (result == -1)
-		throw InternalException("Excecve failed");
+		exit(1);
 	return result;
 }
 
-int CgiHandler::executeCgi(HttpRequest request)
+
+std::string	readCgi(int pipe_out)
 {
+	std::string	response;
+	char		buffer[5000];
+	int			readBytes;
 
+	while (1)
+	{
+		readBytes = read(pipe_out, buffer, sizeof(buffer));
+		if (readBytes <= 0)
+			break;
+		response.append(buffer);
+	}
+	close(pipe_out);
+	return response;
+}
 
+std::string	CgiHandler::executeCgi(HttpRequest request)
+{
 	std::map<std::string, std::string> cgiEnvironment = initCgiEnvironment(request);
 	char **environmentString = transferToStringArray(cgiEnvironment);
 	char **argumentString = getArguments(request);
-	int status = 0;
+	std::string response;
 
 	int pipe_in[2];
 	if (pipe(pipe_in) < 0)
@@ -119,17 +161,26 @@ int CgiHandler::executeCgi(HttpRequest request)
 	int pid = fork();
 	if (pid == 0)
 	{
+		close(pipe_in[1]);
+		close(pipe_out[0]);
+
 		dup2(pipe_in[0],  STDIN_FILENO);
 		dup2(pipe_out[1],  STDOUT_FILENO);
 
 		close(pipe_in[0]);
-		close(pipe_in[1]);
-		close(pipe_out[0]);
 		close(pipe_out[1]);
 
-		status = executeChild(argumentString, environmentString);
-
-		exit(status);
+		executeChild(argumentString, environmentString);
+		exit(0);
+	}
+	else
+	{
+		int status;
+		waitpid(pid, &status, 0);
+		close(pipe_in[0]);
+		close(pipe_in[1]);
+		close(pipe_out[1]);
+		response = readCgi(pipe_out[0]);
 	}
 
 	//TODO: make a function to free the string arrays?
@@ -142,8 +193,5 @@ int CgiHandler::executeCgi(HttpRequest request)
 		delete [] argumentString[i];
 	delete [] argumentString;
 
-	//TODO: wait for the child process to stop, close pipes etc.
-	// Time out, dont wait forever for child to execute
-
-	return status;
+	return response;
 }

@@ -12,5 +12,5 @@
 class CgiHandler
 {
 	public:
-		static int	executeCgi(HttpRequest request);
+		static std::string	executeCgi(HttpRequest request);
 };

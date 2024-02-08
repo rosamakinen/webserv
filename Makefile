@@ -2,7 +2,7 @@ NAME		=	webserv
 
 CC			=	c++
 
-CFLAGS		=	-std=c++11 -Wall -Werror -Wextra #-fsanitize=undefined,address
+CFLAGS		=	-std=c++11 -Wall -Werror -Wextra #-fsanitize=address,undefined
 
 # directories
 SRC_DIR		=	src/
@@ -47,6 +47,7 @@ H_FILES =	Exceptions \
 			ExceptionManager \
 			HttpResponseParser \
 			FileHandler \
+			ConfigParser \
 			Client \
 			ServerHandler
 

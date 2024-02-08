@@ -1,37 +1,59 @@
-#!/usr/bin/python
+#!/usr/local/bin/python3
 
 import os
 import sys
+from datetime import datetime
 
-# Get data from fields
+# Get data from form
 form_input = os.environ.get('QUERY_STRING')
 
-if form_input == None:
-	print("CGI service error")
-	sys.exit()
+if not form_input:
+	date_time = datetime.now()
+	html_content = f"""<!DOCTYPE html>
+	<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>500 Internal Server Error</title>
+	</head>
+	<body>
+	<center>
+		<h1>Internal Server Error</h1>
+	</center>
+  	</body>
+	</html>"""
+	response = f"HTTP/1.1 500 Internal Server Error\r\nDate: {date_time}\r\nContent-Type: text/html\r\nContent-Length: {len(html_content)} \r\n\r\n"
+	sys.stdout.write(response + html_content)
+	exit()
+
 
 parts = form_input.split("&")
 
 if len(parts) != 2:
-	print("CGI service error")
-	sys.exit()
+	date_time = datetime.now()
+	html_content = f"""<!DOCTYPE html>
+	<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>500 Internal Server Error</title>
+	</head>
+	<body>
+	<center>
+		<h1>Internal Server Error</h1>
+	</center>
+  	</body>
+	</html>"""
+	response = f"HTTP/1.1 500 Internal Server Error\r\nDate: {date_time}\r\nContent-Type: text/html\r\nContent-Length: {len(html_content)} \r\n\r\n"
+	sys.stdout.write(response + html_content)
+	exit()
 
 first_name = parts[0].split("=")[1]
 last_name = parts[1].split("=")[1]
 
-print ("Content-type:text/html")
-print()
-print ("<html>")
-print ('<head>')
-print ("<title>Hello - Second CGI Program</title>")
-print ('</head>')
-print ('<body>')
-print ("<h2>Hello %s %s</h2>" % (first_name, last_name))
-print ('</body>')
-print ('</html>')
-
-string = 'OKAYYYY IS THIS WORKINGGG??'
-
-sys.stdout.write(string)
+date_time = datetime.now()
+html_content = f"<html><head>Hello {first_name} {last_name} </head></html>"
+response = f"HTTP/1.1 200 OK\r\nDate: {date_time}\r\nContent-Type: text/html\r\nContent-Length: {len(html_content)} \r\n\r\n"
+sys.stdout.write(response + html_content)
 
 # Write a valid httpresponse to stdout
