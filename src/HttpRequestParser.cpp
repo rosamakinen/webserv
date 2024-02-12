@@ -119,14 +119,16 @@ void HttpRequestParser::parseIndexPathAndDirectoryListing(HttpRequest *request, 
 	{
 		std::string indexPath = request->getDirectory();
 		indexPath.append(Util::getFileFromUri(request->getUri()));
-		request->setResourcePath(indexPath);
+		request->setResourcePath(indexPath); // leak comes after setting the ResourcePath
 	}
 }
 
 void HttpRequestParser::parseCgiMethod(HttpRequest *request)
 {
 	Util::METHOD method = request->getMethod();
-	if (!findCgi(request->getResourcePath()))
+	std::string path = request->getResourcePath();
+
+	if (!findCgi(path))
 		return ;
 
 	if (method == Util::METHOD::GET)
@@ -150,14 +152,12 @@ bool HttpRequestParser::validateCgi(std::string path)
 {
 	std::string suffix = ".py";
 	std::string fullPath = FileHandler::getFilePath(path);
-
 	if (access(fullPath.c_str(), X_OK) == 0)
 	{
 		size_t pos = fullPath.find(suffix);
 		if (pos != std::string::npos)
 			return true;
 	}
-
 	throw BadRequestException("Bad CGI request");
 	return false;
 }
@@ -178,7 +178,7 @@ void HttpRequestParser::validateVersion(std::string &requestLine)
 		throw BadRequestException("Unsupported HTTP version");
 }
 
-const std::string HttpRequestParser::parseMethodStr(std::string &requestLine)
+void HttpRequestParser::parseMethodStr(std::string &requestLine)
 {
 	std::string method;
 	size_t		pos;
@@ -186,7 +186,6 @@ const std::string HttpRequestParser::parseMethodStr(std::string &requestLine)
 	pos = requestLine.find(' ');
 	method = requestLine.substr(0, pos);
 	requestLine = requestLine.substr(pos + 1, requestLine.length());
-	return method;
 }
 
 void HttpRequestParser::parseParameters(std::string uri, std::map<std::string, std::string>& parameters)
