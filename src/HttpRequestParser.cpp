@@ -178,7 +178,7 @@ void HttpRequestParser::validateVersion(std::string &requestLine)
 		throw BadRequestException("Unsupported HTTP version");
 }
 
-const std::string HttpRequestParser::parseMethodStr(std::string &requestLine)
+void HttpRequestParser::parseMethodStr(std::string &requestLine)
 {
 	std::string method;
 	size_t		pos;
@@ -186,7 +186,6 @@ const std::string HttpRequestParser::parseMethodStr(std::string &requestLine)
 	pos = requestLine.find(' ');
 	method = requestLine.substr(0, pos);
 	requestLine = requestLine.substr(pos + 1, requestLine.length());
-	return method;
 }
 
 void HttpRequestParser::parseParameters(std::string uri, std::map<std::string, std::string>& parameters)

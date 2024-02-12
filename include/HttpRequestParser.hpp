@@ -21,7 +21,7 @@ class HttpRequestParser
 		void parseIndexPathAndDirectoryListing(HttpRequest *request, Server *server);
 		void parseHeader(const std::string &line, HttpRequest *request);
 		void validateVersion(std::string &requestLine);
-		const std::string parseMethodStr(std::string &requestLine);
+		void parseMethodStr(std::string &requestLine);
 		const std::string getHeaderValue(std::map<std::string, std::string> &headers, std::string toFind);
 		void parseBody(std::string newLine, std::string &body);
 		int compareAndSubstring(std::string method, std::string &requestLine);

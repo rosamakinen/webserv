@@ -20,6 +20,14 @@ curl --location --request GET '127.0.0.1:8000/index1.html' \
 --header 'Accept-Encoding: gzip,deflate' \
 --header 'Connection: keep-alive'
 
+curl  -X GET \
+'http://127.0.0.1:8000/cgi-bin/hello_world.py?first_name=rosa&last_name=testitesti' \
+--header 'Accept: */*' \
+--header 'User-Agent: Thunder Client (https://www.thunderclient.com)' \
+--header 'Cache-Control: no-cache' \
+--header 'Accept-Encoding: gzip,deflate' \
+--header 'Connection: keep-alive'
+
 2. BASIC CALLS - 404 NOT FOUND
 
 curl --location --request GET '127.0.0.1:8000/index.htm' \
@@ -40,6 +48,14 @@ curl --location --request GET '127.0.0.1:8000/public_www/' \
 --header 'Accept-Encoding: gzip,deflate' \
 --header 'Connection: keep-alive'
 
+curl  -X POST \
+'127.0.0.1:8000/ci-bin/hello_world.py' \
+--header 'Accept: */*' \
+--header 'User-Agent: Thunder Client (https://www.thunderclient.com)' \
+--header 'Cache-Control: no-cache' \
+--header 'Accept-Encoding: gzip,deflate' \
+--header 'Connection: keep-alive'
+
 3. ERROR PAGE HANDLING
 
 curl --location --request GET '127.0.0.1:8000/public_www/' \
@@ -48,49 +64,30 @@ curl --location --request GET '127.0.0.1:8000/public_www/' \
 --header 'Accept-Encoding: gzip,deflate' \
 --header 'Connection: keep-alive'
 
-4. CGI TESTS
-
-curl  -X GET \
-  '127.0.0.1:8000/index.html' \
-  --header 'Accept: */*' \
-  --header 'User-Agent: Thunder Client (https://www.thunderclient.com)'
+4. 400 BAD REQUEST
 
 curl  -X POST \
-  '127.0.0.1:8000/cgi-bin/hello_wold.py' \
-  --header 'Accept: */*' \
-  --header 'User-Agent: Thunder Client (https://www.thunderclient.com)' \
-  --header 'Cache-Control: no-cache' \
-  --header 'Accept-Encoding: gzip,deflate' \
-  --header 'Connection: keep-alive'
+'127.0.0.1:8000/cgi-bin/hello_world.ps' \
+--header 'Accept: */*' \
+ --header 'User-Agent: Thunder Client (https://www.thunderclient.com)' \
+--header 'Cache-Control: no-cache' \
+--header 'Accept-Encoding: gzip,deflate' \
+--header 'Connection: keep-alive'
 
 curl  -X POST \
-  '127.0.0.1:8000/cgi-bin/hello_world.ps' \
-  --header 'Accept: */*' \
-  --header 'User-Agent: Thunder Client (https://www.thunderclient.com)' \
-  --header 'Cache-Control: no-cache' \
-  --header 'Accept-Encoding: gzip,deflate' \
-  --header 'Connection: keep-alive'
+'127.0.0.1:8000/cgi-bin/hello_wold.py' \
+--header 'Accept: */*' \
+--header 'User-Agent: Thunder Client (https://www.thunderclient.com)' \
+--header 'Cache-Control: no-cache' \
+--header 'Accept-Encoding: gzip,deflate' \
+--header 'Connection: keep-alive'
+
+5. 500 INTERNAL SERVER ERROR
 
 curl  -X POST \
-  '127.0.0.1:8000/ci-bin/hello_world.py' \
-  --header 'Accept: */*' \
-  --header 'User-Agent: Thunder Client (https://www.thunderclient.com)' \
-  --header 'Cache-Control: no-cache' \
-  --header 'Accept-Encoding: gzip,deflate' \
-  --header 'Connection: keep-alive'
-
-curl  -X POST \
-  'http://127.0.0.1:8000/cgi-bin/hello_world.py?first_name=rosa&last_name=testitesti' \
-  --header 'Accept: */*' \
-  --header 'User-Agent: Thunder Client (https://www.thunderclient.com)' \
-  --header 'Cache-Control: no-cache' \
-  --header 'Accept-Encoding: gzip,deflate' \
-  --header 'Connection: keep-alive'
-
-curl  -X GET \
-  'http://127.0.0.1:8000/cgi-bin/hello_world.py?first_name=rosa&last_name=testitesti' \
-  --header 'Accept: */*' \
-  --header 'User-Agent: Thunder Client (https://www.thunderclient.com)' \
-  --header 'Cache-Control: no-cache' \
-  --header 'Accept-Encoding: gzip,deflate' \
-  --header 'Connection: keep-alive'
+'http://127.0.0.1:8000/cgi-bin/hello_world.py?first_name=rosa&last_name=testitesti' \
+--header 'Accept: */*' \
+--header 'User-Agent: Thunder Client (https://www.thunderclient.com)' \
+--header 'Cache-Control: no-cache' \
+--header 'Accept-Encoding: gzip,deflate' \
+--header 'Connection: keep-alive'

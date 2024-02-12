@@ -41,6 +41,9 @@ const std::string Util::translateMethod(Util::METHOD method)
 			return HTTP_POST;
 		break;
 
+		case Util::METHOD::NONE :
+			return "NONE";
+
 		default:
 		break;
 	}
