@@ -83,19 +83,19 @@ void ServerHandler::closeConnection(int fd)
 {
 	for (auto it = _pollfds.begin(); it != _pollfds.end(); )
 	{
-		if (fd == it->fd)
+		if (fd != it->fd)
 		{
-			if (it->fd >  0)
-			{
-				close(it->fd);
-				it->fd = -1;
-			}
-			_serverPolls.erase(it->fd);
-			it = _pollfds.erase(it);
-			break;
-		}
-		else
 			++it;
+			continue;
+		}
+
+		if (it->fd >  0)
+		{
+			close(it->fd);
+			it->fd = -1;
+		}
+		_serverPolls.erase(it->fd);
+		it = _pollfds.erase(it);
 	}
 }
 
