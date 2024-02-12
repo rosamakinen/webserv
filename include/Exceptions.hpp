@@ -40,6 +40,12 @@ class NotFoundException : public Exception
 		NotFoundException(const std::string message) : Exception(message) { };
 };
 
+class UnsupportedMediaTypeException : public Exception
+{
+	public:
+		UnsupportedMediaTypeException(const std::string message) : Exception(message) { };
+};
+
 // Internal exceptions - cause the program to shut down
 class ConfigurationException : public std::logic_error
 {

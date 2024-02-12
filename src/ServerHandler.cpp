@@ -174,7 +174,7 @@ void ServerHandler::handleIncomingRequest(pollfd *fd)
 
 	// TODO: separate to handler part
 	HttpRequestHandler requestHandler;
-	requestHandler.handleRequest(client);
+	requestHandler.handleRequest(client, server);
 	fd->events = POLLOUT;
 }
 
@@ -193,7 +193,10 @@ void ServerHandler::handleOutgoingResponse(pollfd *fd)
 
 void ServerHandler::handleOutgoingError(const Exception& e, pollfd *fd)
 {
-	HttpResponse *response = new HttpResponse(ExceptionManager::getErrorStatus(e), nullptr);
+	Server *server = getServer(fd->fd);
+	if (server == nullptr)
+		throw InternalException("No such server found");
+	HttpResponse *response = new HttpResponse(ExceptionManager::getErrorStatus(e), nullptr, server);
 	std::map<int, Client*>::iterator it = _clients.find(fd->fd);
 	if (it != _clients.end())
 	{

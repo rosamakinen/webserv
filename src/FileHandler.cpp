@@ -1,6 +1,4 @@
 #include "../include/FileHandler.hpp"
-#include "../include/WebServer.hpp"
-#include "../include/Util.hpp"
 
 std::string FileHandler::getFilePath(std::string relativePath)
 {
@@ -78,8 +76,7 @@ std::string FileHandler::getFileResource(HttpRequest *request, std::ios_base::op
 	std::string fullPath = getFilePath(request->getResourcePath());
 
 	struct stat file_status;
-	stat(fullPath.c_str(), &file_status);
-	if (S_ISDIR(file_status.st_mode))
+	if ((stat(fullPath.c_str(), &file_status) == 0) && S_ISDIR(file_status.st_mode))
 	{
 		if (request->getIsDirListing())
 			return buildDirListing(fullPath);
@@ -138,10 +135,17 @@ std::string FileHandler::getFileContent(std::string path)
 	return body;
 }
 
-std::string FileHandler::getErrorFileContent(unsigned int status)
+std::string FileHandler::getErrorFileContent(unsigned int status, Server *server)
 {
-	std::string relativePath(DEFAULT_ERRORPAGES_PATH);
-	relativePath.append(std::to_string(status)).append(".html");
+	std::string relativePath;
+	std::string customErrorPagePath = server->getErrorPagePath(status);
+	if (customErrorPagePath.empty())
+	{
+		relativePath = DEFAULT_ERRORPAGES_PATH;
+		relativePath.append(std::to_string(status)).append(".html");
+	}
+	else
+		relativePath = customErrorPagePath;
 
 	std::string path(getFilePath(relativePath));
 	std::ifstream file(path);

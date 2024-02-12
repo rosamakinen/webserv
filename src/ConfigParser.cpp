@@ -1,5 +1,4 @@
 #include "../include/ConfigParser.hpp"
-#include "../include/Server.hpp"
 
 ConfigParser::ConfigParser() : lineNumber(1)
 {
@@ -57,13 +56,13 @@ static bool directoryExists(const std::string& path)
 	return (info.st_mode & S_IFDIR) != 0;
 }
 
-static bool checkValidDirectory(const std::string& line)
+static bool checkValidDirectory(const std::string& line, std::string key)
 {
 	std::istringstream iss(line);
 	std::string firstWord;
 	iss >> firstWord;
 
-	if (firstWord.compare("directory") == 0)
+	if (firstWord.compare(key) == 0)
 	{
 		std::string directoryPath;
 		if (iss >> directoryPath)
@@ -90,7 +89,7 @@ static void uniChecker(const std::vector<Server *> servers)
 		if (!uniqueNames.insert(name).second)
 			throw ConfigurationException("Duplicate name detected.");
 		if (!uniqueHostPortCombos.insert(hostPortCombo).second)
-			throw ConfigurationException("Duplicate IP/Port combination detected.");
+			throw ConfigurationException("Duplicate IP:Port combination detected.");
 	}
 }
 
@@ -120,7 +119,38 @@ void ConfigParser::checkServer()
 	this->servers.push_back(currentServer);
 }
 
-void ConfigParser::checkMain(const std::string& keyword, const std::string& value)
+std::vector<int> ConfigParser::validErrorStatusCodes =
+{
+	400,
+	403,
+	404,
+	405,
+	500,
+	504
+};
+
+bool ConfigParser::invalidErrorPageConfig(int status, std::string path)
+{
+	for (std::vector<int>::iterator it = validErrorStatusCodes.begin(); ; it++)
+	{
+		if (status == *it)
+			break;
+		if (it == validErrorStatusCodes.end())
+			return false;
+	}
+
+	if (path.empty() || path.length() <= 5 || (path.substr(path.length() - 5, path.length()).compare(EXT_HTML) != 0))
+		return false;
+
+	std::string fullPath = FileHandler::getFilePath(path);
+	struct stat file_status;
+	if ((stat(fullPath.c_str(), &file_status) != 0) || S_ISDIR(file_status.st_mode))
+		return false;
+
+	return true;
+}
+
+void ConfigParser::checkMain(const std::string& keyword, const std::string& value, const std::string path)
 {
 	if (this->servers.empty())
 		configError("No server defined for main block.", lineNumber);
@@ -148,6 +178,26 @@ void ConfigParser::checkMain(const std::string& keyword, const std::string& valu
 	}
 	else if (keyword.compare(PARSESIZE) == 0)
 		currentServer->setClientMaxBodySize(std::stol(value));
+	else if (keyword.compare(ERRORPAGE_LOCATION) == 0)
+	{
+		if (value.empty() || path.empty())
+			configError("Invalid error page configuration.", lineNumber);
+		int status = 0;
+		try
+		{
+			status = std::stoi(value);
+		}
+		catch(const std::exception& e)
+		{
+			configError("Invalid status code.", lineNumber);
+		}
+
+		if (!invalidErrorPageConfig(status, path))
+			configError("Invalid error page configuration.", lineNumber);
+
+		if (!currentServer->addErrorPage(status, path))
+			configError("Duplicate error page configuration.", lineNumber);
+	}
 }
 
 void ConfigParser::parseConfig(const std::string& filename)
@@ -210,14 +260,17 @@ void ConfigParser::processLine(const std::string &line)
 	if (keyword.compare(MAINBLOCK) == 0 || keyword.compare(LOCATIONBLOCK) == 0)
 	{
 		if (sectionStack.size() != 1)
-			configError("Main and location blocks must be a direct child of server.", lineNumber);
+			configError("Main, location and error page blocks must be direct children of server.", lineNumber);
 		currentSection = keyword;
 	}
+
 	if (currentSection.compare(MAINBLOCK) == 0)
 	{
 		std::string value;
 		iss >> value;
-		checkMain(keyword, value);
+		std::string path;
+		iss >> path;
+		checkMain(keyword, value, path);
 	}
 
 	if (keyword.compare(LOCATIONBLOCK) == 0)
@@ -229,7 +282,7 @@ void ConfigParser::processLine(const std::string &line)
 	}
 	else if (currentSection.compare(LOCATIONBLOCK) == 0)
 	{
-		if (!checkValidDirectory(line))
+		if (!checkValidDirectory(line, "directory"))
 			configError("Directory does not exist.", lineNumber);
 		currentServer->addToVectorMap(vStack, line);
 	}

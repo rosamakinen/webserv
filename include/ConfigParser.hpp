@@ -2,6 +2,9 @@
 
 #include "../include/WebServer.hpp"
 #include "../include/Server.hpp"
+#include "../include/FileHandler.hpp"
+
+#include <string>
 
 class ConfigParser
 {
@@ -20,9 +23,11 @@ private:
 	size_t lineNumber;
 	vectorMap vStack;
 
-	void checkServer();
-	void checkMain(const std::string& keyword, const std::string& value);
-	void processLine(const std::string &line);
+	static std::vector<int> validErrorStatusCodes;
 
+	void checkServer();
+	void checkMain(const std::string& keyword, const std::string& value, const std::string path);
+	bool invalidErrorPageConfig(int status, std::string path);
+	void processLine(const std::string &line);
 };
 

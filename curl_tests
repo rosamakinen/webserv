@@ -1,0 +1,49 @@
+DEFAULT CONFIGURATION
+
+1. BASIC CALLS - 200 OKAY
+
+curl --location --request GET '127.0.0.1:8000/' \
+--header 'Cache-Control: no-cache' \
+--header 'Accept: */*' \
+--header 'Accept-Encoding: gzip,deflate' \
+--header 'Connection: keep-alive'
+
+curl --location --request GET '127.0.0.1:8000/index.html' \
+--header 'Cache-Control: no-cache' \
+--header 'Accept: */*' \
+--header 'Accept-Encoding: gzip,deflate' \
+--header 'Connection: keep-alive'
+
+curl --location --request GET '127.0.0.1:8000/index1.html' \
+--header 'Cache-Control: no-cache' \
+--header 'Accept: */*' \
+--header 'Accept-Encoding: gzip,deflate' \
+--header 'Connection: keep-alive'
+
+2. BASIC CALLS - 404 NOT FOUND
+
+curl --location --request GET '127.0.0.1:8000/index.htm' \
+--header 'Cache-Control: no-cache' \
+--header 'Accept: */*' \
+--header 'Accept-Encoding: gzip,deflate' \
+--header 'Connection: keep-alive'
+
+curl --location --request GET '127.0.0.1:8000/public_www/somefile' \
+--header 'Cache-Control: no-cache' \
+--header 'Accept: */*' \
+--header 'Accept-Encoding: gzip,deflate' \
+--header 'Connection: keep-alive'
+
+curl --location --request GET '127.0.0.1:8000/public_www/' \
+--header 'Cache-Control: no-cache' \
+--header 'Accept: */*' \
+--header 'Accept-Encoding: gzip,deflate' \
+--header 'Connection: keep-alive'
+
+3. ERROR PAGE HANDLING
+
+curl --location --request GET '127.0.0.1:8000/public_www/' \
+--header 'Cache-Control: no-cache' \
+--header 'Accept: */*' \
+--header 'Accept-Encoding: gzip,deflate' \
+--header 'Connection: keep-alive'
