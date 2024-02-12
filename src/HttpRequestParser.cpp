@@ -7,6 +7,8 @@ HttpRequestParser::~HttpRequestParser() {}
 HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Server *server)
 {
 	HttpRequest *request = new HttpRequest();
+	try
+	{
 	std::stringstream ss(requestInput);
 	std::string requestLine;
 
@@ -31,6 +33,12 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 	}
 	request->setHost(request->getHeader("Host"));
 	return request;
+	}
+	catch (...)
+	{
+		delete request;
+		throw;
+	}
 }
 
 void HttpRequestParser::parseRequestLine(std::string &requestLine, HttpRequest *request, Server *server)
@@ -54,7 +62,7 @@ void HttpRequestParser::parseDirectoryAndLocation(HttpRequest *request, Server *
 	request->setLocation(directoryPath);
 
 	const std::vector<std::string>* workingDir = server->getLocationValue(directoryPath, LOCAL_DIR);
-	if (workingDir == nullptr && workingDir->size() != 1)
+	if (workingDir == nullptr || workingDir->size() != 1)
 		throw BadRequestException("Location has missing or invalid values");
 
 	request->setDirectory(workingDir->front());
