@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang=\"en\" data-color-mode=\"auto\" data-light-theme=\"light\" data-dark-theme=\"dark_tritanopia\" data-a11y-animated-images=\"system\" data-a11y-link-underlines=\"true\">
+	<head>
+		<!-- html and css from https://www.w3schools.com/howto/howto_css_blog_layout.asp -->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>The blog!</title>
+		<style>
+			* {
+				box-sizing: border-box;
+			}
+
+			body {
+				font-family: Arial;
+				padding: 20px;
+				background: #f1f1f1;
+			}
+
+			/* Header/Blog Title */
+			.header {
+				padding: 30px;
+				font-size: 40px;
+				text-align: center;
+				background: white;
+			}
+
+			/* Create two unequal columns that floats next to each other */
+			/* Left column */
+			.leftcolumn {
+				float: left;
+				width: 75%;
+			}
+
+			/* Right column */
+			.rightcolumn {
+				float: left;
+				width: 25%;
+				padding-left: 20px;
+			}
+
+			/* Fake image */
+			.fakeimg {
+				background-color: #aaa;
+				width: 100%;
+				padding: 20px;
+			}
+
+			/* Add a card effect for articles */
+			.card {
+				background-color: white;
+				padding: 20px;
+				margin-top: 20px;
+			}
+
+			.piccard {
+				background-color: white;
+				padding: 20px;
+				margin-top: 20px;
+			}
+
+			/* Clear floats after the columns */
+			.row:after {
+				content: "";
+				display: table;
+				clear: both;
+			}
+
+			/* Footer */
+			.footer {
+				padding: 20px;
+				text-align: center;
+				background: #ddd;
+				margin-top: 20px;
+			}
+
+			/* Responsive layout - when the screen is less than 800px wide, make the two columns stack on top of each other instead of next to each other */
+			@media screen and (max-width: 800px) {
+				.leftcolumn, .rightcolumn {
+				width: 100%;
+				padding: 0;
+				}
+			}
+		</style>
+	</head>
+		<div class="header">
+			<h2>Hippie Hitchiker</h2>
+		</div>
+
+		<div class="row">
+			<div class="leftcolumn">
+			<div class="card">
+				<h2>TITLE HEADING</h2>
+				<h5>Title description, Dec 7, 2017</h5>
+				<img src="./pictures/hippievan.jpeg"><br>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris iaculis, ex et viverra commodo, sem enim fringilla enim, sit amet laoreet odio justo vel diam. Ut semper mattis facilisis. In sapien felis, auctor in orci sit amet, euismod condimentum mi. Nunc gravida massa et finibus posuere. Cras nisi lectus, maximus nec pulvinar at, placerat quis lorem. Cras vitae mollis dui.</p>
+			</div>
+			<div class="card">
+				<h2>TITLE HEADING</h2>
+				<h5>Title description, May 10, 2017</h5>
+				<img src="./pictures/forest.jpeg"><br>
+				<p>Pellentesque eu magna libero. Aliquam feugiat lectus nec dictum rhoncus. Integer dapibus interdum neque in tincidunt. Aenean venenatis scelerisque ante vel rhoncus. Mauris eros nisi, lacinia in mi a, venenatis venenatis dolor. Suspendisse nisl purus, ultrices sed nulla id, rutrum faucibus nisl. Suspendisse potenti. Integer vitae orci ex. Vivamus mattis risus ut dui lobortis, eget sodales erat ultrices.</p>
+			</div>
+			<div class="card">
+				<h2>TITLE HEADING</h2>
+				<h5>Title description, Sep 5, 2016</h5>
+				<img src="./pictures/field.jpeg"><br>
+				<p>Mauris ornare ante diam, quis sodales quam pulvinar at. Cras a urna in augue placerat hendrerit. Donec lobortis ipsum et risus aliquam, quis convallis velit interdum. Nulla facilisi. Quisque dictum porta nibh, sit amet efficitur massa. Nunc arcu nunc, molestie quis lacus ac, dignissim varius leo.</p>
+			</div>
+			</div>
+			<div class="rightcolumn">
+			<div class="card">
+				<h2>About Me</h2>
+				<img src="./pictures/aboutme.jpeg"><br>
+				<p>Aenean sed sollicitudin nunc, vitae blandit lorem. Phasellus sed enim a tortor maximus facilisis nec vitae tortor.</p>
+			</div>
+			<div class="card">
+				<h3>Upload files</h3>
+					<form enctype = "multipart/form-data" action = "./cgi-bin/upload.py" method = "post">
+						<p>Upload: <input type = "file" name = "filename" /></p>
+						<p><input type = "submit" value = "Upload" /></p>
+					</form>
+				</div>
+			</div>
+			<div class="piccard">
+			</div>
+		</div>
+
+		<div class="footer">
+			<h2>Footer</h2>
+		</div>
+</html>
