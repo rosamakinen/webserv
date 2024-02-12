@@ -1,7 +1,6 @@
 
 #include "../include/WebServer.hpp"
 #include "../include/Util.hpp"
-#include "Util.hpp"
 
 const std::string Util::getTimeDateString()
 {
@@ -42,7 +41,7 @@ const std::string Util::translateMethod(Util::METHOD method)
 		break;
 
 		case Util::METHOD::NONE :
-			return "NONE";
+			return HTTP_NONE;
 
 		default:
 		break;
