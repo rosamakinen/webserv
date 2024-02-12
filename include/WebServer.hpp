@@ -30,6 +30,7 @@
 #define HTTP_GET			"GET"
 #define HTTP_POST			"POST"
 #define HTTP_DELETE			"DELETE"
+#define HTTP_NONE			"NONE"
 
 #define EXT_HTML			".html"
 #define EXT_CSS				".css"
