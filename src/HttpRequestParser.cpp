@@ -7,38 +7,38 @@ HttpRequestParser::~HttpRequestParser() {}
 HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Server *server)
 {
 	HttpRequest *request = new HttpRequest();
-	try
-	{
 	std::stringstream ss(requestInput);
 	std::string requestLine;
 
 	// Parse the request line
 	getline(ss, requestLine);
-	parseRequestLine(requestLine, request, server);
-
-	// Parse the headers
-	while (getline(ss, requestLine))
+	try
 	{
-		if (requestLine.compare("\r") == 0)
-			break;
-		parseHeader(requestLine, request);
-	}
+		parseRequestLine(requestLine, request, server);
 
-	std::string	body = "";
-	while (getline(ss, requestLine))
-	{
-		if (requestLine.compare("\r") == 0)
-			break;
-		request->appendBody(requestLine);
+		// Parse the headers
+		while (getline(ss, requestLine))
+		{
+			if (requestLine.compare("\r") == 0)
+				break;
+			parseHeader(requestLine, request);
+		}
+
+		std::string	body = "";
+		while (getline(ss, requestLine))
+		{
+			if (requestLine.compare("\r") == 0)
+				break;
+			request->appendBody(requestLine);
+		}
 	}
-	request->setHost(request->getHeader("Host"));
-	return request;
-	}
-	catch (...)
+	catch (std::exception &e)
 	{
 		delete request;
 		throw;
 	}
+	request->setHost(request->getHeader("Host"));
+	return request;
 }
 
 void HttpRequestParser::parseRequestLine(std::string &requestLine, HttpRequest *request, Server *server)
