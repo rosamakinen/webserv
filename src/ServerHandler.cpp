@@ -231,8 +231,8 @@ void ServerHandler::handleOutgoingResponse(pollfd *fd)
 	if (it == _clients.end())
 		return;
 	writeResponse(fd->fd, HttpResponseParser::Parse(*it->second->getResponse()));
+	it->second->setStatus(Client::STATUS::NONE);
 
-	// std::cout << "Client " << fd->fd << " removed from the clients" << std::endl;
 	delete it->second;
 	_clients.erase(fd->fd);
 }

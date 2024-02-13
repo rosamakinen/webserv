@@ -74,11 +74,25 @@ void Client::updateStatus()
 	if (this->_status == Client::STATUS::INCOMING)
 	{
 		if (this->_request->getMethod() != Util::METHOD::POST && this->_request->getMethod() != Util::METHOD::CGI_POST)
-			this->setStatus(Client::STATUS::READY_TO_HANDLE);
-		else if (this->_request->getContentLength() == this->_request->getBody().length())
 		{
-			std::cout << "SETTING STATUS FOR POST REQUEST" << std::endl;
 			this->setStatus(Client::STATUS::READY_TO_HANDLE);
+			return;
+		}
+
+		std::string chunkedString = this->_request->getHeader(H_ENCODING);
+		if (chunkedString.empty() || chunkedString.compare("chunked") != 0)
+		{
+			if (this->_request->getContentLength() != this->_request->getBody().length())
+				throw BadRequestException("The request is not chunked but the body was not fully received");
+
+			this->setStatus(Client::STATUS::READY_TO_HANDLE);
+			return;
+		}
+
+		if (this->_request->getContentLength() == this->_request->getBody().length())
+		{
+			this->setStatus(Client::STATUS::READY_TO_HANDLE);
+			return;
 		}
 	}
 }

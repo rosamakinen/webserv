@@ -470,6 +470,10 @@
                 {
                     "name": "Content-Length",
                     "value": "10"
+                },
+				{
+                    "name": "Transfer-Encoding",
+                    "value": "chunked"
                 }
             ],
             "params": [],
