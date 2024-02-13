@@ -1,4 +1,3 @@
-
 #include "../include/CgiHandler.hpp"
 
 static std::string transferToString(std::map<std::string, std::string> input)

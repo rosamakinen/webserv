@@ -1,13 +1,8 @@
-#pragma once
+#ifndef SOCKET_HPP
+#define SOCKET_HPP
 
-#include <sys/socket.h> // For socket functions
-#include <netinet/in.h> // For sockaddr_in
-#include <iostream>
-#include <unistd.h> // For read
-#include <poll.h>
-#include <fcntl.h>
-
-#include "../include/Exceptions.hpp"
+#include "WebServer.hpp"
+#include "Exceptions.hpp"
 
 class Socket
 {
@@ -29,3 +24,5 @@ class Socket
 
 		Socket& operator=(const Socket& rhs);
 };
+
+#endif

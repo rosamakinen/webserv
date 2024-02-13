@@ -1,5 +1,5 @@
-
-#pragma once
+#ifndef CLIENT_HPP
+#define CLIENT_HPP
 #include "HttpResponse.hpp"
 #include "HttpRequest.hpp"
 
@@ -32,3 +32,4 @@ class Client
 
 		STATUS _status;
 };
+#endif

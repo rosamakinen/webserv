@@ -1,7 +1,8 @@
-#pragma once
+#ifndef SERVER_HPP
+#define SERVER_HPP
 
-#include "../include/WebServer.hpp"
-#include "../include/Socket.hpp"
+#include "WebServer.hpp"
+#include "Socket.hpp"
 
 class Server
 {
@@ -47,3 +48,5 @@ class Server
 		const std::vector<std::string>*	getLocationValue(std::string location, std::string key) const;
 		const std::string	getErrorPagePath(int status);
 };
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef HTTPREQUESTHANDLER_HPP
+#define HTTPREQUESTHANDLER_HPP
 
 #include "WebServer.hpp"
 #include "Exceptions.hpp"
@@ -18,3 +19,5 @@ class HttpRequestHandler
 
 		void	handleRequest(Client *client, Server *server);
 };
+
+#endif
