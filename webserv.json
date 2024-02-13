@@ -1,7 +1,7 @@
 {
     "client": "Thunder Client",
     "collectionName": "webserv",
-    "dateExported": "2024-02-13T13:54:31.801Z",
+    "dateExported": "2024-02-13T14:33:46.902Z",
     "version": "1.1",
     "folders": [],
     "requests": [
@@ -484,6 +484,27 @@
                     "custom": "",
                     "action": "notequal",
                     "value": "20"
+                }
+            ]
+        },
+        {
+            "_id": "e223ea76-4fca-46f3-a93a-f5f75d21ac62",
+            "colId": "59119237-9fa7-4599-bfe7-4cf2a4b11be9",
+            "containerId": "",
+            "name": "GET Dictionary listing",
+            "url": "http://127.0.0.1:8000/pictures/",
+            "method": "GET",
+            "sortNum": 150000,
+            "created": "2024-02-13T14:33:09.760Z",
+            "modified": "2024-02-13T14:33:30.463Z",
+            "headers": [],
+            "params": [],
+            "tests": [
+                {
+                    "type": "res-code",
+                    "custom": "",
+                    "action": "equal",
+                    "value": "200"
                 }
             ]
         }
