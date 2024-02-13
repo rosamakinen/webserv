@@ -63,7 +63,7 @@ void HttpRequestParser::parseDirectoryAndLocation(HttpRequest *request, Server *
 	request->setLocation(directoryPath);
 
 	const std::vector<std::string>* workingDir = server->getLocationValue(directoryPath, LOCAL_DIR);
-	if (workingDir == nullptr && workingDir->size() != 1)
+	if (workingDir == nullptr || workingDir->size() != 1)
 		throw BadRequestException("Location has missing or invalid values");
 
 	request->setDirectory(workingDir->front());

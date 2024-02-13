@@ -7,6 +7,7 @@ HttpRequest::HttpRequest() : _version("HTTP/1.1"), _isDirListing(false)
 
 HttpRequest::~HttpRequest()
 {
+	_headers.clear();
 	_parameters.clear();
 }
 
