@@ -1,5 +1,5 @@
-
-#pragma once
+#ifndef HTTPRESPONSE_HPP
+#define HTTPRESPONSE_HPP
 
 #include "WebServer.hpp"
 #include "Exceptions.hpp"
@@ -38,3 +38,5 @@ class HttpResponse
 };
 
 std::ostream& operator<<(std::ostream &out, const HttpResponse &rhs);
+
+#endif

@@ -1,10 +1,9 @@
-#pragma once
+#ifndef CONFIGPARSER_HPP
+#define CONFIGPARSER_HPP
 
-#include "../include/WebServer.hpp"
-#include "../include/Server.hpp"
-#include "../include/FileHandler.hpp"
-
-#include <string>
+#include "WebServer.hpp"
+#include "Server.hpp"
+#include "FileHandler.hpp"
 
 class ConfigParser
 {
@@ -31,3 +30,4 @@ private:
 	void processLine(const std::string &line);
 };
 
+#endif

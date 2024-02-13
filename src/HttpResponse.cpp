@@ -1,4 +1,3 @@
-
 #include "../include/HttpResponse.hpp"
 
 std::map<std::string, std::string> _contenttypes =

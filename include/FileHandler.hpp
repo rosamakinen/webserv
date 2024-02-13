@@ -1,10 +1,5 @@
-
-#pragma once
-
-#include <iostream>
-#include <fstream>
-#include <sys/types.h>
-#include <dirent.h>
+#ifndef FILEHANDLER_HPP
+#define FILEHANDLER_HPP
 
 #include "HttpRequest.hpp"
 #include "WebServer.hpp"
@@ -20,3 +15,5 @@ class FileHandler
 		static std::string getFilePath(std::string relativePath);
 		static std::string buildDirListing(std::string full_path);
 };
+
+#endif
