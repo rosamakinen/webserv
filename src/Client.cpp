@@ -1,6 +1,7 @@
 #include "../include/Client.hpp"
+#include "Client.hpp"
 
-Client::Client() : _response(nullptr), _request(nullptr), _status(INCOMING)
+Client::Client() : _response(nullptr), _request(nullptr), _server(nullptr), _status(NONE)
 {
 	_requestStart = std::chrono::high_resolution_clock::now();
 }
@@ -11,6 +12,7 @@ Client::~Client()
 		delete _request;
 	if (_response != nullptr)
 		delete _response;
+
 }
 
 void Client::setResponse(HttpResponse *response)
@@ -21,6 +23,18 @@ void Client::setResponse(HttpResponse *response)
 void Client::setRequest(HttpRequest *request)
 {
 	this->_request = request;
+	this->setStatus(Client::STATUS::INCOMING);
+}
+
+void Client::appendRequest(std::string requestToAdd)
+{
+	this->_request->appendBody(requestToAdd);
+	this->setStatus(Client::STATUS::INCOMING);
+}
+
+void Client::setServer(Server *server)
+{
+	this->_server = server;
 }
 
 HttpResponse *Client::getResponse()
@@ -41,6 +55,11 @@ void Client::setStatus(STATUS status)
 Client::STATUS Client::getStatus()
 {
 	return this->_status;
+}
+
+Server *Client::getServer()
+{
+	return this->_server;
 }
 
 std::chrono::high_resolution_clock::time_point Client::getRequestStart()

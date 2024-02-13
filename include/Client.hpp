@@ -22,9 +22,12 @@ class Client
 
 		void setResponse(HttpResponse *response);
 		void setRequest(HttpRequest *request);
+		void appendRequest(std::string requestToAdd);
+		void setServer(Server *server);
 
 		HttpResponse *getResponse();
 		HttpRequest *getRequest();
+		Server *getServer();
 
 		STATUS getStatus();
 		void setStatus(STATUS status);
@@ -34,6 +37,7 @@ class Client
 	private:
 		HttpResponse *_response;
 		HttpRequest *_request;
+		Server *_server;
 
 		std::chrono::high_resolution_clock::time_point _requestStart;
 

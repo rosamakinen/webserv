@@ -111,19 +111,21 @@ std::string ServerHandler::readRequest(int connection, unsigned int buffer_size)
 	char buffer[buffer_size];
 	std::string input;
 
-	while (1)
+	int readBytes = recv(connection, buffer, sizeof(buffer), 0);
+	if (readBytes < 0)
 	{
-		int readBytes = recv(connection, buffer, sizeof(buffer), 0);
-		if (readBytes < 0)
-			break;
-		if (readBytes == 0)
-		{
-			closeConnection(connection);
-			break;
-		}
-		buffer[readBytes] = '\0';
-		input.append(buffer);
+		closeConnection(connection);
+		return "";
 	}
+
+	if (readBytes == 0)
+	{
+		closeConnection(connection);
+		return "";
+	}
+
+	buffer[readBytes] = '\0';
+	input.append(buffer);
 
 	return input;
 }
@@ -159,7 +161,7 @@ Server *ServerHandler::getServer(int fd)
 	return it->second;
 }
 
-void ServerHandler::handleIncomingRequest(pollfd *fd)
+Client *ServerHandler::getOrCreateClient(pollfd *fd)
 {
 	Client *client;
 	std::map<int, Client*>::iterator it = _clients.find(fd->fd);
@@ -173,18 +175,38 @@ void ServerHandler::handleIncomingRequest(pollfd *fd)
 	}
 	else
 		client = it->second;
-	std::cout << "Client " << fd << " added to the clients list" << std::endl;
+
+	Server *server = getServer(fd->fd);
+	client->setServer(server);
+
+	return client;
+}
+
+void ServerHandler::handleIncomingRequest(pollfd *fd)
+{
+	Client *client = getOrCreateClient(fd);
+	std::cout << "Client " << fd->fd << " added to the clients list" << std::endl;
+	std::cout << "Client status for handling: '" << client->getStatus() << "'" << std::endl;
 
 	std::string requestString = readRequest(fd->fd, MESSAGE_BUFFER);
-	Server *server = getServer(fd->fd);
-	HttpRequestParser requestParser;
-	HttpRequest *request = requestParser.parseHttpRequest(requestString, server);
-	client->setRequest(request);
-
+	if (client->getStatus() == Client::STATUS::NONE)
+	{
+		HttpRequestParser requestParser;
+		HttpRequest *request = requestParser.parseHttpRequest(requestString, client->getServer());
+		client->setRequest(request);
+		std::cout << "Client request: '" << client->getRequest()->getBody() << "'" << std::endl;
+		std::cout << "Client status: '" << client->getStatus() << "'" << std::endl << std::endl;
+	}
+	else if (client->getStatus() == Client::STATUS::INCOMING)
+	{
+		client->appendRequest(requestString);
+		std::cout << "Client request: '" << client->getRequest()->getBody() << "'" << std::endl;
+		std::cout << "Client status: '" << client->getStatus() << "'" << std::endl << std::endl;
+	}
 
 	// TODO: separate to handler part
 	HttpRequestHandler requestHandler;
-	requestHandler.handleRequest(client, server);
+	requestHandler.handleRequest(client, client->getServer());
 	fd->events = POLLOUT;
 }
 
@@ -202,22 +224,10 @@ void ServerHandler::handleOutgoingResponse(pollfd *fd)
 
 void ServerHandler::handleOutgoingError(const Exception& e, pollfd *fd)
 {
-	Server *server = getServer(fd->fd);
-	HttpResponse *response = new HttpResponse(ExceptionManager::getErrorStatus(e), nullptr, server);
-	std::map<int, Client*>::iterator it = _clients.find(fd->fd);
-	if (it != _clients.end())
-	{
-		it->second->setResponse(response);
-		fd->events = POLLOUT;
-		return;
-	}
+	Client *client = getOrCreateClient(fd);
+	HttpResponse *response = new HttpResponse(ExceptionManager::getErrorStatus(e), nullptr, client->getServer());
 
-	Client *client = new Client();
 	client->setResponse(response);
-	std::pair<std::map<int, Client*>::iterator, bool> result;
-	result = _clients.insert(std::pair<int, Client*>(fd->fd, client));
-	if (!result.second)
-		throw BadRequestException("Connection already established with this client");
 	fd->events = POLLOUT;
 }
 
