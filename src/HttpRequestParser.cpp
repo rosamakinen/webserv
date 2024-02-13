@@ -1,4 +1,4 @@
-#include "HttpRequestParser.hpp"
+#include "../include/HttpRequestParser.hpp"
 
 HttpRequestParser::HttpRequestParser() {}
 
@@ -36,7 +36,7 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 	catch(const Exception& e)
 	{
 		delete request;
-		throw e;
+		throw;
 	}
 
 	return request;

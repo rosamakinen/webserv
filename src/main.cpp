@@ -1,5 +1,4 @@
-
-#include <cstdlib> // For exit() and EXIT_FAILURE
+#include "../include/WebServer.hpp"
 #include "../include/ServerHandler.hpp"
 #include "../include/ConfigParser.hpp"
 

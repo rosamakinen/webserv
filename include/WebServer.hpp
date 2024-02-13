@@ -1,4 +1,5 @@
-#pragma once
+#ifndef WEBSERVER_HPP
+#define WEBSERVER_HPP
 
 #define CONNECTION_TIMEOUT	180000
 #define MESSAGE_BUFFER		1048576
@@ -36,31 +37,33 @@
 #define EXT_CSS				".css"
 #define EXT_JPEG			".jpeg"
 
-#include "../include/Exceptions.hpp"
-
 #include <vector>
 #include <map>
 #include <set>
 #include <utility> // pair
-#include <algorithm>
-#include <typeinfo>
 
 #include <fstream>
 #include <sstream>
 #include <iostream>
 #include <string>
 
-#include <arpa/inet.h>
-
+#include <sys/socket.h> // For socket functions
 #include <sys/stat.h>	//fileops
-#include <sys/file.h>	//fileops
+#include <dirent.h>
 #include <unistd.h>		//needed for checking file permissions
 #include <stdlib.h>
 #include <time.h>
 #include <limits.h>
+#include <sys/poll.h>
+#include <netinet/in.h> // For sockaddr_in
+#include <poll.h>
+#include <fcntl.h>
 
 #include <stdexcept> // invalid_argument
+#include <cstdlib> // For exit() and EXIT_FAILURE
+#include <cerrno>
 
-typedef std::map<std::string, std::string> simpleMap;
 typedef std::map<std::string, std::vector<std::string> > vectorMap;
 typedef std::map<std::string, vectorMap> locationMap;
+
+#endif

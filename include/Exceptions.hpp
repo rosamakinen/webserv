@@ -1,7 +1,7 @@
+#ifndef EXCEPTIONS_HPP
+#define EXCEPTIONS_HPP
 
-#pragma once
-
-#include <iostream>
+#include "WebServer.hpp"
 
 // Http response handled exceptions
 class Exception : public std::logic_error
@@ -70,3 +70,5 @@ class FileException : public std::logic_error
 	public:
 		FileException(const std::string message) : logic_error(message.c_str()) { };
 };
+
+#endif

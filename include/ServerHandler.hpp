@@ -1,14 +1,13 @@
-#pragma once
+#ifndef SERVERHANDLER_HPP
+#define SERVERHANDLER_HPP
 
+#include "WebServer.hpp"
 #include "Client.hpp"
 #include "Socket.hpp"
 #include "Server.hpp"
 #include "HttpRequestHandler.hpp"
 #include "HttpRequestParser.hpp"
 #include "HttpResponseParser.hpp"
-
-#include <sys/poll.h>
-#include <functional>
 
 class ServerHandler
 {
@@ -48,3 +47,5 @@ class ServerHandler
 		void	addNewPoll(Server *server, int fd, bool addServer);
 		void	runServers(std::vector<Server*>& servers);
 };
+
+#endif

@@ -1,4 +1,3 @@
-
 #include "../include/ExceptionManager.hpp"
 
 std::pair<unsigned int, std::string> ExceptionManager::getErrorStatus(const Exception& e)

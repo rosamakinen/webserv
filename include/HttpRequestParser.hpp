@@ -1,13 +1,10 @@
+#ifndef HTTPREQUESTPARSER_HPP
+#define HTTPREQUESTPARSER_HPP
 
-#pragma once
-
+#include "WebServer.hpp"
 #include "HttpRequest.hpp"
 #include "Server.hpp"
 #include "FileHandler.hpp"
-#include <string>
-#include <iostream>
-#include <sstream>
-#include <map>
 
 class HttpRequestParser
 {
@@ -35,3 +32,5 @@ class HttpRequestParser
 
 		HttpRequest	*parseHttpRequest(std::string request, Server *server);
 };
+
+#endif

@@ -1,4 +1,3 @@
-
 #include "../include/HttpResponseParser.hpp"
 
 std::string HttpResponseParser::Parse(const HttpResponse &response)
