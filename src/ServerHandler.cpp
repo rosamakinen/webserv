@@ -207,6 +207,8 @@ void ServerHandler::handleIncomingRequest(pollfd *fd)
 		std::cout << "Client status: '" << client->getStatus() << "'" << std::endl << std::endl;
 	}
 
+	client->updateStatus();
+
 	// TODO: separate to handler part
 	HttpRequestHandler requestHandler;
 	requestHandler.handleRequest(client, client->getServer());

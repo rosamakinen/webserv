@@ -32,6 +32,7 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 			request->appendBody(requestLine);
 		}
 		request->setHost(request->getHeader("Host"));
+		parseContentLenght(request);
 	}
 	catch(const Exception& e)
 	{
@@ -40,6 +41,41 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 	}
 
 	return request;
+}
+
+void HttpRequestParser::parseContentLenght(HttpRequest *request)
+{
+	size_t lenght = 0;
+	std::string contentLengthString = request->getHeader("Content-Length");
+	if (contentLengthString.empty())
+	{
+		if (request->getMethod() == Util::METHOD::POST || request->getMethod() == Util::METHOD::CGI_POST)
+		{
+			if (request->getParameters().empty())
+				throw BadRequestException("Expected body or query parameters with POST request");
+		}
+
+		request->setContentLength(lenght);
+		return;
+	}
+
+	if (request->getMethod() != Util::METHOD::POST && request->getMethod() != Util::METHOD::CGI_POST)
+	{
+		request->setContentLength(lenght);
+		return;
+	}
+
+	try
+	{
+		lenght = std::stoi(contentLengthString);
+	}
+	catch(const std::logic_error& e)
+	{
+		throw BadRequestException("Could not parse the header Content-Lenght");
+	}
+
+	std::cout << "SETTING THE CONTENT LENGHT AS: " << lenght << std::endl;
+	request->setContentLength(lenght);
 }
 
 void HttpRequestParser::parseRequestLine(std::string &requestLine, HttpRequest *request, Server *server)

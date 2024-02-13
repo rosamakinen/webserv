@@ -67,3 +67,7 @@ std::chrono::high_resolution_clock::time_point Client::getRequestStart()
 {
 	return this->_requestStart;
 }
+
+void Client::updateStatus()
+{
+}
