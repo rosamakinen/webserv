@@ -32,10 +32,10 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 			request->appendBody(requestLine);
 		}
 	}
-	catch (std::exception &e)
+	catch (const Exception &e)
 	{
 		delete request;
-		throw;
+		throw e;
 	}
 	request->setHost(request->getHeader("Host"));
 	return request;
