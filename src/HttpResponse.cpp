@@ -35,17 +35,17 @@ std::ios_base::openmode HttpResponse::setContentType(std::string resourcePath)
 }
 
 
-HttpResponse::HttpResponse(
-	const std::pair<unsigned int, std::string> &status,
-	HttpRequest *request,
-	Server *server)
-	: _contentLenght(0),
-	_status(status)
+HttpResponse::HttpResponse()
+	: _contentLenght(0)
+{
+}
+
+void HttpResponse::setResponseBody(HttpRequest *request, Server *server)
 {
 	if (this->getStatus().first != 200)
 	{
 		this->_contentType = _contenttypes.find(EXT_HTML)->second;
-		setBody(FileHandler::getErrorFileContent(status.first, server));
+		setBody(FileHandler::getErrorFileContent(this->getStatus().first, server));
 	}
 	else
 	{

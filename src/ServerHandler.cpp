@@ -241,10 +241,10 @@ void ServerHandler::handleOutgoingResponse(pollfd *fd)
 
 void ServerHandler::handleOutgoingError(const Exception& e, pollfd *fd)
 {
+	Server *server = getServer(fd->fd);
 	Client *client = getOrCreateClient(fd);
-	HttpResponse *response = new HttpResponse(ExceptionManager::getErrorStatus(e), nullptr, client->getServer());
-
-	client->setResponse(response);
+	HttpRequestHandler handler;
+	client->setResponse(handler.parseErrorResponse(server, ExceptionManager::getErrorStatus(e)));
 	fd->events = POLLOUT;
 }
 
@@ -264,6 +264,7 @@ void ServerHandler::handlePollEvents(std::vector<Server*>& servers)
 			}
 			catch (const Exception& e)
 			{
+				std::cout << "HANDLING NCOMING REQUESTS\n";
 				handleOutgoingError(e, &_pollfds[i]);
 			}
 		}
@@ -275,6 +276,7 @@ void ServerHandler::handlePollEvents(std::vector<Server*>& servers)
 			}
 			catch (const Exception& e)
 			{
+				std::cout << "HANDLING OUTGOING REQUESTS\n";
 				handleOutgoingError(e, &_pollfds[i]);
 			}
 		}
