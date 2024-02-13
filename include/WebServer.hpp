@@ -10,6 +10,7 @@
 #define SPACE				" "
 #define WHITESPACE			" \t"
 #define SHEBANG				"#!"
+#define H_CONTENT_LENGTH	"Content-Length"
 
 #define PARSEHOST			"host"
 #define PARSELISTEN			"listen"

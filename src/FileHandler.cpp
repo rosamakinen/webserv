@@ -154,7 +154,7 @@ std::string FileHandler::getErrorFileContent(unsigned int status, Server *server
 		std::string message = "Could not open file ";
 		message.append(path);
 		message.append(" for reading");
-		throw FileException(message);
+		throw NotFoundException(message);
 	}
 
 	std::string line;

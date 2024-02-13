@@ -44,7 +44,7 @@ void ServerHandler::isCallValid(const int fd, const std::string errorMsg, int cl
 bool ServerHandler::hasTimedOut(Client *client)
 {
 	std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<int, std::milli> difference = std::chrono::duration_cast<std::chrono::duration<int, std::milli> >(now - client->getRequestStart());
+	std::chrono::duration<int> difference = std::chrono::duration_cast<std::chrono::duration<int> >(now - client->getRequestStart());
 
 	if (difference.count() >= 10)
 	{
@@ -185,6 +185,22 @@ Client *ServerHandler::getOrCreateClient(pollfd *fd)
 	return client;
 }
 
+void ServerHandler::handleReadyToBeHandledClients()
+{
+	HttpRequestHandler requestHandler;
+
+	for (pollfd& fd : _pollfds)
+	{
+		std::map<int, Client*>::iterator it = _clients.find(fd.fd);
+		if (it == _clients.end() || it->second->getStatus() != Client::STATUS::READY_TO_HANDLE)
+			continue;
+
+		std::cout << "Client '" << fd.fd << "' is being handled." << std::endl;
+		requestHandler.handleRequest(it->second, it->second->getServer());
+		fd.events = POLLOUT;
+	}
+}
+
 void ServerHandler::handleIncomingRequest(pollfd *fd)
 {
 	Client *client = getOrCreateClient(fd);
@@ -197,23 +213,18 @@ void ServerHandler::handleIncomingRequest(pollfd *fd)
 		HttpRequestParser requestParser;
 		HttpRequest *request = requestParser.parseHttpRequest(requestString, client->getServer());
 		client->setRequest(request);
-		std::cout << "Client request: '" << client->getRequest()->getBody() << "'" << std::endl;
+		std::cout << "Client request body: '" << client->getRequest()->getBody() << "'" << std::endl;
 		std::cout << "Client status: '" << client->getStatus() << "'" << std::endl << std::endl;
 	}
 	else if (client->getStatus() == Client::STATUS::INCOMING)
 	{
 		client->appendRequest(requestString);
-		std::cout << "Client request: '" << client->getRequest()->getBody() << "'" << std::endl;
+		std::cout << "Client request body: '" << client->getRequest()->getBody() << "'" << std::endl;
 		std::cout << "Client status: '" << client->getStatus() << "'" << std::endl << std::endl;
 	}
 
 	client->updateStatus();
-
-	// TODO: separate to handler part
-	HttpRequestHandler requestHandler;
-	requestHandler.handleRequest(client, client->getServer());
 	std::cout << "Client status: '" << client->getStatus() << "'" << std::endl << std::endl;
-	fd->events = POLLOUT;
 }
 
 void ServerHandler::handleOutgoingResponse(pollfd *fd)
@@ -275,7 +286,7 @@ void ServerHandler::removeTimedOutClients()
 	for (std::pair<int, Client*> client : _clients)
 	{
 		std::cout << "Checking client: " << client.first << " for a time out" << std::endl;
-		if (hasTimedOut(client.second))
+		if (hasTimedOut(client.second) && client.second->getStatus() != Client::STATUS::READY_TO_HANDLE)
 		{
 			std::cout << "Client: " << client.first << " erased from the clients" << std::endl;
 			_clients.erase(client.first);
@@ -303,6 +314,7 @@ void ServerHandler::runServers(std::vector<Server*>& servers)
 			throw PollException("Poll failed");
 		}
 		handlePollEvents(servers);
+		handleReadyToBeHandledClients();
 	}
 
 	closeConnections();

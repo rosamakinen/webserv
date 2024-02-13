@@ -11,7 +11,6 @@ Client::~Client()
 		delete _request;
 	if (_response != nullptr)
 		delete _response;
-
 }
 
 void Client::setResponse(HttpResponse *response)
@@ -69,4 +68,20 @@ std::chrono::high_resolution_clock::time_point Client::getRequestStart()
 
 void Client::updateStatus()
 {
+	if (this->_request == nullptr)
+		return;
+
+	if (this->_status == Client::STATUS::INCOMING)
+	{
+		if (this->_request->getMethod() != Util::METHOD::POST || this->_request->getMethod() != Util::METHOD::CGI_POST)
+		{
+			std::cout << "SETTING STATUS FOR GET REQUEST" << std::endl;
+			this->setStatus(Client::STATUS::READY_TO_HANDLE);
+		}
+		else if (this->_request->getContentLength() == this->_request->getBody().length())
+		{
+			std::cout << "SETTING STATUS FOR POST REQUEST" << std::endl;
+			this->setStatus(Client::STATUS::READY_TO_HANDLE);
+		}
+	}
 }

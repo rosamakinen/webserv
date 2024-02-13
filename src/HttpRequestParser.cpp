@@ -46,7 +46,7 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 void HttpRequestParser::parseContentLenght(HttpRequest *request)
 {
 	size_t lenght = 0;
-	std::string contentLengthString = request->getHeader("Content-Lenght");
+	std::string contentLengthString = request->getHeader(H_CONTENT_LENGTH);
 	std::cout << contentLengthString << std::endl;
 	if (contentLengthString.empty() || contentLengthString.compare("0") == 0)
 	{
