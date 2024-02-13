@@ -8,6 +8,9 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <signal.h>
+#include <chrono>
+#include <thread>
 
 class CgiHandler
 {
