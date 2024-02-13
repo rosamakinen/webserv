@@ -46,8 +46,9 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 void HttpRequestParser::parseContentLenght(HttpRequest *request)
 {
 	size_t lenght = 0;
-	std::string contentLengthString = request->getHeader("Content-Length");
-	if (contentLengthString.empty())
+	std::string contentLengthString = request->getHeader("Content-Lenght");
+	std::cout << contentLengthString << std::endl;
+	if (contentLengthString.empty() || contentLengthString.compare("0") == 0)
 	{
 		if (request->getMethod() == Util::METHOD::POST || request->getMethod() == Util::METHOD::CGI_POST)
 		{
@@ -74,7 +75,6 @@ void HttpRequestParser::parseContentLenght(HttpRequest *request)
 		throw BadRequestException("Could not parse the header Content-Lenght");
 	}
 
-	std::cout << "SETTING THE CONTENT LENGHT AS: " << lenght << std::endl;
 	request->setContentLength(lenght);
 }
 

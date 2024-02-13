@@ -82,6 +82,12 @@ curl  -X POST \
 --header 'Accept-Encoding: gzip,deflate' \
 --header 'Connection: keep-alive'
 
+curl --location --request POST '127.0.0.1:8000/index1.html' \
+--header 'Cache-Control: no-cache' \
+--header 'Accept: */*' \
+--header 'Accept-Encoding: gzip,deflate' \
+--header 'Connection: keep-alive'
+
 5. 500 INTERNAL SERVER ERROR
 
 curl  -X POST \
