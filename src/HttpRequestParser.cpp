@@ -12,24 +12,33 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 
 	// Parse the request line
 	getline(ss, requestLine);
-	parseRequestLine(requestLine, request, server);
-
-	// Parse the headers
-	while (getline(ss, requestLine))
+	try
 	{
-		if (requestLine.compare("\r") == 0)
-			break;
-		parseHeader(requestLine, request);
+		parseRequestLine(requestLine, request, server);
+
+		// Parse the headers
+		while (getline(ss, requestLine))
+		{
+			if (requestLine.compare("\r") == 0)
+				break;
+			parseHeader(requestLine, request);
+		}
+
+		std::string	body = "";
+		while (getline(ss, requestLine))
+		{
+			if (requestLine.compare("\r") == 0)
+				break;
+			request->appendBody(requestLine);
+		}
+		request->setHost(request->getHeader("Host"));
+	}
+	catch(const Exception& e)
+	{
+		delete request;
+		throw e;
 	}
 
-	std::string	body = "";
-	while (getline(ss, requestLine))
-	{
-		if (requestLine.compare("\r") == 0)
-			break;
-		request->appendBody(requestLine);
-	}
-	request->setHost(request->getHeader("Host"));
 	return request;
 }
 

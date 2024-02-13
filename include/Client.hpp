@@ -1,7 +1,10 @@
 
 #pragma once
+
 #include "HttpResponse.hpp"
 #include "HttpRequest.hpp"
+
+#include <chrono>
 
 class Client
 {
@@ -26,9 +29,13 @@ class Client
 		STATUS getStatus();
 		void setStatus(STATUS status);
 
+		std::chrono::high_resolution_clock::time_point getRequestStart();
+
 	private:
 		HttpResponse *_response;
 		HttpRequest *_request;
+
+		std::chrono::high_resolution_clock::time_point _requestStart;
 
 		STATUS _status;
 };

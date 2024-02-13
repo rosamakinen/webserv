@@ -25,6 +25,9 @@ class ServerHandler
 		void	handleNewClient(Socket *socket, Server *server);
 		void	handlePollEvents(std::vector<Server*>& servers);
 
+		void	removeTimedOutClients();
+		bool	hasTimedOut(Client *client);
+
 		void	handleIncomingRequest(pollfd *fd);
 		void	handleOutgoingResponse(pollfd *fd);
 		void	handleOutgoingError(const Exception& e, pollfd *fd);
@@ -33,7 +36,7 @@ class ServerHandler
 		void	closeConnection(int fd);
 
 		std::string	readRequest(int connection, unsigned int buffer_size);
-		void		writeResponse(int connection, const std::string response);
+		void	writeResponse(int connection, const std::string response);
 
 		Server	*getServer(int fd);
 
