@@ -8,7 +8,6 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 		{
 			HttpResponse *response = new HttpResponse(std::pair<unsigned int, std::string>(200, "OK"), client->getRequest(), server);
 			client->setResponse(response);
-			client->setStatus(Client::STATUS::OUTGOING);
 			return;
 		}
 
@@ -18,7 +17,6 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 			std::cout << "we would do post here" << std::endl;
 			HttpResponse *response = new HttpResponse(std::pair<unsigned int, std::string>(200, "OK"), client->getRequest(), server);
 			client->setResponse(response);
-			client->setStatus(Client::STATUS::OUTGOING);
 			return;
 		}
 
@@ -28,7 +26,6 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 			std::cout << "we would do delete here" << std::endl;
 			HttpResponse *response = new HttpResponse(std::pair<unsigned int, std::string>(200, "OK"), client->getRequest(), server);
 			client->setResponse(response);
-			client->setStatus(Client::STATUS::OUTGOING);
 			return;
 		}
 
@@ -40,7 +37,6 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 			HttpResponse *response = new HttpResponse(std::pair<unsigned int, std::string>(200, "OK"), client->getRequest(), server);
 			response->setCgiResponse(cgiResponse);
 			client->setResponse(response);
-			client->setStatus(Client::STATUS::OUTGOING);
 			return;
 		}
 
@@ -52,7 +48,6 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 			HttpResponse *response = new HttpResponse(std::pair<unsigned int, std::string>(200, "OK"), client->getRequest(), server);
 			response->setCgiResponse(cgiResponse);
 			client->setResponse(response);
-			client->setStatus(Client::STATUS::OUTGOING);
 			return;
 		}
 
@@ -63,7 +58,6 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 
 	HttpResponse *response = new HttpResponse(ExceptionManager::getErrorStatus(InternalException("Something went wrong")), client->getRequest(), server);
 	client->setResponse(response);
-	client->setStatus(Client::STATUS::OUTGOING);
 }
 
 HttpRequestHandler::HttpRequestHandler()

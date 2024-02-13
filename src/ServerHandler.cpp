@@ -45,11 +45,13 @@ void ServerHandler::isCallValid(const int fd, const std::string errorMsg, int cl
 bool ServerHandler::hasTimedOut(Client *client)
 {
 	std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<double> difference = std::chrono::duration_cast<std::chrono::duration<double> >(now - client->getRequestStart());
+	std::chrono::duration<int, std::milli> difference = std::chrono::duration_cast<std::chrono::duration<int, std::milli> >(now - client->getRequestStart());
 
-	std::cout << "For client " << client->getRequest() << " the time spent is " << difference.count() << std::endl;
-	if (difference.count() >= 1)
+	if (difference.count() >= 10)
+	{
+		std::cout << "The client with the request '" << client->getRequest()->getBody() << "' has timed out after " << difference.count() << " milliseconds." << std::endl;
 		return true;
+	}
 	return false;
 }
 
@@ -84,6 +86,8 @@ void ServerHandler::closeConnections()
 		}
 		it = _pollfds.erase(it);
 	}
+
+	_pollfds.clear();
 }
 
 void ServerHandler::closeConnection(int fd)
@@ -207,6 +211,7 @@ void ServerHandler::handleIncomingRequest(pollfd *fd)
 	// TODO: separate to handler part
 	HttpRequestHandler requestHandler;
 	requestHandler.handleRequest(client, client->getServer());
+	std::cout << "Client status: '" << client->getStatus() << "'" << std::endl << std::endl;
 	fd->events = POLLOUT;
 }
 
@@ -288,13 +293,12 @@ void ServerHandler::runServers(std::vector<Server*>& servers)
 		if (result == 0)
 		{
 			closeConnections();
-			_pollfds.clear();
+			// TODO: throw Timeout to all clients and close connections, dont shut down the program
 			throw TimeOutException("The program excited with timeout");
 		}
 		else if (result < 0)
 		{
 			closeConnections();
-			_pollfds.clear();
 			throw PollException("Poll failed");
 		}
 		handlePollEvents(servers);

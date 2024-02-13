@@ -18,6 +18,7 @@ Client::~Client()
 void Client::setResponse(HttpResponse *response)
 {
 	this->_response = response;
+	this->setStatus(Client::STATUS::OUTGOING);
 }
 
 void Client::setRequest(HttpRequest *request)
