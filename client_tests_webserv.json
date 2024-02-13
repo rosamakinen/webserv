@@ -1,20 +1,20 @@
 {
     "client": "Thunder Client",
     "collectionName": "webserv",
-    "dateExported": "2024-02-12T13:20:07.732Z",
+    "dateExported": "2024-02-13T13:54:31.801Z",
     "version": "1.1",
     "folders": [],
     "requests": [
         {
-            "_id": "dd1c2aa7-d660-457b-9c20-6b2d5c1e9e05",
-            "colId": "8aa46881-5549-4eba-bb84-a6a2404f9e05",
+            "_id": "89d5cb6c-38ec-4171-8adc-487195a7d71e",
+            "colId": "59119237-9fa7-4599-bfe7-4cf2a4b11be9",
             "containerId": "",
             "name": "GET index.html",
             "url": "127.0.0.1:8000/index.html",
             "method": "GET",
             "sortNum": 10000,
-            "created": "2024-02-12T11:20:14.467Z",
-            "modified": "2024-02-12T13:19:14.060Z",
+            "created": "2024-02-13T11:38:47.142Z",
+            "modified": "2024-02-13T13:33:22.281Z",
             "headers": [],
             "params": [],
             "tests": [
@@ -27,15 +27,15 @@
             ]
         },
         {
-            "_id": "4c7daabf-e4d5-4bc6-8659-aa25955ff1c8",
-            "colId": "8aa46881-5549-4eba-bb84-a6a2404f9e05",
+            "_id": "dd55f4d4-b814-4871-9bbb-242c83488843",
+            "colId": "59119237-9fa7-4599-bfe7-4cf2a4b11be9",
             "containerId": "",
             "name": "POST bad request (path)",
             "url": "127.0.0.1:8000/cgi-bin/hello_wold.py",
             "method": "POST",
             "sortNum": 20000,
-            "created": "2024-02-12T11:22:19.831Z",
-            "modified": "2024-02-12T11:22:19.831Z",
+            "created": "2024-02-13T11:38:47.143Z",
+            "modified": "2024-02-13T11:38:47.143Z",
             "headers": [
                 {
                     "name": "Cache-Control",
@@ -61,15 +61,15 @@
             ]
         },
         {
-            "_id": "23d7a253-633e-42c5-92b2-f8a8c1948fc1",
-            "colId": "8aa46881-5549-4eba-bb84-a6a2404f9e05",
+            "_id": "7fe9720c-ea22-425d-a6bd-372ceda5636f",
+            "colId": "59119237-9fa7-4599-bfe7-4cf2a4b11be9",
             "containerId": "",
             "name": "POST bad request (cgi file extension)",
             "url": "127.0.0.1:8000/cgi-bin/hello_world.ps",
             "method": "POST",
             "sortNum": 30000,
-            "created": "2024-02-12T11:23:04.664Z",
-            "modified": "2024-02-12T11:23:04.664Z",
+            "created": "2024-02-13T11:38:47.144Z",
+            "modified": "2024-02-13T11:38:47.144Z",
             "headers": [
                 {
                     "name": "Cache-Control",
@@ -95,15 +95,15 @@
             ]
         },
         {
-            "_id": "e2b6b6c3-944b-41c4-93b8-f8fbfe97eacf",
-            "colId": "8aa46881-5549-4eba-bb84-a6a2404f9e05",
+            "_id": "3a1c2499-021c-4f53-a8eb-ab39b70d64f5",
+            "colId": "59119237-9fa7-4599-bfe7-4cf2a4b11be9",
             "containerId": "",
             "name": "POST 404 not found (bad path)",
             "url": "127.0.0.1:8000/ci-bin/hello_world.py",
             "method": "POST",
             "sortNum": 40000,
-            "created": "2024-02-12T11:24:27.851Z",
-            "modified": "2024-02-12T11:24:27.851Z",
+            "created": "2024-02-13T11:38:47.145Z",
+            "modified": "2024-02-13T11:38:47.145Z",
             "headers": [
                 {
                     "name": "Cache-Control",
@@ -129,15 +129,15 @@
             ]
         },
         {
-            "_id": "d0f88752-0495-4ecd-841e-718c746ee9be",
-            "colId": "8aa46881-5549-4eba-bb84-a6a2404f9e05",
+            "_id": "3c477d62-1225-4c89-813d-089761722e81",
+            "colId": "59119237-9fa7-4599-bfe7-4cf2a4b11be9",
             "containerId": "",
             "name": "CGI POST - Internal Server Error (no body)",
             "url": "http://127.0.0.1:8000/cgi-bin/hello_world.py?first_name=rosa&last_name=testitesti",
             "method": "POST",
             "sortNum": 50000,
-            "created": "2024-02-12T11:26:22.654Z",
-            "modified": "2024-02-12T11:26:22.654Z",
+            "created": "2024-02-13T11:38:47.146Z",
+            "modified": "2024-02-13T11:38:47.146Z",
             "headers": [
                 {
                     "name": "Cache-Control",
@@ -174,15 +174,15 @@
             ]
         },
         {
-            "_id": "b023c174-3887-49c2-a3a8-ae488f3c3cef",
-            "colId": "8aa46881-5549-4eba-bb84-a6a2404f9e05",
+            "_id": "34236291-7c60-4e21-adf5-0239f1f27ca6",
+            "colId": "59119237-9fa7-4599-bfe7-4cf2a4b11be9",
             "containerId": "",
             "name": "CGI GET - form - queryline",
             "url": "http://127.0.0.1:8000/cgi-bin/hello_world.py?first_name=rosa&last_name=testitesti",
             "method": "GET",
             "sortNum": 60000,
-            "created": "2024-02-12T11:27:17.848Z",
-            "modified": "2024-02-12T11:27:17.848Z",
+            "created": "2024-02-13T11:38:47.147Z",
+            "modified": "2024-02-13T11:38:47.147Z",
             "headers": [
                 {
                     "name": "Cache-Control",
@@ -219,15 +219,15 @@
             ]
         },
         {
-            "_id": "b59c3331-2d96-484e-9da8-e90c483b890a",
-            "colId": "8aa46881-5549-4eba-bb84-a6a2404f9e05",
+            "_id": "7161d4f7-3f41-4ce3-883d-27b32c3a3698",
+            "colId": "59119237-9fa7-4599-bfe7-4cf2a4b11be9",
             "containerId": "",
             "name": "127.0.0.1:8000/",
             "url": "127.0.0.1:8000/",
             "method": "GET",
             "sortNum": 70000,
-            "created": "2024-02-12T13:06:14.045Z",
-            "modified": "2024-02-12T13:17:38.651Z",
+            "created": "2024-02-13T11:38:47.148Z",
+            "modified": "2024-02-13T11:38:47.148Z",
             "headers": [
                 {
                     "name": "Cache-Control",
@@ -253,15 +253,15 @@
             ]
         },
         {
-            "_id": "b9a1c647-84bf-488c-9e57-b3ec2f182619",
-            "colId": "8aa46881-5549-4eba-bb84-a6a2404f9e05",
+            "_id": "b3f573b3-e0cd-4f4e-9d55-c8435c6dca16",
+            "colId": "59119237-9fa7-4599-bfe7-4cf2a4b11be9",
             "containerId": "",
             "name": "127.0.0.1:8000/index.html",
             "url": "127.0.0.1:8000/index.html",
             "method": "GET",
             "sortNum": 80000,
-            "created": "2024-02-12T13:06:55.598Z",
-            "modified": "2024-02-12T13:18:00.312Z",
+            "created": "2024-02-13T11:38:47.149Z",
+            "modified": "2024-02-13T11:38:47.149Z",
             "headers": [
                 {
                     "name": "Cache-Control",
@@ -287,15 +287,15 @@
             ]
         },
         {
-            "_id": "f54a192d-49da-45da-9d1a-73fecdfd6f4e",
-            "colId": "8aa46881-5549-4eba-bb84-a6a2404f9e05",
+            "_id": "0ef105a2-daee-4a0e-87ab-85a3494762f7",
+            "colId": "59119237-9fa7-4599-bfe7-4cf2a4b11be9",
             "containerId": "",
             "name": "127.0.0.1:8000/index1.html",
             "url": "127.0.0.1:8000/index1.html",
             "method": "GET",
             "sortNum": 90000,
-            "created": "2024-02-12T13:07:24.503Z",
-            "modified": "2024-02-12T13:18:50.530Z",
+            "created": "2024-02-13T11:38:47.150Z",
+            "modified": "2024-02-13T11:38:47.150Z",
             "headers": [
                 {
                     "name": "Cache-Control",
@@ -321,15 +321,15 @@
             ]
         },
         {
-            "_id": "ab721233-b1f9-44bc-b9e6-481a87d9363e",
-            "colId": "8aa46881-5549-4eba-bb84-a6a2404f9e05",
+            "_id": "a479f8bd-3122-4654-bea8-b114319d14ff",
+            "colId": "59119237-9fa7-4599-bfe7-4cf2a4b11be9",
             "containerId": "",
             "name": "127.0.0.1:8000/index.htm",
             "url": "127.0.0.1:8000/index.htm",
             "method": "GET",
             "sortNum": 100000,
-            "created": "2024-02-12T13:09:12.586Z",
-            "modified": "2024-02-12T13:09:12.586Z",
+            "created": "2024-02-13T11:38:47.151Z",
+            "modified": "2024-02-13T11:38:47.151Z",
             "headers": [
                 {
                     "name": "Cache-Control",
@@ -355,15 +355,15 @@
             ]
         },
         {
-            "_id": "48af6830-6645-48d9-b122-82ebdf50eae5",
-            "colId": "8aa46881-5549-4eba-bb84-a6a2404f9e05",
+            "_id": "ce2b53ec-c31a-4e7f-9915-7ae864829de4",
+            "colId": "59119237-9fa7-4599-bfe7-4cf2a4b11be9",
             "containerId": "",
             "name": "127.0.0.1:8000/public_www/somefile",
             "url": "127.0.0.1:8000/public_www/somefile",
             "method": "GET",
             "sortNum": 110000,
-            "created": "2024-02-12T13:09:55.043Z",
-            "modified": "2024-02-12T13:09:55.043Z",
+            "created": "2024-02-13T11:38:47.152Z",
+            "modified": "2024-02-13T11:38:47.152Z",
             "headers": [
                 {
                     "name": "Cache-Control",
@@ -389,15 +389,15 @@
             ]
         },
         {
-            "_id": "ff113266-fee3-4b7c-94ed-67f5cf8f772e",
-            "colId": "8aa46881-5549-4eba-bb84-a6a2404f9e05",
+            "_id": "acf39cdd-0bd3-435e-9152-961ec750bdf8",
+            "colId": "59119237-9fa7-4599-bfe7-4cf2a4b11be9",
             "containerId": "",
             "name": "127.0.0.1:8000/public_www/",
             "url": "127.0.0.1:8000/public_www/",
             "method": "GET",
             "sortNum": 120000,
-            "created": "2024-02-12T13:10:45.781Z",
-            "modified": "2024-02-12T13:10:45.781Z",
+            "created": "2024-02-13T11:38:47.154Z",
+            "modified": "2024-02-13T11:38:47.154Z",
             "headers": [
                 {
                     "name": "Cache-Control",
@@ -423,15 +423,15 @@
             ]
         },
         {
-            "_id": "a7bdd589-4938-4a8f-98b6-bbe83bba67c8",
-            "colId": "8aa46881-5549-4eba-bb84-a6a2404f9e05",
+            "_id": "6e814b53-2b6b-4dd5-87ae-b2484ef931ac",
+            "colId": "59119237-9fa7-4599-bfe7-4cf2a4b11be9",
             "containerId": "",
             "name": "127.0.0.1:8000/public_www/",
             "url": "127.0.0.1:8000/public_www/",
             "method": "GET",
             "sortNum": 130000,
-            "created": "2024-02-12T13:11:30.158Z",
-            "modified": "2024-02-12T13:11:30.158Z",
+            "created": "2024-02-13T11:38:47.155Z",
+            "modified": "2024-02-13T11:38:47.155Z",
             "headers": [
                 {
                     "name": "Cache-Control",
@@ -453,6 +453,37 @@
                     "custom": "",
                     "action": "equal",
                     "value": "404"
+                }
+            ]
+        },
+        {
+            "_id": "63bf791e-ca27-4745-97ca-731d5ffa3dd8",
+            "colId": "59119237-9fa7-4599-bfe7-4cf2a4b11be9",
+            "containerId": "",
+            "name": "POST hanging request",
+            "url": "127.0.0.1:8000/index.html",
+            "method": "POST",
+            "sortNum": 140000,
+            "created": "2024-02-13T13:45:54.550Z",
+            "modified": "2024-02-13T13:52:33.112Z",
+            "headers": [
+                {
+                    "name": "Content-Length",
+                    "value": "10"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "text",
+                "raw": "hello",
+                "form": []
+            },
+            "tests": [
+                {
+                    "type": "res-code",
+                    "custom": "",
+                    "action": "notequal",
+                    "value": "20"
                 }
             ]
         }

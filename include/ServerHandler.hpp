@@ -27,6 +27,7 @@ class ServerHandler
 		void	handlePollEvents(std::vector<Server*>& servers);
 
 		void	removeTimedOutClients();
+		std::map<int, Client*>::iterator removeClient(std::map<int, Client*>::iterator client);
 		bool	hasTimedOut(Client *client);
 
 		void	handleIncomingRequest(pollfd *fd);

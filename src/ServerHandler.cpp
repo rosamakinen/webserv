@@ -104,6 +104,7 @@ void ServerHandler::closeConnection(int fd)
 			close(it->fd);
 			it->fd = -1;
 		}
+
 		_serverPolls.erase(it->fd);
 		it = _pollfds.erase(it);
 	}
@@ -204,8 +205,7 @@ void ServerHandler::handleReadyToBeHandledClients()
 void ServerHandler::handleIncomingRequest(pollfd *fd)
 {
 	Client *client = getOrCreateClient(fd);
-	std::cout << "Client " << fd->fd << " added to the clients list" << std::endl;
-	std::cout << "Client status for handling: '" << client->getStatus() << "'" << std::endl;
+	std::cout << "Reading client " << fd->fd << std::endl;
 
 	std::string requestString = readRequest(fd->fd, MESSAGE_BUFFER);
 	if (client->getStatus() == Client::STATUS::NONE)
@@ -213,13 +213,11 @@ void ServerHandler::handleIncomingRequest(pollfd *fd)
 		HttpRequestParser requestParser;
 		HttpRequest *request = requestParser.parseHttpRequest(requestString, client->getServer());
 		client->setRequest(request);
-		std::cout << "Client request body: '" << client->getRequest()->getBody() << "'" << std::endl;
-		std::cout << "Client status: '" << client->getStatus() << "'" << std::endl << std::endl;
 	}
 	else if (client->getStatus() == Client::STATUS::INCOMING)
 	{
-		client->appendRequest(requestString);
 		std::cout << "Client request body: '" << client->getRequest()->getBody() << "'" << std::endl;
+		client->appendRequest(requestString);
 		std::cout << "Client status: '" << client->getStatus() << "'" << std::endl << std::endl;
 	}
 
@@ -234,7 +232,7 @@ void ServerHandler::handleOutgoingResponse(pollfd *fd)
 		return;
 	writeResponse(fd->fd, HttpResponseParser::Parse(*it->second->getResponse()));
 
-	std::cout << "Client " << fd->fd << " removed from the clients" << std::endl;
+	// std::cout << "Client " << fd->fd << " removed from the clients" << std::endl;
 	delete it->second;
 	_clients.erase(fd->fd);
 }
@@ -264,7 +262,6 @@ void ServerHandler::handlePollEvents(std::vector<Server*>& servers)
 			}
 			catch (const Exception& e)
 			{
-				std::cout << "HANDLING NCOMING REQUESTS\n";
 				handleOutgoingError(e, &_pollfds[i]);
 			}
 		}
@@ -276,23 +273,34 @@ void ServerHandler::handlePollEvents(std::vector<Server*>& servers)
 			}
 			catch (const Exception& e)
 			{
-				std::cout << "HANDLING OUTGOING REQUESTS\n";
 				handleOutgoingError(e, &_pollfds[i]);
 			}
 		}
 	}
 }
 
+std::map<int, Client*>::iterator ServerHandler::removeClient(std::map<int, Client*>::iterator client)
+{
+	delete client->second;
+
+	for (unsigned long i = 0; i < _pollfds.size(); i++)
+	{
+		if (_pollfds[i].fd != client->first)
+			continue;
+		closeConnection(_pollfds[i].fd);
+	}
+
+	return _clients.erase(client);
+}
+
 void ServerHandler::removeTimedOutClients()
 {
-	for (std::pair<int, Client*> client : _clients)
+	for (auto it = _clients.begin(); it != _clients.end(); )
 	{
-		std::cout << "Checking client: " << client.first << " for a time out" << std::endl;
-		if (hasTimedOut(client.second) && client.second->getStatus() != Client::STATUS::READY_TO_HANDLE)
-		{
-			std::cout << "Client: " << client.first << " erased from the clients" << std::endl;
-			_clients.erase(client.first);
-		}
+		if (hasTimedOut(it->second) && it->second->getStatus() != Client::STATUS::READY_TO_HANDLE)
+			it = removeClient(it);
+		else
+			it++;
 	}
 }
 
