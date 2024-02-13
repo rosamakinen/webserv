@@ -1,7 +1,7 @@
+#ifndef UTIL_HPP
+#define UTIL_HPP
 
-#pragma once
-
-#include <iostream>
+#include "WebServer.hpp"
 
 class Util
 {
@@ -22,3 +22,5 @@ class Util
 		static std::string getFileFromUri(const std::string &uri);
 		static void freeStringArray(char **string);
 };
+
+#endif

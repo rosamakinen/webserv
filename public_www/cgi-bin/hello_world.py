@@ -51,6 +51,7 @@ if len(parts) != 2:
 first_name = parts[0].split("=")[1]
 last_name = parts[1].split("=")[1]
 
+# this is to test cgi_timeout
 # value = 1
 # while (value):
 # 	date_time = datetime.now()

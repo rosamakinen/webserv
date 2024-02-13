@@ -1,6 +1,5 @@
-
-#include "Socket.hpp"
-#include <cerrno>
+#include "../include/WebServer.hpp"
+#include "../include/Socket.hpp"
 
 void	Socket::isCallValid(const int fd, const std::string errorMsg, int closeFd, bool keepRunning)
 {

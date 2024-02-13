@@ -1,5 +1,5 @@
-
-#pragma once
+#ifndef HTTPREQUEST_HPP
+#define HTTPREQUEST_HPP
 
 #include "Util.hpp"
 #include "WebServer.hpp"
@@ -52,3 +52,5 @@ class HttpRequest
 		std::map<std::string, std::string> _parameters;
 		std::map<std::string, std::string> _headers;
 };
+
+#endif
