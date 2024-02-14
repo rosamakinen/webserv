@@ -48,7 +48,6 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 
 		case Util::METHOD::POST:
 		{
-			//these clauses are added here so we wouldnt segfault untill we have the proper actions
 			std::cout << "we would do post here" << std::endl;
 			parseOkResponse(client, server);
 			return;
@@ -56,7 +55,6 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 
 		case Util::METHOD::DELETE:
 		{
-			//these clauses are added here so we wouldnt segfault untill we have the proper actions
 			std::cout << "we would do delete here" << std::endl;
 			parseOkResponse(client, server);
 			return;
@@ -64,7 +62,6 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 
 		case Util::METHOD::CGI_GET:
 		{
-			//these clauses are added here so we wouldnt segfault untill we have the proper actions
 			std::cout << "we would execute get request cgi here" << std::endl;
 			std::string cgiResponse = CgiHandler::executeCgi(*client->getRequest());
 			parseOkResponse(client, server);
@@ -74,7 +71,6 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 
 		case Util::METHOD::CGI_POST:
 		{
-			//these clauses are added here so we wouldnt segfault untill we have the proper actions
 			std::cout << "we would execute post request cgi here" << std::endl;
 			std::string cgiResponse = CgiHandler::executeCgi(*client->getRequest());
 			parseOkResponse(client, server);

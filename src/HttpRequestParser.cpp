@@ -163,7 +163,7 @@ void HttpRequestParser::parseIndexPathAndDirectoryListing(HttpRequest *request, 
 	{
 		std::string indexPath = request->getDirectory();
 		indexPath.append(Util::getFileFromUri(request->getUri()));
-		request->setResourcePath(indexPath); // leak comes after setting the ResourcePath
+		request->setResourcePath(indexPath);
 	}
 }
 
