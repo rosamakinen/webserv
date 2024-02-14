@@ -161,7 +161,6 @@ bool	cgiTimeout(int pid)
 
 std::string	CgiHandler::executeCgi(HttpRequest request)
 {
-	std::cout << "here!" << std::endl;
 	std::map<std::string, std::string> cgiEnvironment = initCgiEnvironment(request);
 	char **environmentString = transferToStringArray(cgiEnvironment);
 	char **argumentString = getArguments(request);
