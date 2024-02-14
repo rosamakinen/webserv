@@ -144,9 +144,10 @@
 		</div>
 		<div class="card">
 			<h3>Upload files</h3>
-				<form enctype = "multipart/form-data" action = "./cgi-bin/upload.py" method = "post">
-					<p>Upload: <input type = "file" name = "filename" /></p>
-					<p><input type = "submit" value = "Upload" /></p>
+				<form method="post" enctype="file">
+					<label for="file">File</label>
+					<input id="file" name="file" type="file" />
+					<button>Upload</button>
 				</form>
 			</div>
 	</div>

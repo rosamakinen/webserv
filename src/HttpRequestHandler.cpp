@@ -49,8 +49,12 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 		case Util::METHOD::POST:
 		{
 			std::cout << "we would do post here" << std::endl;
-			parseOkResponse(client, server);
-			return;
+			if (Methods::executePost(*client->getRequest()) == true)
+			{
+				parseOkResponse(client, server);
+				return;
+			}
+			break ;
 		}
 
 		case Util::METHOD::DELETE:

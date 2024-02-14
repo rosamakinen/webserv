@@ -1,7 +1,7 @@
 {
     "client": "Thunder Client",
     "collectionName": "webserv",
-    "dateExported": "2024-02-14T09:36:26.592Z",
+    "dateExported": "2024-02-14T15:18:05.779Z",
     "version": "1.1",
     "folders": [],
     "requests": [
@@ -572,6 +572,37 @@
                 }
             ],
             "params": [],
+            "tests": [
+                {
+                    "type": "res-code",
+                    "custom": "",
+                    "action": "equal",
+                    "value": "200"
+                }
+            ]
+        },
+        {
+            "_id": "952d630a-491d-4cc8-98b5-d048f59a32a1",
+            "colId": "3ebffd76-019c-48d4-8f12-eda6fa8373cf",
+            "containerId": "",
+            "name": "POST file with body",
+            "url": "127.0.0.1:8000/index.html",
+            "method": "POST",
+            "sortNum": 180000,
+            "created": "2024-02-14T14:07:00.719Z",
+            "modified": "2024-02-14T14:07:53.966Z",
+            "headers": [
+                {
+                    "name": "Content-Length",
+                    "value": "33"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "text",
+                "raw": "filepath=/public_www/textFile.txt",
+                "form": []
+            },
             "tests": [
                 {
                     "type": "res-code",
