@@ -3,7 +3,7 @@
 
 #define CONNECTION_TIMEOUT	180000
 #define MESSAGE_BUFFER		1048576
-#define CGI_TIMEOUT_LIMIT	10
+#define CGI_TIMEOUT_LIMIT 10
 
 #define HTTP_VERSION		"HTTP/1.1"
 #define GATEWAY_VERSION		"CGI/1.1"
@@ -11,6 +11,9 @@
 #define SPACE				" "
 #define WHITESPACE			" \t"
 #define SHEBANG				"#!"
+
+#define H_CONTENT_LENGTH	"Content-Length"
+#define H_ENCODING			"Transfer-Encoding"
 
 #define PARSEHOST			"host"
 #define PARSELISTEN			"listen"

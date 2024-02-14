@@ -8,11 +8,7 @@ ServerHandler::ServerHandler()
 ServerHandler::~ServerHandler()
 {
 	if (!_clients.empty())
-	{
-		for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
-			delete it->second;
 		_clients.clear();
-	}
 
 	if (!_pollfds.empty())
 		_pollfds.clear();
@@ -43,6 +39,19 @@ void ServerHandler::isCallValid(const int fd, const std::string errorMsg, int cl
 			close(closeFd);
 		throw PollException(errorMsg);
 	}
+}
+
+bool ServerHandler::hasTimedOut(Client *client)
+{
+	std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<int> difference = std::chrono::duration_cast<std::chrono::duration<int> >(now - client->getRequestStart());
+
+	if (difference.count() >= 10)
+	{
+		std::cout << "The client with the request '" << client->getRequest()->getBody() << "' has timed out after " << difference.count() << " milliseconds." << std::endl;
+		return true;
+	}
+	return false;
 }
 
 void ServerHandler::addNewPoll(Server *server, int fd, bool addServer)
@@ -76,6 +85,8 @@ void ServerHandler::closeConnections()
 		}
 		it = _pollfds.erase(it);
 	}
+
+	_pollfds.clear();
 }
 
 void ServerHandler::closeConnection(int fd)
@@ -93,6 +104,7 @@ void ServerHandler::closeConnection(int fd)
 			close(it->fd);
 			it->fd = -1;
 		}
+
 		_serverPolls.erase(it->fd);
 		it = _pollfds.erase(it);
 	}
@@ -103,19 +115,21 @@ std::string ServerHandler::readRequest(int connection, unsigned int buffer_size)
 	char buffer[buffer_size];
 	std::string input;
 
-	while (1)
+	int readBytes = recv(connection, buffer, sizeof(buffer), 0);
+	if (readBytes < 0)
 	{
-		int readBytes = recv(connection, buffer, sizeof(buffer), 0);
-		if (readBytes < 0)
-			break;
-		if (readBytes == 0)
-		{
-			closeConnection(connection);
-			break;
-		}
-		buffer[readBytes] = '\0';
-		input.append(buffer);
+		closeConnection(connection);
+		return "";
 	}
+
+	if (readBytes == 0)
+	{
+		closeConnection(connection);
+		return "";
+	}
+
+	buffer[readBytes] = '\0';
+	input.append(buffer);
 
 	return input;
 }
@@ -146,12 +160,12 @@ Server *ServerHandler::getServer(int fd)
 {
 	std::map<int, Server*>::iterator it = _serverPolls.find(fd);
 	if (it == _serverPolls.end())
-		return nullptr;
+		throw InternalException("No such server found");
 
 	return it->second;
 }
 
-void ServerHandler::handleIncomingRequest(pollfd *fd)
+Client *ServerHandler::getOrCreateClient(pollfd *fd)
 {
 	Client *client;
 	std::map<int, Client*>::iterator it = _clients.find(fd->fd);
@@ -166,18 +180,49 @@ void ServerHandler::handleIncomingRequest(pollfd *fd)
 	else
 		client = it->second;
 
-	std::string requestString = readRequest(fd->fd, MESSAGE_BUFFER);
 	Server *server = getServer(fd->fd);
-	if (server == nullptr)
-		throw InternalException("No such server found");
-	HttpRequestParser requestParser;
-	HttpRequest *request = requestParser.parseHttpRequest(requestString, server);
-	client->setRequest(request);
+	client->setServer(server);
 
-	// TODO: separate to handler part
+	return client;
+}
+
+void ServerHandler::handleReadyToBeHandledClients()
+{
 	HttpRequestHandler requestHandler;
-	requestHandler.handleRequest(client, server);
-	fd->events = POLLOUT;
+
+	for (pollfd& fd : _pollfds)
+	{
+		std::map<int, Client*>::iterator it = _clients.find(fd.fd);
+		if (it == _clients.end() || it->second->getStatus() != Client::STATUS::READY_TO_HANDLE)
+			continue;
+
+		std::cout << "Client '" << fd.fd << "' is being handled." << std::endl;
+		requestHandler.handleRequest(it->second, it->second->getServer());
+		fd.events = POLLOUT;
+	}
+}
+
+void ServerHandler::handleIncomingRequest(pollfd *fd)
+{
+	Client *client = getOrCreateClient(fd);
+	std::cout << "Reading client " << fd->fd << std::endl;
+
+	std::string requestString = readRequest(fd->fd, MESSAGE_BUFFER);
+	if (client->getStatus() == Client::STATUS::NONE)
+	{
+		HttpRequestParser requestParser;
+		HttpRequest *request = requestParser.parseHttpRequest(requestString, client->getServer());
+		client->setRequest(request);
+	}
+	else if (client->getStatus() == Client::STATUS::INCOMING)
+	{
+		std::cout << "Client request body: '" << client->getRequest()->getBody() << "'" << std::endl;
+		client->appendRequest(requestString);
+		std::cout << "Client status: '" << client->getStatus() << "'" << std::endl << std::endl;
+	}
+
+	client->updateStatus();
+	std::cout << "Client status: '" << client->getStatus() << "'" << std::endl << std::endl;
 }
 
 void ServerHandler::handleOutgoingResponse(pollfd *fd)
@@ -186,33 +231,18 @@ void ServerHandler::handleOutgoingResponse(pollfd *fd)
 	if (it == _clients.end())
 		return;
 	writeResponse(fd->fd, HttpResponseParser::Parse(*it->second->getResponse()));
+	it->second->setStatus(Client::STATUS::NONE);
 
-	delete it->second->getRequest();
-	delete it->second->getResponse();
 	delete it->second;
-	_clients.erase(it);
+	_clients.erase(fd->fd);
 }
 
 void ServerHandler::handleOutgoingError(const Exception& e, pollfd *fd)
 {
 	Server *server = getServer(fd->fd);
-	if (server == nullptr)
-		throw InternalException("No such server found");
-	HttpResponse *response = new HttpResponse(ExceptionManager::getErrorStatus(e), nullptr, server);
-	std::map<int, Client*>::iterator it = _clients.find(fd->fd);
-	if (it != _clients.end())
-	{
-		it->second->setResponse(response);
-		fd->events = POLLOUT;
-		return;
-	}
-
-	Client *client = new Client();
-	client->setResponse(response);
-	std::pair<std::map<int, Client*>::iterator, bool> result;
-	result = _clients.insert(std::pair<int, Client*>(fd->fd, client));
-	if (!result.second)
-		throw BadRequestException("Connection already established with this client");
+	Client *client = getOrCreateClient(fd);
+	HttpRequestHandler handler;
+	client->setResponse(handler.parseErrorResponse(server, ExceptionManager::getErrorStatus(e)));
 	fd->events = POLLOUT;
 }
 
@@ -249,26 +279,52 @@ void ServerHandler::handlePollEvents(std::vector<Server*>& servers)
 	}
 }
 
+std::map<int, Client*>::iterator ServerHandler::removeClient(std::map<int, Client*>::iterator client)
+{
+	delete client->second;
+
+	for (unsigned long i = 0; i < _pollfds.size(); i++)
+	{
+		if (_pollfds[i].fd != client->first)
+			continue;
+		closeConnection(_pollfds[i].fd);
+	}
+
+	return _clients.erase(client);
+}
+
+void ServerHandler::removeTimedOutClients()
+{
+	for (auto it = _clients.begin(); it != _clients.end(); )
+	{
+		if (hasTimedOut(it->second) && it->second->getStatus() != Client::STATUS::READY_TO_HANDLE)
+			it = removeClient(it);
+		else
+			it++;
+	}
+}
+
 void ServerHandler::runServers(std::vector<Server*>& servers)
 {
 	initServers(servers);
 	while (1)
 	{
+		removeTimedOutClients();
 		// Wait max 3 minutes for incoming traffic
 		int result = poll(_pollfds.data(), _pollfds.size(), CONNECTION_TIMEOUT);
 		if (result == 0)
 		{
 			closeConnections();
-			_pollfds.clear();
+			// TODO: throw Timeout to all clients and close connections, dont shut down the program
 			throw TimeOutException("The program excited with timeout");
 		}
 		else if (result < 0)
 		{
 			closeConnections();
-			_pollfds.clear();
 			throw PollException("Poll failed");
 		}
 		handlePollEvents(servers);
+		handleReadyToBeHandledClients();
 	}
 
 	closeConnections();

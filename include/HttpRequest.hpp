@@ -18,7 +18,7 @@ class HttpRequest
 		std::string getDirectory() const;
 		std::string getLocation() const;
 		std::string getResourcePath() const;
-		const int& getContentLength() const;
+		size_t getContentLength() const;
 		std::map<std::string, std::string> getParameters();
 		std::map<std::string, std::string> getHeaders();
 		const std::string getHeader(std::string key);
@@ -29,7 +29,7 @@ class HttpRequest
 		void setUri(std::string uri);
 		void setHost(std::string host);
 		void appendBody(std::string body);
-		void setContentLength(int contentLength);
+		void setContentLength(size_t contentLength);
 		void setParameters(std::map<std::string, std::string> parameters);
 		bool setHeader(std::string key, std::string value);
 		void setDirectory(std::string directoryPath);
@@ -47,7 +47,7 @@ class HttpRequest
 		std::string _resourcePath;
 		std::string _directory;
 		std::string _location;
-		int _contentLength;
+		size_t _contentLength;
 		bool _isDirListing;
 		std::map<std::string, std::string> _parameters;
 		std::map<std::string, std::string> _headers;

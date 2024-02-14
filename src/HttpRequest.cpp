@@ -45,7 +45,7 @@ void HttpRequest::appendBody(std::string body)
 	this->_body.append(body);
 }
 
-void HttpRequest::setContentLength(int contentLength)
+void HttpRequest::setContentLength(size_t contentLength)
 {
 	this->_contentLength = contentLength;
 }
@@ -95,7 +95,7 @@ const std::string HttpRequest::getBody() const
 	return this->_body;
 }
 
-const int& HttpRequest::getContentLength() const
+size_t HttpRequest::getContentLength() const
 {
 	return this->_contentLength;
 }
@@ -126,6 +126,6 @@ const std::string HttpRequest::getHeader(std::string key)
 {
 	std::map<std::string, std::string>::iterator it = this->_headers.find(key);
 	if (it == this->_headers.end())
-		return nullptr;
+		return "";
 	return it->second;
 }

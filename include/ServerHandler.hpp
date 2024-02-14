@@ -20,9 +20,15 @@ class ServerHandler
 
 		void	isCallValid(const int fd, const std::string errorMsg, int closeFd);
 
+		Client	*getOrCreateClient(pollfd *fd);
+		void	handleReadyToBeHandledClients();
 		bool	incomingClient(int fd, std::vector<Server*>& servers);
 		void	handleNewClient(Socket *socket, Server *server);
 		void	handlePollEvents(std::vector<Server*>& servers);
+
+		void	removeTimedOutClients();
+		std::map<int, Client*>::iterator removeClient(std::map<int, Client*>::iterator client);
+		bool	hasTimedOut(Client *client);
 
 		void	handleIncomingRequest(pollfd *fd);
 		void	handleOutgoingResponse(pollfd *fd);
@@ -32,7 +38,7 @@ class ServerHandler
 		void	closeConnection(int fd);
 
 		std::string	readRequest(int connection, unsigned int buffer_size);
-		void		writeResponse(int connection, const std::string response);
+		void	writeResponse(int connection, const std::string response);
 
 		Server	*getServer(int fd);
 
