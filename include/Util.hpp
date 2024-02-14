@@ -20,6 +20,7 @@ class Util
 		static const std::string	translateMethod(Util::METHOD method);
 		static std::string getDirectoryFromUri(const std::string &uri);
 		static std::string getFileFromUri(const std::string &uri);
+		static void freeStringArray(char **string);
 };
 
 #endif

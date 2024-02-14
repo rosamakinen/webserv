@@ -1,5 +1,6 @@
 #include "../include/WebServer.hpp"
 #include "../include/Util.hpp"
+#include "Util.hpp"
 
 const std::string Util::getTimeDateString()
 {
@@ -59,4 +60,11 @@ std::string Util::getFileFromUri(const std::string& uri)
 {
 	size_t pos = uri.find_last_of('/');
 	return (pos == std::string::npos) ? uri : uri.substr(pos + 1);
+}
+
+void Util::freeStringArray(char **string)
+{
+	for (int i = 0; string[i]; i++)
+		delete [] string[i];
+	delete [] string;
 }

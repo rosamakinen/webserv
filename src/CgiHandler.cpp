@@ -137,6 +137,28 @@ std::string	readCgi(int pipe_out)
 	return response;
 }
 
+bool	cgiTimeout(int pid)
+{
+	int status;
+
+	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+	std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+
+	std::chrono::duration<double> duration(CGI_TIMEOUT_LIMIT);
+	std::chrono::duration<double> timePassed = now - start;
+
+	while (duration > timePassed)
+	{
+		now = std::chrono::steady_clock::now();
+		timePassed = now - start;
+		if (waitpid(pid, &status, WNOHANG) != 0)
+			return true;
+		std::this_thread::sleep_for(std::chrono::milliseconds(100)); // to chill out the threads
+	}
+	kill(pid, SIGKILL);
+	return false;
+}
+
 std::string	CgiHandler::executeCgi(HttpRequest request)
 {
 	std::map<std::string, std::string> cgiEnvironment = initCgiEnvironment(request);
@@ -174,23 +196,21 @@ std::string	CgiHandler::executeCgi(HttpRequest request)
 	}
 	else
 	{
-		int status;
-		waitpid(pid, &status, 0);
 		close(pipe_in[0]);
 		close(pipe_in[1]);
 		close(pipe_out[1]);
-		response = readCgi(pipe_out[0]);
+
+		if (cgiTimeout(pid) == true)
+			response = readCgi(pipe_out[0]);
+		else
+		{
+			close(pipe_out[0]);
+			throw InternalException("Cgi timeout");
+		}
 	}
 
-	//TODO: make a function to free the string arrays?
-
-	for (int i = 0; environmentString[i]; i++)
-		delete [] environmentString[i];
-	delete [] environmentString;
-
-	for (int i = 0; argumentString[i]; i++)
-		delete [] argumentString[i];
-	delete [] argumentString;
+	Util::freeStringArray(environmentString);
+	Util::freeStringArray(argumentString);
 
 	return response;
 }
