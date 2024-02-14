@@ -51,6 +51,11 @@ if len(parts) != 2:
 first_name = parts[0].split("=")[1]
 last_name = parts[1].split("=")[1]
 
+# this is to test cgi_timeout
+# value = 1
+# while (value):
+# 	date_time = datetime.now()
+
 date_time = datetime.now()
 html_content = f"<html><head>Hello {first_name} {last_name} </head></html>"
 response = f"HTTP/1.1 200 OK\r\nDate: {date_time}\r\nContent-Type: text/html\r\nContent-Length: {len(html_content)} \r\n\r\n"
