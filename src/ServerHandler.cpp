@@ -216,7 +216,6 @@ void ServerHandler::handleIncomingRequest(pollfd *fd)
 	}
 	else if (client->getStatus() == Client::STATUS::INCOMING)
 	{
-		std::cout << "Client request body: '" << client->getRequest()->getBody() << "'" << std::endl;
 		client->appendRequest(requestString);
 		std::cout << "Client status: '" << client->getStatus() << "'" << std::endl << std::endl;
 	}

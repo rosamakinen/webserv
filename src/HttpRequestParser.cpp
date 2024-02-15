@@ -32,7 +32,8 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 			request->appendBody(requestLine);
 		}
 		request->setHost(request->getHeader("Host"));
-		parseContentLenght(request);
+		parseContentType(request);
+		parseContentLength(request);
 	}
 	catch(const Exception& e)
 	{
@@ -43,11 +44,23 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 	return request;
 }
 
-void HttpRequestParser::parseContentLenght(HttpRequest *request)
+void HttpRequestParser::parseContentType(HttpRequest *request)
 {
-	size_t lenght = 0;
+	std::string method = Util::translateMethod(request->getMethod());
+	if (method.compare(HTTP_POST) == 0)
+	{
+		std::string contentType = request->getHeader(H_CONTENT_TYPE);
+		request->setContentType(contentType);
+		if (request->getContentType().empty())
+			throw BadRequestException("No Content-Type for POST request");
+	}
+}
+
+void HttpRequestParser::parseContentLength(HttpRequest *request)
+{
+	size_t length = 0;
 	std::string contentLengthString = request->getHeader(H_CONTENT_LENGTH);
-	
+
 	if (contentLengthString.empty() || contentLengthString.compare("0") == 0)
 	{
 		if (request->getMethod() == Util::METHOD::POST || request->getMethod() == Util::METHOD::CGI_POST)
@@ -59,20 +72,20 @@ void HttpRequestParser::parseContentLenght(HttpRequest *request)
 
 	if (request->getMethod() != Util::METHOD::POST && request->getMethod() != Util::METHOD::CGI_POST)
 	{
-		request->setContentLength(lenght);
+		request->setContentLength(length);
 		return;
 	}
 
 	try
 	{
-		lenght = std::stoi(contentLengthString);
+		length = std::stoi(contentLengthString);
 	}
 	catch(const std::logic_error& e)
 	{
 		throw BadRequestException("Could not parse the header Content-Lenght");
 	}
 
-	request->setContentLength(lenght);
+	request->setContentLength(length);
 }
 
 void HttpRequestParser::parseRequestLine(std::string &requestLine, HttpRequest *request, Server *server)
@@ -114,7 +127,6 @@ void HttpRequestParser::validateMethod(HttpRequest *request, Server *server)
 		if (it->compare(Util::translateMethod(method)) == 0)
 			return;
 	}
-
 	throw MethodNotAllowedException("Requested method is not allowed for the location");
 }
 

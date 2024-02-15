@@ -48,25 +48,28 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 
 		case Util::METHOD::POST:
 		{
-			std::cout << "we would do post here" << std::endl;
 			if (Methods::executePost(*client->getRequest()) == true)
 			{
 				parseOkResponse(client, server);
 				return;
 			}
-			break ;
+			client->setResponse(parseErrorResponse(server, ExceptionManager::getErrorStatus(BadRequestException("Something went wrong executing the request"))));
+			return ;
 		}
 
 		case Util::METHOD::DELETE:
 		{
-			std::cout << "we would do delete here" << std::endl;
-			parseOkResponse(client, server);
+			if (Methods::executeDelete(*client->getRequest()) == true)
+			{
+				parseOkResponse(client, server);
+				return;
+			}
+			client->setResponse(parseErrorResponse(server, ExceptionManager::getErrorStatus(BadRequestException("Something went wrong executing the request"))));
 			return;
 		}
 
 		case Util::METHOD::CGI_GET:
 		{
-			std::cout << "we would execute get request cgi here" << std::endl;
 			std::string cgiResponse = CgiHandler::executeCgi(*client->getRequest());
 			parseOkResponse(client, server);
 			client->getResponse()->setCgiResponse(cgiResponse);
@@ -75,7 +78,6 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 
 		case Util::METHOD::CGI_POST:
 		{
-			std::cout << "we would execute post request cgi here" << std::endl;
 			std::string cgiResponse = CgiHandler::executeCgi(*client->getRequest());
 			parseOkResponse(client, server);
 			client->getResponse()->setCgiResponse(cgiResponse);

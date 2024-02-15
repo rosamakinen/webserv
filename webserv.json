@@ -1,7 +1,7 @@
 {
     "client": "Thunder Client",
     "collectionName": "webserv",
-    "dateExported": "2024-02-14T15:18:05.779Z",
+    "dateExported": "2024-02-15T16:46:25.221Z",
     "version": "1.1",
     "folders": [],
     "requests": [
@@ -137,7 +137,7 @@
             "method": "POST",
             "sortNum": 50000,
             "created": "2024-02-14T09:11:53.646Z",
-            "modified": "2024-02-14T09:11:53.646Z",
+            "modified": "2024-02-15T12:44:07.188Z",
             "headers": [
                 {
                     "name": "Cache-Control",
@@ -150,6 +150,10 @@
                 {
                     "name": "Connection",
                     "value": "keep-alive"
+                },
+                {
+                    "name": "Content-Type",
+                    "value": "multipart/form-data"
                 }
             ],
             "params": [
@@ -590,17 +594,17 @@
             "method": "POST",
             "sortNum": 180000,
             "created": "2024-02-14T14:07:00.719Z",
-            "modified": "2024-02-14T14:07:53.966Z",
+            "modified": "2024-02-15T05:52:29.368Z",
             "headers": [
                 {
                     "name": "Content-Length",
-                    "value": "33"
+                    "value": "77"
                 }
             ],
             "params": [],
             "body": {
                 "type": "text",
-                "raw": "filepath=/public_www/textFile.txt",
+                "raw": "filepath=/Users/rosa/documents/HIVE/_webserv_/webserv/public_www/textFile.txt",
                 "form": []
             },
             "tests": [
@@ -611,6 +615,160 @@
                     "value": "200"
                 }
             ]
+        },
+        {
+            "_id": "116940bb-4f0d-429a-9e5b-53bcb9828758",
+            "colId": "3ebffd76-019c-48d4-8f12-eda6fa8373cf",
+            "containerId": "",
+            "name": "POST upload image file",
+            "url": "127.0.0.1:8000/index.html",
+            "method": "POST",
+            "sortNum": 190000,
+            "created": "2024-02-15T11:45:04.647Z",
+            "modified": "2024-02-15T11:49:27.022Z",
+            "headers": [
+                {
+                    "name": "Content-Length",
+                    "value": "80"
+                },
+                {
+                    "name": "Content-Type",
+                    "value": "image/jpeg"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "text",
+                "raw": "file=/Users/rosa/documents/HIVE/_webserv_/webserv/public_www/pictures/field.jpeg",
+                "form": []
+            },
+            "tests": [
+                {
+                    "type": "res-code",
+                    "custom": "",
+                    "action": "equal",
+                    "value": "200"
+                }
+            ]
+        },
+        {
+            "_id": "7e3d268d-0caa-4d4c-aaae-01673a632789",
+            "colId": "3ebffd76-019c-48d4-8f12-eda6fa8373cf",
+            "containerId": "",
+            "name": "POST upload text file",
+            "url": "127.0.0.1:8000/index.html",
+            "method": "POST",
+            "sortNum": 200000,
+            "created": "2024-02-15T11:48:52.516Z",
+            "modified": "2024-02-15T11:48:52.516Z",
+            "headers": [
+                {
+                    "name": "Content-Length",
+                    "value": "73"
+                },
+                {
+                    "name": "Content-Type",
+                    "value": "text/html"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "text",
+                "raw": "file=/Users/rosa/documents/HIVE/_webserv_/webserv/public_www/textFile.txt",
+                "form": []
+            },
+            "tests": [
+                {
+                    "type": "res-code",
+                    "custom": "",
+                    "action": "equal",
+                    "value": "200"
+                }
+            ]
+        },
+        {
+            "_id": "ae85b033-8300-4fd5-b38d-d3f40b9a5841",
+            "colId": "3ebffd76-019c-48d4-8f12-eda6fa8373cf",
+            "containerId": "",
+            "name": "POST upload wrong content-length",
+            "url": "127.0.0.1:8000/index.html",
+            "method": "POST",
+            "sortNum": 210000,
+            "created": "2024-02-15T11:50:17.334Z",
+            "modified": "2024-02-15T12:43:02.776Z",
+            "headers": [
+                {
+                    "name": "Content-Length",
+                    "value": "0"
+                },
+                {
+                    "name": "Content-Type",
+                    "value": "text/html"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "text",
+                "raw": "file=/Users/rosa/documents/HIVE/_webserv_/webserv/public_www/textFile.txt",
+                "form": []
+            },
+            "tests": [
+                {
+                    "type": "res-code",
+                    "custom": "",
+                    "action": "equal",
+                    "value": "400"
+                }
+            ]
+        },
+        {
+            "_id": "5dd25d48-7d45-4da1-b4f6-333a5adce36d",
+            "colId": "3ebffd76-019c-48d4-8f12-eda6fa8373cf",
+            "containerId": "",
+            "name": "POST noaccess to infile",
+            "url": "127.0.0.1:8000/index.html",
+            "method": "POST",
+            "sortNum": 220000,
+            "created": "2024-02-15T12:40:51.136Z",
+            "modified": "2024-02-15T12:40:51.136Z",
+            "headers": [
+                {
+                    "name": "Content-Length",
+                    "value": "82"
+                },
+                {
+                    "name": "Content-Type",
+                    "value": "text/html"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "text",
+                "raw": "file=/Users/rosa/documents/HIVE/_webserv_/webserv/public_www/textFile_noaccess.txt",
+                "form": []
+            },
+            "tests": [
+                {
+                    "type": "res-code",
+                    "custom": "",
+                    "action": "equal",
+                    "value": "400"
+                }
+            ]
+        },
+        {
+            "_id": "66c55caa-4e4b-42a1-9895-b9ce015c77b8",
+            "colId": "3ebffd76-019c-48d4-8f12-eda6fa8373cf",
+            "containerId": "",
+            "name": "DELETE file from upload dir",
+            "url": "127.0.0.1:8000/upload/textFile.txt",
+            "method": "DELETE",
+            "sortNum": 230000,
+            "created": "2024-02-15T15:53:57.457Z",
+            "modified": "2024-02-15T15:53:57.457Z",
+            "headers": [],
+            "params": [],
+            "tests": []
         }
     ]
 }

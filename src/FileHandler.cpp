@@ -119,12 +119,7 @@ std::string FileHandler::getFileContent(std::string path, std::ios_base::openmod
 {
 	std::ifstream file(path);
 	if (!file.is_open() || file.fail() || file.bad())
-	{
-		std::string message = "Could not open file ";
-		message.append(path);
-		message.append(" for reading");
-		throw FileException(message);
-	}
+		return "";
 
 	std::string body;
 	if (mode == std::ios::binary)
@@ -142,7 +137,6 @@ std::string FileHandler::getFileContent(std::string path, std::ios_base::openmod
 			body.append(HTTP_LINEBREAK);
 		}
 	}
-
 	file.close();
 	return body;
 }

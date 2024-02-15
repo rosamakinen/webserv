@@ -1,39 +1,66 @@
 #include "Methods.hpp"
 
-// static std::string getUploadFilename(std::string path)
-// {
-// 	std::size_t found = path.find_last_of(BACKSLASH);
-// 	std::cout << found << std::endl;
+static std::string getUploadFilename(std::string path)
+{
+	std::size_t found = path.find_last_of(BACKSLASH);
+	if (found != std::string::npos)
+	{
+		std::string filename = path.substr(found + 1, path.length());
+		return filename;
+	}
+	return "";
+}
 
-// }
 bool Methods::executePost(HttpRequest request)
 {
 	std::string body = request.getBody();
 	if (body.empty())
-		throw BadRequestException("Empty query body");
+		return false;
 	size_t pos = body.find("=");
 	if (pos == std::string::npos)
-		throw BadRequestException("Bad query");
+		return false;
 
 	std::string inFilePath = body.substr(pos + 1, body.length());
+	if (access(inFilePath.c_str(), R_OK) != 0)
+		return false;
 
-	// std::string outFilename = getUploadFilename(inFilePath);
-	std::string outFilename = "moi";
-	std::string outFilePath = request.getDirectory();
 	//here we can parse the outfile folder after it's configured
+	std::string outFilename = getUploadFilename(inFilePath);
+	if (outFilename.empty())
+		return false;
+	std::string outFilePath = request.getDirectory();
 	outFilePath.append(UPLOAD_DIR);
 	outFilePath.append(outFilename);
 
 	std::string fullPath = FileHandler::getFilePath(outFilePath);
-
   	std::ofstream outputFile(fullPath);
   	if (outputFile.is_open()) 
 	{  
 		outputFile << FileHandler::getFileContent(inFilePath, std::ios::binary);
    		outputFile.close();
+		return true;
 	}
-	else 
-		throw FileException("Failed to open resource");
-	
-	return true;
+	return false;
+
 }
+
+bool Methods::executeDelete(HttpRequest request)
+{
+	//here we can parse the outfile folder after it's configured
+	std::string filePath = request.getResourcePath();
+
+	std::string fullPath = FileHandler::getFilePath(filePath);
+	if (access(fullPath.c_str(), R_OK) == 0)
+	{
+		int result = remove(fullPath.c_str());
+		if (result == 0)
+		{
+			return true;
+		}
+		// if the file cannot be deleted, we throw an error. this can be changed tho.
+		return false;
+	}
+	return false;
+
+}
+
