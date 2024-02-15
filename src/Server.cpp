@@ -1,6 +1,6 @@
 #include "../include/Server.hpp"
 
-Server::Server()
+Server::Server() : _name("default")
 {
 }
 

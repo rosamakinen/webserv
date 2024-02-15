@@ -172,8 +172,8 @@ void ConfigParser::checkMain(const std::string& keyword, const std::string& valu
 	}
 	else if (keyword.compare(PARSENAME) == 0)
 	{
-		if (value.empty())
-			configError("No server name provided.", lineNumber);
+		// if (value.empty())
+		// 	configError("No server name provided.", lineNumber);
 		currentServer->setName(value);
 	}
 	else if (keyword.compare(PARSESIZE) == 0)
