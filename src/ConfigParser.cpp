@@ -171,11 +171,7 @@ void ConfigParser::checkMain(const std::string& keyword, const std::string& valu
 		currentServer->setListenPort(port);
 	}
 	else if (keyword.compare(PARSENAME) == 0)
-	{
-		// if (value.empty())
-		// 	configError("No server name provided.", lineNumber);
 		currentServer->setName(value);
-	}
 	else if (keyword.compare(PARSESIZE) == 0)
 		currentServer->setClientMaxBodySize(std::stol(value));
 	else if (keyword.compare(ERRORPAGE_LOCATION) == 0)
