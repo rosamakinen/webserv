@@ -46,6 +46,12 @@ class UnsupportedMediaTypeException : public Exception
 		UnsupportedMediaTypeException(const std::string message) : Exception(message) { };
 };
 
+class PayloadTooLargeException : public Exception
+{
+	public:
+		PayloadTooLargeException(const std::string message) : Exception(message) { };
+};
+
 // Internal exceptions - cause the program to shut down
 class ConfigurationException : public std::logic_error
 {

@@ -33,6 +33,7 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 		}
 		request->setHost(request->getHeader("Host"));
 		parseContentLenght(request);
+		validateSize(request, server);
 	}
 	catch(const Exception& e)
 	{
@@ -45,7 +46,7 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 
 void HttpRequestParser::parseContentLenght(HttpRequest *request)
 {
-	size_t lenght = 0;
+	size_t length = 0;
 	std::string contentLengthString = request->getHeader(H_CONTENT_LENGTH);
 	if (contentLengthString.empty() || contentLengthString.compare("0") == 0)
 	{
@@ -55,26 +56,26 @@ void HttpRequestParser::parseContentLenght(HttpRequest *request)
 				throw BadRequestException("Expected body or query parameters with POST request");
 		}
 
-		request->setContentLength(lenght);
+		request->setContentLength(length);
 		return;
 	}
 
 	if (request->getMethod() != Util::METHOD::POST && request->getMethod() != Util::METHOD::CGI_POST)
 	{
-		request->setContentLength(lenght);
+		request->setContentLength(length);
 		return;
 	}
 
 	try
 	{
-		lenght = std::stoi(contentLengthString);
+		length = std::stoi(contentLengthString);
 	}
 	catch(const std::logic_error& e)
 	{
-		throw BadRequestException("Could not parse the header Content-Lenght");
+		throw BadRequestException("Could not parse the header Content-Length");
 	}
 
-	request->setContentLength(lenght);
+	request->setContentLength(length);
 }
 
 void HttpRequestParser::parseRequestLine(std::string &requestLine, HttpRequest *request, Server *server)
@@ -88,6 +89,12 @@ void HttpRequestParser::parseRequestLine(std::string &requestLine, HttpRequest *
 	parseIndexPathAndDirectoryListing(request, server);
 	parseCgiMethod(request);
 	validateVersion(requestLine);
+}
+
+void HttpRequestParser::validateSize(HttpRequest *request, Server *server)
+{
+	if (request->getMethod() == Util::METHOD::POST && request->getContentLength() > server->getClientMaxBodySize())
+		throw PayloadTooLargeException("Request body is too large");
 }
 
 void HttpRequestParser::parseDirectoryAndLocation(HttpRequest *request, Server *server)
