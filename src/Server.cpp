@@ -47,7 +47,10 @@ bool	Server::isValueForKey(std::string location, std::string key, std::string va
 
 void	Server::setName(std::string serverName)
 {
-	this->_name = serverName;
+	if (serverName.empty())
+		this->_name = "default";
+	else
+		this->_name = serverName;
 }
 
 void Server::setSocket()
