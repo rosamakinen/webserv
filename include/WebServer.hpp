@@ -11,6 +11,7 @@
 #define SPACE				" "
 #define WHITESPACE			" \t"
 #define SHEBANG				"#!"
+#define BACKSLASH			'/'
 
 #define H_CONTENT_LENGTH	"Content-Length"
 #define H_ENCODING			"Transfer-Encoding"

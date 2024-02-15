@@ -1,18 +1,24 @@
 #include "Methods.hpp"
 
+// static std::string getUploadFilename(std::string path)
+// {
+// 	std::size_t found = path.find_last_of(BACKSLASH);
+// 	std::cout << found << std::endl;
+
+// }
 bool Methods::executePost(HttpRequest request)
 {
 	std::string body = request.getBody();
 	if (body.empty())
-		return false;
-
+		throw BadRequestException("Empty query body");
 	size_t pos = body.find("=");
 	if (pos == std::string::npos)
-		return false;
+		throw BadRequestException("Bad query");
 
 	std::string inFilePath = body.substr(pos + 1, body.length());
 
-	std::string outFilename = UPLOAD_FILENAME;
+	// std::string outFilename = getUploadFilename(inFilePath);
+	std::string outFilename = "moi";
 	std::string outFilePath = request.getDirectory();
 	//here we can parse the outfile folder after it's configured
 	outFilePath.append(UPLOAD_DIR);
@@ -21,16 +27,13 @@ bool Methods::executePost(HttpRequest request)
 	std::string fullPath = FileHandler::getFilePath(outFilePath);
 
   	std::ofstream outputFile(fullPath);
-
   	if (outputFile.is_open()) 
 	{  
-		std::string content = FileHandler::getFileContent(inFilePath);
-    	outputFile << content;
-
+		outputFile << FileHandler::getFileContent(inFilePath, std::ios::binary);
    		outputFile.close();
 	}
 	else 
-		return false;
+		throw FileException("Failed to open resource");
 	
 	return true;
 }
