@@ -1,7 +1,7 @@
 {
     "client": "Thunder Client",
     "collectionName": "webserv",
-    "dateExported": "2024-02-16T06:42:34.432Z",
+    "dateExported": "2024-02-16T08:13:50.991Z",
     "version": "1.1",
     "folders": [],
     "requests": [
@@ -660,7 +660,7 @@
             "method": "POST",
             "sortNum": 200000,
             "created": "2024-02-16T05:51:17.906Z",
-            "modified": "2024-02-16T05:57:53.508Z",
+            "modified": "2024-02-16T07:56:25.110Z",
             "headers": [
                 {
                     "name": "Content-Length",
@@ -760,7 +760,7 @@
             "_id": "475c3a08-6eb7-4c81-9d7d-6646d769729d",
             "colId": "67ad927c-f12f-456e-80d0-50d41a4bee78",
             "containerId": "",
-            "name": "DELETE file from upload dir",
+            "name": "DELETE txt file from upload dir",
             "url": "127.0.0.1:8000/upload/textFile.txt",
             "method": "DELETE",
             "sortNum": 230000,
@@ -774,12 +774,26 @@
             "_id": "d39cee3c-2f19-4d6d-bfdb-427702d0ccc6",
             "colId": "67ad927c-f12f-456e-80d0-50d41a4bee78",
             "containerId": "",
-            "name": "DELETE file from upload dir Copy",
+            "name": "DELETE jpeg file from upload dir Copy",
             "url": "127.0.0.1:8000/upload/field.jpeg",
             "method": "DELETE",
             "sortNum": 240000,
             "created": "2024-02-16T05:59:51.917Z",
-            "modified": "2024-02-16T06:41:38.398Z",
+            "modified": "2024-02-16T07:58:43.824Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "91f9bd7b-9836-45e1-8a48-58512ec5ce7d",
+            "colId": "67ad927c-f12f-456e-80d0-50d41a4bee78",
+            "containerId": "",
+            "name": "DELETE file from pictures",
+            "url": "127.0.0.1:8000/pictures/test.jpeg",
+            "method": "DELETE",
+            "sortNum": 250000,
+            "created": "2024-02-16T06:44:46.107Z",
+            "modified": "2024-02-16T07:58:58.228Z",
             "headers": [],
             "params": [],
             "tests": []

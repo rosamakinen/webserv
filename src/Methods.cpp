@@ -24,7 +24,8 @@ bool Methods::executePost(HttpRequest request)
 	if (access(inFilePath.c_str(), R_OK) != 0)
 		return false;
 
-	//here we can parse the outfile folder after it's configured
+	// here we should parse the uri to be the upload directory,
+	// but that needs big changes, so it will be done later
 	std::string outFilename = getUploadFilename(inFilePath);
 	if (outFilename.empty())
 		return false;
@@ -33,11 +34,11 @@ bool Methods::executePost(HttpRequest request)
 	outFilePath.append(outFilename);
 
 	std::string fullPath = FileHandler::getFilePath(outFilePath);
-  	std::ofstream outputFile(fullPath);
-  	if (outputFile.is_open())
+	std::ofstream outputFile(fullPath);
+	if (outputFile.is_open())
 	{
 		outputFile << FileHandler::getFileContent(inFilePath, std::ios::binary);
-   		outputFile.close();
+		outputFile.close();
 		return true;
 	}
 	return false;
