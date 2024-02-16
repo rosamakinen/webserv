@@ -34,8 +34,8 @@ bool Methods::executePost(HttpRequest request)
 
 	std::string fullPath = FileHandler::getFilePath(outFilePath);
   	std::ofstream outputFile(fullPath);
-  	if (outputFile.is_open()) 
-	{  
+  	if (outputFile.is_open())
+	{
 		outputFile << FileHandler::getFileContent(inFilePath, std::ios::binary);
    		outputFile.close();
 		return true;
@@ -50,17 +50,12 @@ bool Methods::executeDelete(HttpRequest request)
 	std::string filePath = request.getResourcePath();
 
 	std::string fullPath = FileHandler::getFilePath(filePath);
-	if (access(fullPath.c_str(), R_OK) == 0)
+	std::cout << fullPath << std::endl;
+	int result = remove(fullPath.c_str());
+	if (result == 0)
 	{
-		int result = remove(fullPath.c_str());
-		if (result == 0)
-		{
-			return true;
-		}
-		// if the file cannot be deleted, we throw an error. this can be changed tho.
-		return false;
+		return true;
 	}
 	return false;
-
 }
 
