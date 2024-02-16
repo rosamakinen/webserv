@@ -28,6 +28,7 @@
 #define LOCAL_DIR			"directory"
 #define INDEX				"index"
 #define ERRORPAGE_LOCATION	"error_page"
+#define DEFAULT_NAME		"default"
 
 #define DEFAULT_ERRORPAGES_PATH "/public_www/error_pages/"
 
