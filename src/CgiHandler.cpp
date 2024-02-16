@@ -206,6 +206,7 @@ std::string	CgiHandler::executeCgi(HttpRequest request)
 		{
 			close(pipe_out[0]);
 			throw InternalException("Cgi timeout");
+			//TODO : change this to CGI gateway timeout
 		}
 	}
 

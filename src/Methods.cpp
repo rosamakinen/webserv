@@ -11,24 +11,24 @@ static std::string getUploadFilename(std::string path)
 	return "";
 }
 
-bool Methods::executePost(HttpRequest request)
+void Methods::executePost(HttpRequest request)
 {
 	std::string body = request.getBody();
 	if (body.empty())
-		return false;
+		throw BadRequestException("empty body on POST request");
 	size_t pos = body.find("=");
 	if (pos == std::string::npos)
-		return false;
+		throw BadRequestException("Bad query");
 
 	std::string inFilePath = body.substr(pos + 1, body.length());
 	if (access(inFilePath.c_str(), R_OK) != 0)
-		return false;
+		throw BadRequestException("Cannot read the upload file");
 
 	// here we should parse the uri to be the upload directory,
 	// but that needs big changes, so it will be done later
 	std::string outFilename = getUploadFilename(inFilePath);
 	if (outFilename.empty())
-		return false;
+		throw BadRequestException("Bad path");
 	std::string outFilePath = request.getDirectory();
 	outFilePath.append(UPLOAD_DIR);
 	outFilePath.append(outFilename);
@@ -39,24 +39,21 @@ bool Methods::executePost(HttpRequest request)
 	{
 		outputFile << FileHandler::getFileContent(inFilePath, std::ios::binary);
 		outputFile.close();
-		return true;
+		return ;
 	}
-	return false;
+	throw InternalException("Something went wrong");
 
 }
 
-bool Methods::executeDelete(HttpRequest request)
+void Methods::executeDelete(HttpRequest request)
 {
-	//here we can parse the outfile folder after it's configured
+	//here we can parse the outfile folder after it's working with uri
 	std::string filePath = request.getResourcePath();
 
 	std::string fullPath = FileHandler::getFilePath(filePath);
-	std::cout << fullPath << std::endl;
 	int result = remove(fullPath.c_str());
 	if (result == 0)
-	{
-		return true;
-	}
-	return false;
+		return ;
+	throw InternalException("Something went wrong");
 }
 

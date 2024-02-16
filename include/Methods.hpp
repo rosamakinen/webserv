@@ -11,8 +11,8 @@
 class Methods
 {
 	public:
-		static bool executePost(HttpRequest request);
-		static bool executeDelete(HttpRequest request);
+		static void executePost(HttpRequest request);
+		static void executeDelete(HttpRequest request);
 };
 
 #endif

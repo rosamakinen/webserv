@@ -38,58 +38,55 @@ HttpResponse *HttpRequestHandler::parseErrorResponse(Server *server, std::pair<u
 
 void HttpRequestHandler::handleRequest(Client *client, Server *server)
 {
-	switch (client->getRequest()->getMethod())
+	try
 	{
-		case Util::METHOD::GET:
+		switch (client->getRequest()->getMethod())
 		{
-			parseOkResponse(client, server);
-			return;
-		}
-
-		case Util::METHOD::POST:
-		{
-			if (Methods::executePost(*client->getRequest()) == true)
+			case Util::METHOD::GET:
 			{
 				parseOkResponse(client, server);
 				return;
 			}
-			client->setResponse(parseErrorResponse(server, ExceptionManager::getErrorStatus(BadRequestException("Something went wrong executing the request"))));
-			return ;
-		}
 
-		case Util::METHOD::DELETE:
-		{
-			if (Methods::executeDelete(*client->getRequest()) == true)
+			case Util::METHOD::POST:
 			{
+				Methods::executePost(*client->getRequest());
+				parseOkResponse(client, server);
+				return ;
+			}
+
+			case Util::METHOD::DELETE:
+			{
+				Methods::executeDelete(*client->getRequest());
 				parseOkResponse(client, server);
 				return;
 			}
-			client->setResponse(parseErrorResponse(server, ExceptionManager::getErrorStatus(BadRequestException("Something went wrong executing the request"))));
-			return;
-		}
 
-		case Util::METHOD::CGI_GET:
-		{
-			std::string cgiResponse = CgiHandler::executeCgi(*client->getRequest());
-			parseOkResponse(client, server);
-			client->getResponse()->setCgiResponse(cgiResponse);
-			return;
-		}
+			case Util::METHOD::CGI_GET:
+			{
+				std::string cgiResponse = CgiHandler::executeCgi(*client->getRequest());
+				parseOkResponse(client, server);
+				client->getResponse()->setCgiResponse(cgiResponse);
+				return;
+			}
 
-		case Util::METHOD::CGI_POST:
-		{
-			std::string cgiResponse = CgiHandler::executeCgi(*client->getRequest());
-			parseOkResponse(client, server);
-			client->getResponse()->setCgiResponse(cgiResponse);
-			return;
-		}
+			case Util::METHOD::CGI_POST:
+			{
+				std::string cgiResponse = CgiHandler::executeCgi(*client->getRequest());
+				parseOkResponse(client, server);
+				client->getResponse()->setCgiResponse(cgiResponse);
+				return;
+			}
 
-		default :
-			throw MethodNotAllowedException("Method not allowed");
-			break;
+			default :
+				throw MethodNotAllowedException("Method not allowed");
+				break;
+		}
 	}
-
-	client->setResponse(parseErrorResponse(server, ExceptionManager::getErrorStatus(InternalException("Something went wrong"))));
+	catch (const Exception& e)
+	{
+		client->setResponse(parseErrorResponse(server, ExceptionManager::getErrorStatus(e)));
+	}
 }
 
 HttpRequestHandler::HttpRequestHandler()
