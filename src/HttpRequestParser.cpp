@@ -93,7 +93,8 @@ void HttpRequestParser::parseRequestLine(std::string &requestLine, HttpRequest *
 
 void HttpRequestParser::validateSize(HttpRequest *request, Server *server)
 {
-	if (request->getMethod() == Util::METHOD::POST && request->getContentLength() > server->getClientMaxBodySize())
+	if ((request->getMethod() == Util::METHOD::POST || request->getMethod() == Util::METHOD::CGI_POST)
+		 && request->getContentLength() > server->getClientMaxBodySize())
 		throw PayloadTooLargeException("Request body is too large");
 }
 
