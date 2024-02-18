@@ -1,20 +1,16 @@
 #include "../include/ConfigParser.hpp"
 
-ConfigParser::ConfigParser() : lineNumber(1)
+ConfigParser::ConfigParser() : lineNumber(1), temporaryServer(nullptr)
 {
 }
 
 ConfigParser::~ConfigParser()
 {
+	for (const std::pair<const std::string, Server*> &serverPair : servers)
+		delete serverPair.second;
 	servers.clear();
 }
 
-static void configError(const std::string& str, size_t lineNumber)
-{
-	std::string base = "Config File Error: ";
-	base.append(str).append(" Line: ").append(std::to_string(lineNumber));
-	throw ConfigurationException(base);
-}
 
 static std::string trim(const std::string& str)
 {
@@ -74,20 +70,17 @@ static bool checkValidDirectory(const std::string& line, std::string key)
 	return true;
 }
 
-static void uniChecker(const std::vector<Server *> servers)
+static void uniChecker(const std::map<std::string, Server*> &servers)
 {
-	std::set<std::string> uniqueNames;
-	std::set<std::string> uniqueHostPortCombos;
-
 	if (servers.empty())
 		throw ConfigurationException("No servers detected.");
-	for (const Server* server: servers)
+	std::set<std::string> uniqueHostPortCombos;
+
+	for (const std::pair<const std::string, Server*> &serverPair : servers)
 	{
-		std::string name = server->getName();
+		const Server* server = serverPair.second;
 		std::string hostPortCombo = server->getHostIp() + ":" + std::to_string(server->getListenPort());
 
-		if (!uniqueNames.insert(name).second)
-			throw ConfigurationException("Duplicate name detected.");
 		if (!uniqueHostPortCombos.insert(hostPortCombo).second)
 			throw ConfigurationException("Duplicate IP:Port combination detected.");
 	}
@@ -103,20 +96,33 @@ static void clearMap(vectorMap& vMap)
 	vMap.clear();
 }
 
+void ConfigParser::configError(const std::string& str, size_t lineNumber)
+{
+	if (temporaryServer != nullptr)
+	{
+		delete temporaryServer;
+		temporaryServer = nullptr;
+	}
+	std::string base = "Config File Error: ";
+	base.append(str).append(" Line: ").append(std::to_string(lineNumber));
+	throw ConfigurationException(base);
+}
 
-const std::vector<Server *>& ConfigParser::getServers() const
+const std::map<std::string, Server*> &ConfigParser::getServers() const
 {
 	return this->servers;
 }
 
-void ConfigParser::checkServer()
+Server* ConfigParser::checkServer()
 {
 	if (sectionStack.size() != 0)
 		configError("Unclosed block before new server declaration.", lineNumber);
 	currentSection.clear();
 	currentLocation.clear();
-	Server *currentServer = new Server();
-	this->servers.push_back(currentServer);
+	// Forget the info about  previous server if it exists.
+	temporaryServer = nullptr;
+	// Create and return a new Server. We don't have the name yet.
+	return new Server(); 
 }
 
 std::vector<int> ConfigParser::validErrorStatusCodes =
@@ -152,28 +158,28 @@ bool ConfigParser::invalidErrorPageConfig(int status, std::string path)
 
 void ConfigParser::checkMain(const std::string& keyword, const std::string& value, const std::string path)
 {
-	if (this->servers.empty())
+	if (!temporaryServer)
 		configError("No server defined for main block.", lineNumber);
-
-	Server* currentServer = this->servers.back();
-
 	if (keyword.compare(PARSEHOST) == 0)
 	{
 		if (!validIp(value))
 			configError("Invalid IP address.", lineNumber);
-		currentServer->setHostIp(value);
+		temporaryServer->setHostIp(value);
 	}
 	else if (keyword.compare(PARSELISTEN) == 0)
 	{
 		size_t port = std::stol(value);
 		if (port > UINT16_MAX || port < 0 || value.empty())
 			configError("Invalid port.", lineNumber);
-		currentServer->setListenPort(port);
+		temporaryServer->setListenPort(port);
 	}
 	else if (keyword.compare(PARSENAME) == 0)
-		currentServer->setName(value);
+	{
+		temporaryServer->setName(value);
+		servers[value] = temporaryServer;
+	}
 	else if (keyword.compare(PARSESIZE) == 0)
-		currentServer->setClientMaxBodySize(std::stol(value));
+		temporaryServer->setClientMaxBodySize(std::stol(value));
 	else if (keyword.compare(ERRORPAGE_LOCATION) == 0)
 	{
 		if (value.empty() || path.empty())
@@ -191,7 +197,7 @@ void ConfigParser::checkMain(const std::string& keyword, const std::string& valu
 		if (!invalidErrorPageConfig(status, path))
 			configError("Invalid error page configuration.", lineNumber);
 
-		if (!currentServer->addErrorPage(status, path))
+		if (!temporaryServer->addErrorPage(status, path))
 			configError("Duplicate error page configuration.", lineNumber);
 	}
 }
@@ -199,7 +205,7 @@ void ConfigParser::checkMain(const std::string& keyword, const std::string& valu
 void ConfigParser::parseConfig(const std::string& filename)
 {
 	std::ifstream file(filename);
-	std::string line;
+	std::string line, currentServerName;
 
 	if (!file.is_open())
 		throw ConfigurationException("Failed to open file.");
@@ -228,9 +234,9 @@ void ConfigParser::parseConfig(const std::string& filename)
 			else
 				processLine(line);
 		}
-		if (!this->servers.empty())
+		if (!currentServerName.empty())
 		{
-			Server* currentServer = this->servers.back();
+			Server* currentServer = this->servers[currentServerName];
 			if (sectionStack.size() == 1 && vStack.size() != 0)
 			{
 				currentServer->setLocation(currentLocation, vStack);
@@ -247,12 +253,14 @@ void ConfigParser::processLine(const std::string &line)
 	std::istringstream iss(line);
 	std::string keyword;
 	iss >> keyword;
-	Server* currentServer;
-	if (!this->servers.empty())
-		currentServer = this->servers.back();
 
 	if (keyword.compare(SERVERBLOCK) == 0)
-		checkServer();
+	{
+		temporaryServer = checkServer();
+		return;
+	}
+	if (!temporaryServer)
+		configError("No server defined.", lineNumber);
 	if (keyword.compare(MAINBLOCK) == 0 || keyword.compare(LOCATIONBLOCK) == 0)
 	{
 		if (sectionStack.size() != 1)
@@ -262,10 +270,8 @@ void ConfigParser::processLine(const std::string &line)
 
 	if (currentSection.compare(MAINBLOCK) == 0)
 	{
-		std::string value;
-		iss >> value;
-		std::string path;
-		iss >> path;
+		std::string value, path;
+		iss >> value >> path;
 		checkMain(keyword, value, path);
 	}
 
@@ -280,6 +286,6 @@ void ConfigParser::processLine(const std::string &line)
 	{
 		if (!checkValidDirectory(line, "directory"))
 			configError("Directory does not exist.", lineNumber);
-		currentServer->addToVectorMap(vStack, line);
+		temporaryServer->addToVectorMap(vStack, line);
 	}
 }

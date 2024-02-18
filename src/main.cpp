@@ -15,7 +15,7 @@ int main(int argc, char **argv)
 	{
 		ConfigParser configParse;
 		configParse.parseConfig(configFile);
-		std::vector<Server *> servers =  configParse.getServers();
+		std::map<std::string, Server*> servers = configParse.getServers();
 
 		ServerHandler serverHandler;
 
