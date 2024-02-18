@@ -32,7 +32,7 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 			request->appendBody(requestLine);
 		}
 		request->setHost(request->getHeader("Host"));
-		parseContentLenght(request);
+		parseContentType(request);
 		validateSize(request, server);
 	}
 	catch(const Exception& e)
@@ -44,15 +44,28 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 	return request;
 }
 
-void HttpRequestParser::parseContentLenght(HttpRequest *request)
+void HttpRequestParser::parseContentType(HttpRequest *request)
+{
+	std::string method = Util::translateMethod(request->getMethod());
+	if (method.compare(HTTP_POST) == 0)
+	{
+		std::string contentType = request->getHeader(H_CONTENT_TYPE);
+		request->setContentType(contentType);
+		if (request->getContentType().empty())
+			throw BadRequestException("No Content-Type for POST request");
+	}
+}
+
+void HttpRequestParser::parseContentLength(HttpRequest *request)
 {
 	size_t length = 0;
 	std::string contentLengthString = request->getHeader(H_CONTENT_LENGTH);
+
 	if (contentLengthString.empty() || contentLengthString.compare("0") == 0)
 	{
 		if (request->getMethod() == Util::METHOD::POST || request->getMethod() == Util::METHOD::CGI_POST)
 		{
-			if (request->getParameters().empty())
+			if (request->getParameters().empty() && request->getBody().empty())
 				throw BadRequestException("Expected body or query parameters with POST request");
 		}
 
@@ -124,7 +137,6 @@ void HttpRequestParser::validateMethod(HttpRequest *request, Server *server)
 		if (it->compare(Util::translateMethod(method)) == 0)
 			return;
 	}
-
 	throw MethodNotAllowedException("Requested method is not allowed for the location");
 }
 

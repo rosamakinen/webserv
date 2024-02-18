@@ -115,9 +115,9 @@ std::string FileHandler::getFileResource(HttpRequest *request, std::ios_base::op
 	return body;
 }
 
-std::string FileHandler::getFileContent(std::string path)
+std::string FileHandler::getFileContent(std::string path, std::ios_base::openmode mode)
 {
-	std::ifstream file(getFilePath(path));
+	std::ifstream file(path);
 	if (!file.is_open() || file.fail() || file.bad())
 	{
 		std::string message = "Could not open file ";
@@ -126,10 +126,22 @@ std::string FileHandler::getFileContent(std::string path)
 		throw FileException(message);
 	}
 
-	std::string line;
 	std::string body;
-	while (getline(file, line))
-		body.append(line);
+	if (mode == std::ios::binary)
+	{
+		std::stringstream contents;
+		contents << file.rdbuf();
+		body.append(contents.str());
+	}
+	else
+	{
+		std::string line;
+		while (getline(file, line))
+		{
+			body.append(line);
+			body.append(HTTP_LINEBREAK);
+		}
+	}
 
 	file.close();
 	return body;

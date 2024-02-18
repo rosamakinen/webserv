@@ -138,7 +138,7 @@ void ServerHandler::writeResponse(int connection, const std::string response)
 {
 	int result = send(connection, response.c_str(), response.size(), 0);
 	if (result < 0)
-		throw InternalException("Could not send response");
+		throw InternalException(" send response");
 }
 
 bool ServerHandler::incomingClient(int fd, std::vector<Server*> &servers)
@@ -216,7 +216,6 @@ void ServerHandler::handleIncomingRequest(pollfd *fd)
 	}
 	else if (client->getStatus() == Client::STATUS::INCOMING)
 	{
-		std::cout << "Client request body: '" << client->getRequest()->getBody() << "'" << std::endl;
 		client->appendRequest(requestString);
 		std::cout << "Client status: '" << client->getStatus() << "'" << std::endl << std::endl;
 	}
