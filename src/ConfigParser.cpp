@@ -115,12 +115,15 @@ const std::map<std::string, Server*> &ConfigParser::getServers() const
 
 Server* ConfigParser::checkServer()
 {
+	if (temporaryServer && !temporaryServer->getName().empty())
+	{
+		servers[temporaryServer->getName()] = temporaryServer;
+		temporaryServer = nullptr; // Forget about the temporary server
+	}
 	if (sectionStack.size() != 0)
 		configError("Unclosed block before new server declaration.", lineNumber);
 	currentSection.clear();
 	currentLocation.clear();
-	// Forget the info about  previous server if it exists.
-	temporaryServer = nullptr;
 	// Create and return a new Server. We don't have the name yet.
 	return new Server(); 
 }
@@ -158,54 +161,52 @@ bool ConfigParser::invalidErrorPageConfig(int status, std::string path)
 
 void ConfigParser::checkMain(const std::string& keyword, const std::string& value, const std::string path)
 {
-	if (!temporaryServer)
-		configError("No server defined for main block.", lineNumber);
-	if (keyword.compare(PARSEHOST) == 0)
-	{
-		if (!validIp(value))
-			configError("Invalid IP address.", lineNumber);
-		temporaryServer->setHostIp(value);
-	}
-	else if (keyword.compare(PARSELISTEN) == 0)
-	{
-		size_t port = std::stol(value);
-		if (port > UINT16_MAX || port < 0 || value.empty())
-			configError("Invalid port.", lineNumber);
-		temporaryServer->setListenPort(port);
-	}
-	else if (keyword.compare(PARSENAME) == 0)
-	{
-		temporaryServer->setName(value);
-		servers[value] = temporaryServer;
-	}
-	else if (keyword.compare(PARSESIZE) == 0)
-		temporaryServer->setClientMaxBodySize(std::stol(value));
-	else if (keyword.compare(ERRORPAGE_LOCATION) == 0)
-	{
-		if (value.empty() || path.empty())
-			configError("Invalid error page configuration.", lineNumber);
-		int status = 0;
-		try
-		{
-			status = std::stoi(value);
-		}
-		catch(const std::exception& e)
-		{
-			configError("Invalid status code.", lineNumber);
-		}
+    if (!temporaryServer)
+        configError("No server defined for main block.", lineNumber);
+    if (keyword.compare(PARSEHOST) == 0)
+    {
+        if (!validIp(value))
+            configError("Invalid IP address.", lineNumber);
+        temporaryServer->setHostIp(value);
+    }
+    else if (keyword.compare(PARSELISTEN) == 0)
+    {
+        size_t port = std::stol(value);
+        if (port > UINT16_MAX || port < 0 || value.empty())
+            configError("Invalid port.", lineNumber);
+        temporaryServer->setListenPort(port);
+    }
+    else if (keyword.compare(PARSENAME) == 0)
+        temporaryServer->setName(value);
+    else if (keyword.compare(PARSESIZE) == 0)
+        temporaryServer->setClientMaxBodySize(std::stol(value));
+    else if (keyword.compare(ERRORPAGE_LOCATION) == 0)
+    {
+        if (value.empty() || path.empty())
+            configError("Invalid error page configuration.", lineNumber);
+        int status = 0;
+        try
+        {
+            status = std::stoi(value);
+        }
+        catch(const std::exception& e)
+        {
+            configError("Invalid status code.", lineNumber);
+        }
 
-		if (!invalidErrorPageConfig(status, path))
-			configError("Invalid error page configuration.", lineNumber);
+        if (!invalidErrorPageConfig(status, path))
+            configError("Invalid error page configuration.", lineNumber);
 
-		if (!temporaryServer->addErrorPage(status, path))
-			configError("Duplicate error page configuration.", lineNumber);
-	}
+        if (!temporaryServer->addErrorPage(status, path))
+            configError("Duplicate error page configuration.", lineNumber);
+    }
 }
+
 
 void ConfigParser::parseConfig(const std::string& filename)
 {
 	std::ifstream file(filename);
-	std::string line, currentServerName;
+	std::string line;
 
 	if (!file.is_open())
 		throw ConfigurationException("Failed to open file.");
@@ -234,17 +235,19 @@ void ConfigParser::parseConfig(const std::string& filename)
 			else
 				processLine(line);
 		}
-		if (!currentServerName.empty())
+		if (temporaryServer != nullptr)
 		{
-			Server* currentServer = this->servers[currentServerName];
+
 			if (sectionStack.size() == 1 && vStack.size() != 0)
 			{
-				currentServer->setLocation(currentLocation, vStack);
+				temporaryServer->setLocation(currentLocation, vStack);
 				clearMap(vStack);
 			}
 		}
 	lineNumber++;
 	}
+	if (temporaryServer)
+		servers[temporaryServer->getName()] = temporaryServer;
 	uniChecker(servers);
 }
 

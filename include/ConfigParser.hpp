@@ -12,7 +12,7 @@ public:
 	~ConfigParser();
 
 	void parseConfig(const std::string& filename);
-	const std::map<std::string, Server*> &ConfigParser::getServers() const;
+	const std::map<std::string, Server*>& getServers() const;
 
 private: 
 	std::map<std::string, Server*> servers;
