@@ -248,8 +248,15 @@ void ConfigParser::parseConfig(const std::string& filename)
 		}
 	lineNumber++;
 	}
-	if (temporaryServer)
-		servers[temporaryServer->getName()] = temporaryServer;
+	if (temporaryServer) {
+		std::string serverName = "";
+		serverName = temporaryServer->getName();
+		
+		if (servers.find(serverName) != servers.end())
+			configError("Server with the same name already exists.", lineNumber);
+		else
+			servers[serverName] = temporaryServer;
+	}
 	uniChecker(servers);
 }
 
