@@ -38,7 +38,6 @@ static std::string getUploadFileContent (std::string path, std::ios_base::openmo
 			body.append(HTTP_LINEBREAK);
 		}
 	}
-
 	file.close();
 	return body;
 }
