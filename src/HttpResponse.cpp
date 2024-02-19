@@ -60,11 +60,12 @@ void HttpResponse::setResponseBody(HttpRequest *request, Server *server)
 			setDeleteResponse();
 			return ;
 		}
-		if (request->getMethod() != Util::METHOD::POST)
+		if (request->getMethod() == Util::METHOD::POST)
 		{
 			//parse 201 created here
 			setContentType(EXT_HTML);
 			setPostResponse();
+			return ;
 		}
 		std::ios_base::openmode mode = setContentType(request->getResourcePath());
 		setBody(FileHandler::getFileResource(request, mode));
