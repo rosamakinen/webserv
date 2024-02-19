@@ -71,7 +71,6 @@ void HttpRequestParser::parseContentLength(HttpRequest *request)
 			else if (request->getParameters().empty())
 				throw BadRequestException("Expected the Content-Length header with POST request with body");
 		}
-
 		request->setContentLength(length);
 		return;
 	}
@@ -90,8 +89,8 @@ void HttpRequestParser::parseContentLength(HttpRequest *request)
 	{
 		throw BadRequestException("Could not parse the header Content-Length");
 	}
-
 	request->setContentLength(length);
+	std::cout << "content length: " << request->getContentLength() << std::endl;
 }
 
 void HttpRequestParser::parseRequestLine(std::string &requestLine, HttpRequest *request, Server *server)
