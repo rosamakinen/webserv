@@ -1,6 +1,6 @@
 #include "../include/Server.hpp"
 
-Server::Server()
+Server::Server() : _name(SERVER_DEFAULT_NAME)
 {
 }
 
@@ -47,7 +47,10 @@ bool	Server::isValueForKey(std::string location, std::string key, std::string va
 
 void	Server::setName(std::string serverName)
 {
-	this->_name = serverName;
+	if (serverName.empty())
+		this->_name = SERVER_DEFAULT_NAME;
+	else
+		this->_name = serverName;
 }
 
 void Server::setSocket()

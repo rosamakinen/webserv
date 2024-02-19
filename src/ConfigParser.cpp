@@ -165,17 +165,22 @@ void ConfigParser::checkMain(const std::string& keyword, const std::string& valu
 	}
 	else if (keyword.compare(PARSELISTEN) == 0)
 	{
-		size_t port = std::stol(value);
+		long port = -1;
+		try
+		{
+			port = std::stol(value);
+		}
+		catch(const std::logic_error& e)
+		{
+			configError("Invalid port number.", lineNumber);
+		}
+
 		if (port > UINT16_MAX || port < 0 || value.empty())
 			configError("Invalid port.", lineNumber);
 		currentServer->setListenPort(port);
 	}
 	else if (keyword.compare(PARSENAME) == 0)
-	{
-		if (value.empty())
-			configError("No server name provided.", lineNumber);
 		currentServer->setName(value);
-	}
 	else if (keyword.compare(PARSESIZE) == 0)
 		currentServer->setClientMaxBodySize(std::stol(value));
 	else if (keyword.compare(ERRORPAGE_LOCATION) == 0)

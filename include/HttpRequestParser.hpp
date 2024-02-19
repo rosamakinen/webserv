@@ -27,6 +27,7 @@ class HttpRequestParser
 		bool validateCgi(std::string path);
 		void parseContentLength(HttpRequest *request);
 		void parseContentType(HttpRequest *request);
+		void validateSize(HttpRequest *request, Server *server);
 
 	public:
 		HttpRequestParser();

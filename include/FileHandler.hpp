@@ -6,6 +6,8 @@
 #include "Util.hpp"
 #include "Server.hpp"
 
+#include <cstring>
+
 class FileHandler
 {
 	public:
