@@ -53,7 +53,22 @@ Socket::Socket(const Socket &rhs) : _fd(rhs._fd)
 int Socket::acceptConnection() const
 {
 	size_t socketSize = sizeof(this->_address);
-	int connection = accept(this->_fd, (struct sockaddr*)&this->_address, (socklen_t*)&socketSize);
+	int connection = -1;
+	if ((connection = accept(this->_fd, (struct sockaddr*)&this->_address, (socklen_t*)&socketSize)) == -1)
+		throw InternalException("Could not accept the client");
+
+	if (fcntl(connection, F_SETFL, O_NONBLOCK, FD_CLOEXEC) == -1)
+	{
+		close(connection);
+		throw InternalException("Could not make the client fd non-blocking");
+	}
+
+	int maxBufferSize = MESSAGE_BUFFER;
+	if (setsockopt(connection, SOL_SOCKET, SO_SNDBUF, &maxBufferSize, sizeof(maxBufferSize)) == -1)
+	{
+		close(connection);
+		throw InternalException("Could not make the client fd non-blocking");
+	}
 
 	return connection;
 }
