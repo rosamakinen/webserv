@@ -50,8 +50,6 @@ void HttpRequestParser::parseContentLenght(HttpRequest *request)
 	std::string contentLengthString = request->getHeader(H_CONTENT_LENGTH);
 	if (contentLengthString.empty() || contentLengthString.compare("0") == 0)
 	{
-		std::cout << request->getBody() << std::endl;
-		std::cout << "'" << request->getHeader(H_CONTENT_LENGTH) << "'" << std::endl;
 		if (request->getMethod() == Util::METHOD::POST || request->getMethod() == Util::METHOD::CGI_POST)
 		{
 			if (request->getParameters().empty() && request->getBody().empty())
