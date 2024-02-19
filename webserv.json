@@ -1,7 +1,7 @@
 {
     "client": "Thunder Client",
     "collectionName": "webserv",
-    "dateExported": "2024-02-16T11:21:12.088Z",
+    "dateExported": "2024-02-19T14:49:57.108Z",
     "version": "1.1",
     "folders": [],
     "requests": [
@@ -617,19 +617,19 @@
             ]
         },
         {
-            "_id": "c6b7c01f-d592-49e1-bfe1-545fe875d78f",
+            "_id": "4ac78b6e-a8a2-48a3-a141-952101d9efbd",
             "colId": "67ad927c-f12f-456e-80d0-50d41a4bee78",
             "containerId": "",
-            "name": "POST upload image file",
-            "url": "127.0.0.1:8000/index.html",
+            "name": "POST upload image file Copy",
+            "url": "127.0.0.1:8000/upload/",
             "method": "POST",
-            "sortNum": 190000,
-            "created": "2024-02-16T05:51:17.905Z",
-            "modified": "2024-02-16T05:59:14.125Z",
+            "sortNum": 195000,
+            "created": "2024-02-19T14:21:10.298Z",
+            "modified": "2024-02-19T14:34:20.937Z",
             "headers": [
                 {
                     "name": "Content-Length",
-                    "value": "71"
+                    "value": "70"
                 },
                 {
                     "name": "Content-Type",
@@ -639,7 +639,7 @@
             "params": [],
             "body": {
                 "type": "text",
-                "raw": "file=/Users/rmakinen/Desktop/__WEBSERV__/public_www/pictures/field.jpeg",
+                "raw": "file=/Users/rmakinen/Desktop/__WEBSERV__/public_www/pictures/test.jpeg",
                 "form": []
             },
             "tests": [
@@ -656,11 +656,11 @@
             "colId": "67ad927c-f12f-456e-80d0-50d41a4bee78",
             "containerId": "",
             "name": "POST upload text file",
-            "url": "127.0.0.1:8000/index.html",
+            "url": "127.0.0.1:8000/upload/",
             "method": "POST",
             "sortNum": 200000,
             "created": "2024-02-16T05:51:17.906Z",
-            "modified": "2024-02-16T07:56:25.110Z",
+            "modified": "2024-02-19T14:27:04.726Z",
             "headers": [
                 {
                     "name": "Content-Length",
@@ -807,7 +807,7 @@
             "method": "DELETE",
             "sortNum": 230000,
             "created": "2024-02-16T05:51:17.909Z",
-            "modified": "2024-02-16T10:58:28.191Z",
+            "modified": "2024-02-19T14:35:33.437Z",
             "headers": [],
             "params": [],
             "tests": [
@@ -824,11 +824,11 @@
             "colId": "67ad927c-f12f-456e-80d0-50d41a4bee78",
             "containerId": "",
             "name": "DELETE jpeg file from upload dir Copy",
-            "url": "127.0.0.1:8000/upload/field.jpeg",
+            "url": "127.0.0.1:8000/upload/test.jpeg",
             "method": "DELETE",
             "sortNum": 240000,
             "created": "2024-02-16T05:59:51.917Z",
-            "modified": "2024-02-16T10:57:44.180Z",
+            "modified": "2024-02-19T14:42:34.876Z",
             "headers": [],
             "params": [],
             "tests": [

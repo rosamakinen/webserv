@@ -11,27 +11,6 @@ static std::string getUploadFilename(std::string path)
 	return "";
 }
 
-// static std::string getUploadLocation(std::string uri)
-// {
-// 	std::cout << "uri::" << uri << std::endl;
-// 	std::size_t found = uri.find_last_of(BACKSLASH);
-// 	if (found == std::string::npos)
-// 	{
-// 		std::string temp = uri;
-// 		std::cout << temp << std::endl;
-// 		temp.pop_back();
-// 		std::cout << temp << std::endl;
-// 		found = temp.find_last_of(BACKSLASH);
-// 		if (found != std::string::npos)
-// 		{
-// 			std::string location = uri.substr(found + 1, uri.length());
-// 			std::cout << "loation is: " << location << std::endl;
-// 			return location;
-// 		}
-// 	}
-// 	return "";
-// }
-
 static std::string getUploadFileContent (std::string path, std::ios_base::openmode mode)
 {
 	std::ifstream file(path);
@@ -76,28 +55,19 @@ void Methods::executePost(Server server, HttpRequest request)
 	std::string inFilePath = body.substr(pos + 1, body.length());
 	if (access(inFilePath.c_str(), R_OK) != 0)
 		throw BadRequestException("Could not read the upload file");
-	std::cout << "path to the infile: "<< inFilePath << std::endl;
 
 	std::string uploadLocation = request.getUri();
-	const std::vector<std::string>* uploadAllowed = server.getLocationValue(uploadLocation, UPLOAD_DIR);
+	const std::vector<std::string>* uploadAllowed = server.getLocationValue(uploadLocation, UPLOAD);
 	if (uploadAllowed == NULL)
-		throw ForbiddenException("Upload directory not configured");
+		throw ForbiddenException("Upload not configured");
 
-	// std::string location = uploadLocation->front();
-	// std::cout << "this is from the vector: " << location << std::endl;
-
-	// throw ForbiddenException("Upload directory not accessible");
 	std::string outFilename = getUploadFilename(inFilePath);
 	if (outFilename.empty())
 		throw BadRequestException("Bad path for upload file");
 
 	std::string outFilePath = request.getDirectory();
-	outFilePath.append(UPLOAD_DIR);
-	outFilePath.append("/");
 	outFilePath.append(outFilename);
-
-	std::string fullOutfilePath = FileHandler::getFilePath(outFilePath);
-	std::ofstream outputFile(fullOutfilePath);
+	std::ofstream outputFile(FileHandler::getFilePath(outFilePath));
 	if (outputFile.is_open())
 	{
 		outputFile << getUploadFileContent(inFilePath, std::ios::binary);
@@ -110,25 +80,11 @@ void Methods::executePost(Server server, HttpRequest request)
 
 void Methods::executeDelete(HttpRequest request)
 {
-	//here we can parse the outfile folder after it's working with uri
 	std::string path = request.getResourcePath();
-	std::string deletePath = "";
-
-	std::size_t found = path.find_last_of(BACKSLASH);
-	if (found != std::string::npos)
-	{
-		std::string location = UPLOAD_DIR;
-		location.append("/");
-		deletePath = path.insert(found + 1, location);
-	}
-	else
-		throw BadRequestException("Something went wrong");
-
-	std::string fullPath = FileHandler::getFilePath(deletePath);
-	std::cout << "deleting from : " << fullPath << std::endl;
+	std::string fullPath = FileHandler::getFilePath(path);
 	int result = remove(fullPath.c_str());
 	if (result == 0)
 		return ;
-	throw BadRequestException("Something went wrong");
+	throw BadRequestException("Could not delete requested file");
 }
 

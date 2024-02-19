@@ -33,7 +33,7 @@
 #define SERVER_DEFAULT_NAME	"default"
 
 #define DEFAULT_ERRORPAGES_PATH "/public_www/error_pages/"
-#define UPLOAD_DIR			"upload"
+#define UPLOAD				"upload"
 
 #define HTTP_METHOD			"method"
 #define HTTP_GET			"GET"
