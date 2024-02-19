@@ -25,6 +25,7 @@ class Client
 		void appendRequest(std::string requestToAdd);
 		void setServer(Server *server);
 		void updateStatus();
+		void updateServer();
 
 		HttpResponse *getResponse();
 		HttpRequest *getRequest();

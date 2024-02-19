@@ -1,4 +1,5 @@
 #include "../include/Client.hpp"
+#include "Client.hpp"
 
 Client::Client() : _response(nullptr), _request(nullptr), _server(nullptr), _status(NONE)
 {
@@ -21,6 +22,23 @@ void Client::setResponse(HttpResponse *response)
 
 void Client::setRequest(HttpRequest *request)
 {
+	std::string	host = request->getHeader("Host");
+	if (host.empty())
+		throw BadRequestException("No host given as a header");
+
+	std::string	host_name;
+	std::string port;
+	int	colon_pos = host.find_last_of(':');
+	host_name = host.substr(0, colon_pos);
+	try
+	{
+		port = std::stoi(host.substr(colon_pos + 1));
+	}
+	catch(const std::exception& e)
+	{
+		throw BadRequestException("Invalid header \"Host\" given");
+	}
+
 	this->_request = request;
 	this->setStatus(Client::STATUS::INCOMING);
 }

@@ -1,4 +1,5 @@
 #include "../include/HttpRequest.hpp"
+#include "HttpRequest.hpp"
 
 HttpRequest::HttpRequest() : _version("HTTP/1.1"), _isDirListing(false)
 {
@@ -40,6 +41,16 @@ void HttpRequest::setResourcePath(std::string path)
 	this->_resourcePath = path;
 }
 
+void HttpRequest::setPort(int port)
+{
+	this->_port = port;
+}
+
+void HttpRequest::setServerName(std::string name)
+{
+	this->_server_name = name;
+}
+
 void HttpRequest::appendBody(std::string body)
 {
 	this->_body.append(body);
@@ -58,6 +69,16 @@ void HttpRequest::setIsDirListing(bool isDirListing)
 bool HttpRequest::getIsDirListing()
 {
 	return this->_isDirListing;
+}
+
+int HttpRequest::getPort()
+{
+	return this->_port;
+}
+
+std::string HttpRequest::getServerName()
+{
+	return this->_server_name;
 }
 
 Util::METHOD HttpRequest::getMethod() const

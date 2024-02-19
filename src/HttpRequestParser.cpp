@@ -4,7 +4,7 @@ HttpRequestParser::HttpRequestParser() {}
 
 HttpRequestParser::~HttpRequestParser() {}
 
-HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Server *server)
+HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::map<std::string, Server *>& servers)
 {
 	HttpRequest *request = new HttpRequest();
 	std::stringstream ss(requestInput);
@@ -14,7 +14,7 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 	getline(ss, requestLine);
 	try
 	{
-		parseRequestLine(requestLine, request, server);
+		parseRequestLine(requestLine, request);
 
 		// Parse the headers
 		while (getline(ss, requestLine))
@@ -24,6 +24,14 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 			parseHeader(requestLine, request);
 		}
 
+		parseHost(request);
+		Server *server = getServer(request, servers);
+		parseDirectoryAndLocation(request, server);
+		validateMethod(request, server);
+		parseIndexPathAndDirectoryListing(request, server);
+		parseCgiMethod(request);
+		parseContentLenght(request);
+
 		std::string	body = "";
 		while (getline(ss, requestLine))
 		{
@@ -31,8 +39,7 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 				break;
 			request->appendBody(requestLine);
 		}
-		request->setHost(request->getHeader("Host"));
-		parseContentLenght(request);
+
 		validateSize(request, server);
 	}
 	catch(const Exception& e)
@@ -42,6 +49,37 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 	}
 
 	return request;
+}
+
+Server *HttpRequestParser::getServer(HttpRequest *request, std::map<std::string, Server *>& servers)
+{
+	if (request->getHost().empty())
+		return nullptr; // TODO : return default server
+	Server *server = servers.find(request->getServerName())->second;
+	return server;
+}
+
+void HttpRequestParser::parseHost(HttpRequest *request)
+{
+	std::string host = request->getHeader("Host");
+	request->setHost(host);
+	if (host.empty())
+		return ;
+
+	std::string	name;
+	int	colon_pos = host.find_last_of(':');
+	request->setServerName(host.substr(0, colon_pos));
+	int port = -1;
+	try
+	{
+		port = std::stoi(host.substr(colon_pos + 1));
+	}
+	catch(const std::logic_error& e)
+	{
+		throw BadRequestException("Invalid Host header");
+	}
+
+	request->setPort(port);
 }
 
 void HttpRequestParser::parseContentLenght(HttpRequest *request)
@@ -80,16 +118,12 @@ void HttpRequestParser::parseContentLenght(HttpRequest *request)
 	request->setContentLength(length);
 }
 
-void HttpRequestParser::parseRequestLine(std::string &requestLine, HttpRequest *request, Server *server)
+void HttpRequestParser::parseRequestLine(std::string &requestLine, HttpRequest *request)
 {
 	if (requestLine.empty())
 		throw BadRequestException("Empty requestline");
 	parseMethod(requestLine, request);
 	parseUri(requestLine, request);
-	parseDirectoryAndLocation(request, server);
-	validateMethod(request, server);
-	parseIndexPathAndDirectoryListing(request, server);
-	parseCgiMethod(request);
 	validateVersion(requestLine);
 }
 

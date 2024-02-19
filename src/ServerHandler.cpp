@@ -10,11 +10,15 @@ ServerHandler::~ServerHandler()
 	if (!_clients.empty())
 		_clients.clear();
 
+	if (!_servers.empty())
+	{
+		for (auto serverPoll : _servers)
+			delete serverPoll.second;
+		_servers.clear();
+	}
+
 	if (!_pollfds.empty())
 		_pollfds.clear();
-
-	if (!_serverPolls.empty())
-		_serverPolls.clear();
 }
 
 void ServerHandler::initServers(std::map<std::string, Server*> &servers)
@@ -27,9 +31,11 @@ void ServerHandler::initServers(std::map<std::string, Server*> &servers)
 			if (server->getClientMaxBodySize() <= 0)
 				server->setClientMaxBodySize(MESSAGE_BUFFER);
 			server->setSocket();
-			addNewPoll(server, server->getSocket()->getFd(), false);
+			addNewPoll(server->getSocket()->getFd());
 		}
 	}
+
+	this->_servers = servers;
 }
 
 void ServerHandler::isCallValid(const int fd, const std::string errorMsg, int closeFd)
@@ -48,21 +54,16 @@ bool ServerHandler::hasTimedOut(Client *client)
 	std::chrono::duration<int> difference = std::chrono::duration_cast<std::chrono::duration<int> >(now - client->getRequestStart());
 
 	if (difference.count() >= 10)
-	{
-		std::cout << "The client with the request '" << client->getRequest()->getBody() << "' has timed out after " << difference.count() << " milliseconds." << std::endl;
 		return true;
-	}
 	return false;
 }
 
-void ServerHandler::addNewPoll(Server *server, int fd, bool addServer)
+void ServerHandler::addNewPoll(int fd)
 {
 	_pollfds.push_back({fd, POLLIN, 0});
-	if (addServer)
-		_serverPolls.insert(std::pair<int, Server*>(fd, server));
 }
 
-void ServerHandler::handleNewClient(Socket *socket, Server *server)
+void ServerHandler::handleNewClient(Socket *socket)
 {
 	int newClientFd = -1;
 	while (1)
@@ -70,7 +71,7 @@ void ServerHandler::handleNewClient(Socket *socket, Server *server)
 		newClientFd = socket->acceptConnection();
 		if (newClientFd < 0)
 			break ;
-		addNewPoll(server, newClientFd, true);
+		addNewPoll(newClientFd);
 	}
 }
 
@@ -106,7 +107,6 @@ void ServerHandler::closeConnection(int fd)
 			it->fd = -1;
 		}
 
-		_serverPolls.erase(it->fd);
 		it = _pollfds.erase(it);
 	}
 }
@@ -150,20 +150,20 @@ bool ServerHandler::incomingClient(int fd, std::map<std::string, Server*> &serve
 		Socket* socket = server->getSocket();
 		if (fd == socket->getFd())
 		{
-			handleNewClient(socket, server);
+			handleNewClient(socket);
 			return true;
 		}
 	}
 	return false;
 }
 
-Server *ServerHandler::getServer(int fd)
+Server *ServerHandler::getServer(HttpRequest *request)
 {
-	std::map<int, Server*>::iterator it = _serverPolls.find(fd);
-	if (it == _serverPolls.end())
-		throw InternalException("No such server found");
+	if (request->getHost().empty())
+		throw InternalException("No server found, TODO: get default");
 
-	return it->second;
+	Server *server = _servers.find(request->getServerName())->second;
+	return server;
 }
 
 Client *ServerHandler::getOrCreateClient(pollfd *fd)
@@ -181,9 +181,6 @@ Client *ServerHandler::getOrCreateClient(pollfd *fd)
 	else
 		client = it->second;
 
-	Server *server = getServer(fd->fd);
-	client->setServer(server);
-
 	return client;
 }
 
@@ -197,7 +194,6 @@ void ServerHandler::handleReadyToBeHandledClients()
 		if (it == _clients.end() || it->second->getStatus() != Client::STATUS::READY_TO_HANDLE)
 			continue;
 
-		std::cout << "Client '" << fd.fd << "' is being handled." << std::endl;
 		requestHandler.handleRequest(it->second, it->second->getServer());
 		fd.events = POLLOUT;
 	}
@@ -206,23 +202,19 @@ void ServerHandler::handleReadyToBeHandledClients()
 void ServerHandler::handleIncomingRequest(pollfd *fd)
 {
 	Client *client = getOrCreateClient(fd);
-	std::cout << "Reading client " << fd->fd << std::endl;
 
 	std::string requestString = readRequest(fd->fd, MESSAGE_BUFFER);
 	if (client->getStatus() == Client::STATUS::NONE)
 	{
 		HttpRequestParser requestParser;
-		HttpRequest *request = requestParser.parseHttpRequest(requestString, client->getServer());
+		HttpRequest *request = requestParser.parseHttpRequest(requestString, _servers);
 		client->setRequest(request);
+		client->setServer(getServer(request));
 	}
 	else if (client->getStatus() == Client::STATUS::INCOMING)
-	{
 		client->appendRequest(requestString);
-		std::cout << "Client status: '" << client->getStatus() << "'" << std::endl << std::endl;
-	}
 
 	client->updateStatus();
-	std::cout << "Client status: '" << client->getStatus() << "'" << std::endl << std::endl;
 }
 
 void ServerHandler::handleOutgoingResponse(pollfd *fd)
@@ -239,10 +231,9 @@ void ServerHandler::handleOutgoingResponse(pollfd *fd)
 
 void ServerHandler::handleOutgoingError(const Exception& e, pollfd *fd)
 {
-	Server *server = getServer(fd->fd);
 	Client *client = getOrCreateClient(fd);
 	HttpRequestHandler handler;
-	client->setResponse(handler.parseErrorResponse(server, ExceptionManager::getErrorStatus(e)));
+	client->setResponse(handler.parseErrorResponse(client->getServer(), ExceptionManager::getErrorStatus(e)));
 	fd->events = POLLOUT;
 }
 
