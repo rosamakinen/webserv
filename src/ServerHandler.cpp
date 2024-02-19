@@ -19,7 +19,7 @@ ServerHandler::~ServerHandler()
 
 void ServerHandler::initServers(std::map<std::string, Server*> &servers)
 {
-	for (const auto& serverPair : servers)
+	for (auto& serverPair : servers)
 	{
 		Server* server = serverPair.second;
 		if (server != nullptr)
