@@ -17,10 +17,11 @@ ServerHandler::~ServerHandler()
 		_serverPolls.clear();
 }
 
-void ServerHandler::initServers(std::vector<Server*>& servers)
+void ServerHandler::initServers(std::map<std::string, Server*> &servers)
 {
-	for (Server* server : servers)
+	for (const auto& serverPair : servers)
 	{
+		Server* server = serverPair.second;
 		if (server != nullptr)
 		{
 			if (server->getClientMaxBodySize() <= 0)
@@ -138,21 +139,21 @@ void ServerHandler::writeResponse(int connection, const std::string response)
 {
 	int result = send(connection, response.c_str(), response.size(), 0);
 	if (result < 0)
-		throw InternalException("Could not send response");
+		throw InternalException(" send response");
 }
 
-bool ServerHandler::incomingClient(int fd, std::vector<Server*> &servers)
+bool ServerHandler::incomingClient(int fd, std::map<std::string, Server*> &servers)
 {
-	for (std::vector<Server*>::iterator it = servers.begin(); it != servers.end(); it++)
+	for (std::pair<const std::string, Server*> &pair : servers)
 	{
-		Socket *socket = (*it)->getSocket();
+		Server* server = pair.second;
+		Socket* socket = server->getSocket();
 		if (fd == socket->getFd())
 		{
-			handleNewClient(socket, *it);
+			handleNewClient(socket, server);
 			return true;
 		}
 	}
-
 	return false;
 }
 
@@ -216,7 +217,6 @@ void ServerHandler::handleIncomingRequest(pollfd *fd)
 	}
 	else if (client->getStatus() == Client::STATUS::INCOMING)
 	{
-		std::cout << "Client request body: '" << client->getRequest()->getBody() << "'" << std::endl;
 		client->appendRequest(requestString);
 		std::cout << "Client status: '" << client->getStatus() << "'" << std::endl << std::endl;
 	}
@@ -246,7 +246,7 @@ void ServerHandler::handleOutgoingError(const Exception& e, pollfd *fd)
 	fd->events = POLLOUT;
 }
 
-void ServerHandler::handlePollEvents(std::vector<Server*>& servers)
+void ServerHandler::handlePollEvents(std::map<std::string, Server*> &servers)
 {
 	for (unsigned long i = 0; i < _pollfds.size(); i ++)
 	{
@@ -304,10 +304,10 @@ void ServerHandler::removeTimedOutClients()
 	}
 }
 
-void ServerHandler::runServers(std::vector<Server*>& servers)
+void ServerHandler::runServers(std::map<std::string, Server*> &servers)
 {
 	initServers(servers);
-	while (1)
+	while (true)
 	{
 		removeTimedOutClients();
 		// Wait max 3 minutes for incoming traffic
