@@ -11,6 +11,8 @@
 #include <signal.h>
 #include <chrono>
 #include <thread>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 class CgiHandler
 {

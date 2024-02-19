@@ -4,6 +4,9 @@
 #include "WebServer.hpp"
 #include "Socket.hpp"
 
+#include <iterator>
+#include <algorithm>
+
 class Server
 {
 	private:
