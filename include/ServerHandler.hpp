@@ -22,9 +22,9 @@ class ServerHandler
 
 		Client	*getOrCreateClient(pollfd *fd);
 		void	handleReadyToBeHandledClients();
-		bool 	incomingClient(int fd, std::map<std::string, Server*> &servers);
+		bool 	incomingClient(int fd);
 		void	handleNewClient(Socket *socket);
-		void 	handlePollEvents(std::map<std::string, Server*> &servers);
+		void 	handlePollEvents();
 
 		void	removeTimedOutClients();
 		std::map<int, Client*>::iterator removeClient(std::map<int, Client*>::iterator client);

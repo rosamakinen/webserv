@@ -25,7 +25,12 @@ void ServerHandler::initServers(std::map<std::string, Server*> &servers)
 {
 	for (auto& serverPair : servers)
 	{
-		Server* server = serverPair.second;
+		std::pair<std::map<std::string, Server *>::iterator, bool> result;
+		result = this->_servers.insert(std::pair<std::string, Server *>(serverPair.first, serverPair.second));
+		if (!result.second)
+			throw ConfigurationException("Duplicate server names used");
+
+		Server* server = this->_servers.find(serverPair.first)->second;
 		if (server != nullptr)
 		{
 			if (server->getClientMaxBodySize() <= 0)
@@ -34,8 +39,6 @@ void ServerHandler::initServers(std::map<std::string, Server*> &servers)
 			addNewPoll(server->getSocket()->getFd());
 		}
 	}
-
-	this->_servers = servers;
 }
 
 void ServerHandler::isCallValid(const int fd, const std::string errorMsg, int closeFd)
@@ -101,7 +104,7 @@ void ServerHandler::closeConnection(int fd)
 			continue;
 		}
 
-		if (it->fd >  0)
+		if (it->fd > 0)
 		{
 			close(it->fd);
 			it->fd = -1;
@@ -139,12 +142,12 @@ void ServerHandler::writeResponse(int connection, const std::string response)
 {
 	int result = send(connection, response.c_str(), response.size(), 0);
 	if (result < 0)
-		throw InternalException(" send response");
+		throw InternalException("Could not send response to client");
 }
 
-bool ServerHandler::incomingClient(int fd, std::map<std::string, Server*> &servers)
+bool ServerHandler::incomingClient(int fd)
 {
-	for (std::pair<const std::string, Server*> &pair : servers)
+	for (std::pair<const std::string, Server*> &pair : this->_servers)
 	{
 		Server* server = pair.second;
 		Socket* socket = server->getSocket();
@@ -237,13 +240,13 @@ void ServerHandler::handleOutgoingError(const Exception& e, pollfd *fd)
 	fd->events = POLLOUT;
 }
 
-void ServerHandler::handlePollEvents(std::map<std::string, Server*> &servers)
+void ServerHandler::handlePollEvents()
 {
 	for (unsigned long i = 0; i < _pollfds.size(); i ++)
 	{
 		if (_pollfds[i].revents == 0)
 			continue;
-		if (incomingClient(_pollfds[i].fd, servers))
+		if (incomingClient(_pollfds[i].fd))
 			continue;
 		else if (_pollfds[i].revents & POLLIN)
 		{
@@ -314,7 +317,7 @@ void ServerHandler::runServers(std::map<std::string, Server*> &servers)
 			closeConnections();
 			throw PollException("Poll failed");
 		}
-		handlePollEvents(servers);
+		handlePollEvents();
 		handleReadyToBeHandledClients();
 	}
 
