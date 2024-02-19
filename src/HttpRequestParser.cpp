@@ -90,7 +90,6 @@ void HttpRequestParser::parseContentLength(HttpRequest *request)
 		throw BadRequestException("Could not parse the header Content-Length");
 	}
 	request->setContentLength(length);
-	std::cout << "content length: " << request->getContentLength() << std::endl;
 }
 
 void HttpRequestParser::parseRequestLine(std::string &requestLine, HttpRequest *request, Server *server)
