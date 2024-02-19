@@ -117,11 +117,13 @@ Server* ConfigParser::checkServer()
 {
 	if (temporaryServer && !temporaryServer->getName().empty())
 	{
-		servers[temporaryServer->getName()] = temporaryServer;
-		temporaryServer = nullptr; // Forget about the temporary server
+		const std::string &serverName = temporaryServer->getName();
+		if (servers.find(serverName) != servers.end())
+			configError("Server with the same name already exists.", lineNumber);
+		else
+			servers[serverName] = temporaryServer;
+		temporaryServer = nullptr;
 	}
-	if (sectionStack.size() != 0)
-		configError("Unclosed block before new server declaration.", lineNumber);
 	currentSection.clear();
 	currentLocation.clear();
 	// Create and return a new Server. We don't have the name yet.
