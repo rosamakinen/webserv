@@ -16,15 +16,15 @@ class ServerHandler
 		std::map<int, Client*> _clients;
 		std::map<int, Server*> _serverPolls;
 
-		void	initServers(std::vector<Server*>& servers);
+		void 	initServers(std::map<std::string, Server*> &servers);
 
 		void	isCallValid(const int fd, const std::string errorMsg, int closeFd);
 
 		Client	*getOrCreateClient(pollfd *fd);
 		void	handleReadyToBeHandledClients();
-		bool	incomingClient(int fd, std::vector<Server*>& servers);
+		bool 	incomingClient(int fd, std::map<std::string, Server*> &servers);
 		void	handleNewClient(Socket *socket, Server *server);
-		void	handlePollEvents(std::vector<Server*>& servers);
+		void 	handlePollEvents(std::map<std::string, Server*> &servers);
 
 		void	removeTimedOutClients();
 		std::map<int, Client*>::iterator removeClient(std::map<int, Client*>::iterator client);
@@ -47,7 +47,7 @@ class ServerHandler
 		~ServerHandler();
 
 		void	addNewPoll(Server *server, int fd, bool addServer);
-		void	runServers(std::vector<Server*>& servers);
+		void	runServers(std::map<std::string, Server*> &servers);
 };
 
 #endif
