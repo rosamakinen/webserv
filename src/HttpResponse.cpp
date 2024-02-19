@@ -56,8 +56,15 @@ void HttpResponse::setResponseBody(HttpRequest *request, Server *server)
 		if (request->getMethod() == Util::METHOD::DELETE)
 		{
 			// TODO: do we just want to redirect to the "front page instead"
+			setContentType(EXT_HTML);
 			setDeleteResponse();
 			return ;
+		}
+		if (request->getMethod() != Util::METHOD::POST)
+		{
+			//parse 201 created here
+			setContentType(EXT_HTML);
+			setPostResponse();
 		}
 		std::ios_base::openmode mode = setContentType(request->getResourcePath());
 		setBody(FileHandler::getFileResource(request, mode));
@@ -67,6 +74,12 @@ void HttpResponse::setResponseBody(HttpRequest *request, Server *server)
 void HttpResponse::setDeleteResponse()
 {
 	std::string html = "<html><title>YAY</title></head><body><center><h1>file deleted succesfully!</h1></center></body></html>";
+	setBody(html);
+}
+
+void HttpResponse::setPostResponse()
+{
+	std::string html = "<html><title>YAY</title></head><body><center><h1>file created succesfully!</h1></center></body></html>";
 	setBody(html);
 }
 

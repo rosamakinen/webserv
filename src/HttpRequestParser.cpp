@@ -148,6 +148,17 @@ void HttpRequestParser::parseMethod(std::string &requestLine, HttpRequest *reque
 void HttpRequestParser::parseIndexPathAndDirectoryListing(HttpRequest *request, Server *server)
 {
 	std::string uri = request->getUri();
+	if (request->getMethod() == Util::METHOD::POST)
+	{
+		if (uri[uri.length() - 1] == '/')
+		{
+			std::string uploadPath = request->getDirectory();
+			request->setResourcePath(uploadPath);
+			std::cout << "uploadPath is: " << uploadPath << std::endl;
+			return;
+		}
+		throw BadRequestException("Bad Uri");
+	}
 	if (uri[uri.length() - 1] == '/')
 	{
 		const std::vector<std::string> *indexValues = server->getLocationValue(request->getLocation(), INDEX);

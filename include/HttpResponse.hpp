@@ -20,6 +20,7 @@ class HttpResponse
 		std::ios_base::openmode setContentType(std::string resourcePath);
 		void setCgiResponse(std::string input);
 		void setDeleteResponse();
+		void setPostResponse();
 
 		unsigned int getContentLenght() const;
 		const std::string getContentType() const;
