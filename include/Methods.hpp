@@ -11,7 +11,7 @@
 class Methods
 {
 	public:
-		static void executePost(HttpRequest request);
+		static void executePost(Server server, HttpRequest request);
 		static void executeDelete(HttpRequest request);
 };
 

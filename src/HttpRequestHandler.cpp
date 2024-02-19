@@ -50,9 +50,9 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 
 			case Util::METHOD::POST:
 			{
-				Methods::executePost(*client->getRequest());
+				Methods::executePost(*server, *client->getRequest());
 				parseOkResponse(client, server);
-				return ;
+				return;
 			}
 
 			case Util::METHOD::DELETE:

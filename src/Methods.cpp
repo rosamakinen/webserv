@@ -11,7 +11,48 @@ static std::string getUploadFilename(std::string path)
 	return "";
 }
 
-void Methods::executePost(HttpRequest request)
+static std::string getUploadFileContent (Server server, HttpRequest request)
+{
+	std::string relativePath;
+	//get the location, from uri // check the location value, if we have uploadDir, if we have uploadDir store shit there
+	std::string fullPath = FileHandler::getFilePath(request.getResourcePath());
+	std::cout << "path to the directory: "<< fullPath << std::endl;
+	// struct stat file_status;
+	// if ((stat(fullPath.c_str(), &file_status) == 0) && S_ISDIR(file_status.st_mode))
+	// {
+	// 	std::vector<std::string> custom = server->getLocationValue(location, UPLOAD_DIR);
+	// 	if (customErrorPagePath.empty())
+	// 		throw ForbiddenException("Upload directory not acessible");
+	// 	else
+
+	// }
+	// throw ForbiddenException("Upload directory not accessible");
+
+
+	// std::string path(FileHandler::getFilePath(relativePath));
+	// std::ifstream file(path);
+	// if (!file.is_open() || file.fail() || file.bad())
+	// {
+	// 	std::string message = "Could not open file ";
+	// 	message.append(path);
+	// 	message.append(" for reading");
+	// 	throw NotFoundException(message);
+	// }
+
+	// std::string line;
+	// std::string body;
+	// while (getline(file, line))
+	// {
+	// 	body.append(line);
+	// 	body.append(HTTP_LINEBREAK);
+	// }
+
+	// file.close();
+	// return body;
+	return "";
+}
+
+void Methods::executePost(Server server, HttpRequest request)
 {
 	std::string body = request.getBody();
 	if (body.empty())
@@ -19,7 +60,7 @@ void Methods::executePost(HttpRequest request)
 	size_t pos = body.find("=");
 	if (pos == std::string::npos)
 		throw BadRequestException("Bad query");
-
+	//uri
 	std::string inFilePath = body.substr(pos + 1, body.length());
 	if (access(inFilePath.c_str(), R_OK) != 0)
 		throw BadRequestException("Cannot read the upload file");
@@ -37,7 +78,8 @@ void Methods::executePost(HttpRequest request)
 	std::ofstream outputFile(fullPath);
 	if (outputFile.is_open())
 	{
-		outputFile << FileHandler::getFileContent(inFilePath, std::ios::binary);
+		outputFile << getUploadFileContent(server, request);
+		// outputFile << FileHandler::getFileContent(inFilePath, std::ios::binary);
 		outputFile.close();
 		return ;
 	}
