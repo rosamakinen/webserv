@@ -163,45 +163,53 @@ bool ConfigParser::invalidErrorPageConfig(int status, std::string path)
 
 void ConfigParser::checkMain(const std::string& keyword, const std::string& value, const std::string path)
 {
-    if (!temporaryServer)
-        configError("No server defined for main block.", lineNumber);
-    if (keyword.compare(PARSEHOST) == 0)
-    {
-        if (!validIp(value))
-            configError("Invalid IP address.", lineNumber);
-        temporaryServer->setHostIp(value);
-    }
-    else if (keyword.compare(PARSELISTEN) == 0)
-    {
-        size_t port = std::stol(value);
-        if (port > UINT16_MAX || port < 0 || value.empty())
-            configError("Invalid port.", lineNumber);
-        temporaryServer->setListenPort(port);
-    }
-    else if (keyword.compare(PARSENAME) == 0)
-        temporaryServer->setName(value);
-    else if (keyword.compare(PARSESIZE) == 0)
-        temporaryServer->setClientMaxBodySize(std::stol(value));
-    else if (keyword.compare(ERRORPAGE_LOCATION) == 0)
-    {
-        if (value.empty() || path.empty())
-            configError("Invalid error page configuration.", lineNumber);
-        int status = 0;
-        try
-        {
-            status = std::stoi(value);
-        }
-        catch(const std::exception& e)
-        {
-            configError("Invalid status code.", lineNumber);
-        }
+	if (!temporaryServer)
+		configError("No server defined for main block.", lineNumber);
+	if (keyword.compare(PARSEHOST) == 0)
+	{
+		if (!validIp(value))
+			configError("Invalid IP address.", lineNumber);
+		temporaryServer->setHostIp(value);
+	}
+	else if (keyword.compare(PARSELISTEN) == 0)
+	{
+		size_t port = 0;
+		try
+		{
+			port = std::stoi(value);
+		}
+		catch(const std::exception& e)
+		{
+			configError("Invalid status code.", lineNumber);
+		}
+		if (port > UINT16_MAX || port < 0 || value.empty())
+			configError("Invalid port.", lineNumber);
+		temporaryServer->setListenPort(port);
+	}
+	else if (keyword.compare(PARSENAME) == 0)
+		temporaryServer->setName(value);
+	else if (keyword.compare(PARSESIZE) == 0)
+		temporaryServer->setClientMaxBodySize(std::stol(value));
+	else if (keyword.compare(ERRORPAGE_LOCATION) == 0)
+	{
+		if (value.empty() || path.empty())
+			configError("Invalid error page configuration.", lineNumber);
+		int status = 0;
+		try
+		{
+			status = std::stoi(value);
+		}
+		catch(const std::exception& e)
+		{
+			configError("Invalid status code.", lineNumber);
+		}
 
-        if (!invalidErrorPageConfig(status, path))
-            configError("Invalid error page configuration.", lineNumber);
+		if (!invalidErrorPageConfig(status, path))
+			configError("Invalid error page configuration.", lineNumber);
 
-        if (!temporaryServer->addErrorPage(status, path))
-            configError("Duplicate error page configuration.", lineNumber);
-    }
+		if (!temporaryServer->addErrorPage(status, path))
+			configError("Duplicate error page configuration.", lineNumber);
+	}
 }
 
 
