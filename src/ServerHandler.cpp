@@ -226,13 +226,17 @@ void ServerHandler::handleOutgoingResponse(pollfd *fd)
 	writeResponse(fd->fd, HttpResponseParser::Parse(*it->second->getResponse()));
 	it->second->setStatus(Client::STATUS::NONE);
 
+	bool close = it->second->closeConnection();
 	delete it->second;
 	_clients.erase(fd->fd);
+	if (close)
+		closeConnection(fd->fd);
 }
 
 void ServerHandler::handleOutgoingError(const Exception& e, pollfd *fd)
 {
 	Client *client = getOrCreateClient(fd);
+	client->setCloseConnection(true);
 	HttpRequestHandler handler;
 	client->setResponse(handler.parseErrorResponse(client->getServer(), ExceptionManager::getErrorStatus(e)));
 	fd->events = POLLOUT;

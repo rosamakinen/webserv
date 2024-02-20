@@ -1,7 +1,7 @@
 {
     "client": "Thunder Client",
     "collectionName": "webserv",
-    "dateExported": "2024-02-20T12:52:21.033Z",
+    "dateExported": "2024-02-20T13:51:51.760Z",
     "version": "1.1",
     "folders": [],
     "requests": [
@@ -586,6 +586,41 @@
                     "value": "200"
                 }
             ]
+        },
+        {
+            "_id": "cff2d335-7042-466e-b34d-009c0cb74ffb",
+            "colId": "8d4fcdbc-cdd1-4637-977c-6222a8e3ec4c",
+            "containerId": "",
+            "name": "GET close connection",
+            "url": "127.0.0.1:8000/index.html",
+            "method": "GET",
+            "sortNum": 180000,
+            "created": "2024-02-20T13:50:46.250Z",
+            "modified": "2024-02-20T13:51:37.109Z",
+            "headers": [
+                {
+                    "name": "Connection",
+                    "value": "close"
+                }
+            ],
+            "params": [],
+            "tests": [
+                {
+                    "type": "res-code",
+                    "custom": "",
+                    "action": "equal",
+                    "value": "200"
+                }
+            ]
         }
-    ]
+    ],
+    "settings": {
+        "runOptions": {
+            "delay": 0,
+            "iterations": 1,
+            "runType": "parallel",
+            "concurrent": 5,
+            "dataFilePath": ""
+        }
+    }
 }
