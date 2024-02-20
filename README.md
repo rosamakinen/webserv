@@ -1,10 +1,13 @@
-HTTP Server Implementation README 🌐
+HTTP Server 🌐
+
 This project aims to implement an HTTP server based on the Hypertext Transfer Protocol (HTTP) specifications, focusing on serving static websites, handling dynamic content through CGI (Common Gateway Interface), and supporting various HTTP methods like GET, POST, and DELETE.
 
 Introduction 🚀
+
 The Hypertext Transfer Protocol (HTTP) is fundamental for distributed, collaborative, hypermedia information systems, forming the backbone of communication for the World Wide Web. HTTP facilitates the transfer of hypertext documents, allowing users to access resources through hyperlinks via web browsers.
 
 Requirements 📋
+
 Configuration File Handling: The program should accept a configuration file as an argument or use a default path.
 Non-blocking I/O: The server must never block, using only one poll() (or equivalent) for all I/O operations.
 Compatibility: The server should be compatible with web browsers and adhere to HTTP standards (e.g., HTTP 1.1 compliance similar to NGINX).
@@ -15,7 +18,9 @@ File Upload: Clients should be able to upload files.
 Configuration Flexibility: The configuration file should allow for setting up servers, defining routes, limiting client body size, etc.
 CGI Execution: Execute CGI scripts based on certain file extensions (e.g., .php).
 Resilience: The server should remain available under stress and should not hang forever on requests.
+
 Configuration File ⚙️
+
 The configuration file should resemble NGINX's configuration format, allowing users to specify server settings, routes, error pages, etc. Some key features of the configuration file include:
 
 Choosing port and host for each server.
