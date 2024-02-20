@@ -126,8 +126,12 @@ Server* ConfigParser::checkServer()
 	}
 	currentSection.clear();
 	currentLocation.clear();
-	// Create and return a new Server. We don't have the name yet.
-	return new Server();
+
+	Server *server = new Server();
+	if (servers.empty())
+		server->setAsDefault();
+
+	return server;
 }
 
 std::vector<int> ConfigParser::validErrorStatusCodes =
@@ -136,6 +140,7 @@ std::vector<int> ConfigParser::validErrorStatusCodes =
 	403,
 	404,
 	405,
+	413,
 	500,
 	504
 };
@@ -173,7 +178,7 @@ void ConfigParser::checkMain(const std::string& keyword, const std::string& valu
 	}
 	else if (keyword.compare(PARSELISTEN) == 0)
 	{
-		size_t port = 0;
+		int port = 0;
 		try
 		{
 			port = std::stoi(value);
@@ -182,6 +187,7 @@ void ConfigParser::checkMain(const std::string& keyword, const std::string& valu
 		{
 			configError("Invalid status code.", lineNumber);
 		}
+
 		if (port > UINT16_MAX || port < 0 || value.empty())
 			configError("Invalid port.", lineNumber);
 		temporaryServer->setListenPort(port);

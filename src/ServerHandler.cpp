@@ -64,14 +64,8 @@ void ServerHandler::addNewPoll(Server *server, int fd, bool addServer)
 
 void ServerHandler::handleNewClient(Socket *socket, Server *server)
 {
-	int newClientFd = -1;
-	while (1)
-	{
-		newClientFd = socket->acceptConnection();
-		if (newClientFd < 0)
-			break ;
-		addNewPoll(server, newClientFd, true);
-	}
+	int newClientFd = socket->acceptConnection(socket->getFd());
+	addNewPoll(server, newClientFd, true);
 }
 
 void ServerHandler::closeConnections()
