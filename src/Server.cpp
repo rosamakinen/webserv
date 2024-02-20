@@ -65,7 +65,7 @@ void	Server::setName(std::string serverName)
 
 void Server::setSocket()
 {
-	this->_socket = new Socket(this->getListenPort());
+	this->_socket = new Socket(this->getListenPort(), this->getName());
 }
 void Server::setListenPort(size_t listenPort)
 {
