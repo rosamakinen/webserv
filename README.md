@@ -9,15 +9,25 @@ The Hypertext Transfer Protocol (HTTP) is fundamental for distributed, collabora
 Requirements 📋
 
 Configuration File Handling: The program should accept a configuration file as an argument or use a default path.
+
 Non-blocking I/O: The server must never block, using only one poll() (or equivalent) for all I/O operations.
+
 Compatibility: The server should be compatible with web browsers and adhere to HTTP standards (e.g., HTTP 1.1 compliance similar to NGINX).
+
 Error Handling: Proper HTTP response status codes and default error pages must be implemented.
+
 Static Website Serving: The server must be able to serve a fully static website.
+
 HTTP Methods: Support for at least GET, POST, and DELETE methods is required.
+
 File Upload: Clients should be able to upload files.
+
 Configuration Flexibility: The configuration file should allow for setting up servers, defining routes, limiting client body size, etc.
+
 CGI Execution: Execute CGI scripts based on certain file extensions (e.g., .php).
+
 Resilience: The server should remain available under stress and should not hang forever on requests.
+
 
 Configuration File ⚙️
 
