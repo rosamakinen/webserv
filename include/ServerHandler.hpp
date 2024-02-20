@@ -14,6 +14,7 @@ class ServerHandler
 	private:
 		std::vector<pollfd> _pollfds;
 		std::map<int, Client*> _clients;
+		std::map<int, std::chrono::high_resolution_clock::time_point> _connections;
 		std::map<std::string, Server *> _servers;
 
 		void 	initServers(std::map<std::string, Server*> &servers);
@@ -26,9 +27,11 @@ class ServerHandler
 		void	handleNewClient(Socket *socket);
 		void 	handlePollEvents();
 
-		void	removeTimedOutClients();
+		void	removeTimedOutClientsAndConnections();
+
+		void removeConnection(std::map<int, std::chrono::high_resolution_clock::time_point>::iterator connection);
 		std::map<int, Client*>::iterator removeClient(std::map<int, Client*>::iterator client);
-		bool	hasTimedOut(Client *client);
+		bool	hasTimedOut(std::chrono::high_resolution_clock::time_point start, int milliseconds);
 
 		void	handleIncomingRequest(pollfd *fd);
 		void	handleOutgoingResponse(pollfd *fd);

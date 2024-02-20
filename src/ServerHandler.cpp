@@ -13,6 +13,9 @@ ServerHandler::~ServerHandler()
 	if (!_servers.empty())
 		_servers.clear();
 
+	if (!_connections.empty())
+		_connections.clear();
+
 	if (!_pollfds.empty())
 		_pollfds.clear();
 }
@@ -47,12 +50,12 @@ void ServerHandler::isCallValid(const int fd, const std::string errorMsg, int cl
 	}
 }
 
-bool ServerHandler::hasTimedOut(Client *client)
+bool ServerHandler::hasTimedOut(std::chrono::high_resolution_clock::time_point start, int milliseconds)
 {
 	std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<int> difference = std::chrono::duration_cast<std::chrono::duration<int> >(now - client->getRequestStart());
+	std::chrono::duration<int> difference = std::chrono::duration_cast<std::chrono::duration<int> >(now - start);
 
-	if (difference.count() >= 1)
+	if (difference.count() >= milliseconds)
 	{
 		std::cout << "The client has timed out after " << difference.count() << " milliseconds." << std::endl;
 		return true;
@@ -151,6 +154,7 @@ bool ServerHandler::incomingClient(int fd)
 		if (fd == socket->getFd())
 		{
 			handleNewClient(socket);
+			_connections[fd] = std::chrono::high_resolution_clock::now();
 			return true;
 		}
 	}
@@ -279,6 +283,21 @@ std::map<int, Client*>::iterator ServerHandler::removeClient(std::map<int, Clien
 {
 	delete client->second;
 
+	closeConnection(client->first);
+	return _clients.erase(client);
+}
+
+void ServerHandler::removeConnection(std::map<int, std::chrono::high_resolution_clock::time_point>::iterator connection)
+{
+	std::map<int, Client*>::iterator client = _clients.find(connection->first);
+	if (client != _clients.end())
+	{
+		removeClient(client);
+		connection++;
+		_connections.erase(connection->first);
+		return;
+	}
+
 	for (unsigned long i = 0; i < _pollfds.size(); i++)
 	{
 		if (_pollfds[i].fd != client->first)
@@ -287,17 +306,26 @@ std::map<int, Client*>::iterator ServerHandler::removeClient(std::map<int, Clien
 		break;
 	}
 
-	return _clients.erase(client);
+	connection++;
+	_connections.erase(connection->first);
 }
 
-void ServerHandler::removeTimedOutClients()
+void ServerHandler::removeTimedOutClientsAndConnections()
 {
-	for (auto it = _clients.begin(); it != _clients.end(); )
+	for (auto itc = _clients.begin(); itc != _clients.end(); )
 	{
-		if (hasTimedOut(it->second) && it->second->getStatus() != Client::STATUS::READY_TO_HANDLE)
-			it = removeClient(it);
+		if (hasTimedOut(itc->second->getRequestStart(), 1) && itc->second->getStatus() != Client::STATUS::READY_TO_HANDLE)
+			itc = removeClient(itc);
 		else
-			it++;
+			itc++;
+	}
+
+	for (auto itconn = _connections.begin(); itconn != _connections.end(); )
+	{
+		if (hasTimedOut(itconn->second, 10))
+			removeConnection(itconn);
+		else
+			itconn++;
 	}
 }
 
@@ -306,7 +334,7 @@ void ServerHandler::runServers(std::map<std::string, Server*> &servers)
 	initServers(servers);
 	while (true)
 	{
-		removeTimedOutClients();
+		removeTimedOutClientsAndConnections();
 		// Wait max 3 minutes for incoming traffic
 		int result = poll(_pollfds.data(), _pollfds.size(), CONNECTION_TIMEOUT);
 		if (result == 0)
@@ -323,6 +351,4 @@ void ServerHandler::runServers(std::map<std::string, Server*> &servers)
 		handlePollEvents();
 		handleReadyToBeHandledClients();
 	}
-
-	closeConnections();
 }
