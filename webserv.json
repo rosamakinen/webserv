@@ -1,7 +1,7 @@
 {
     "client": "Thunder Client",
     "collectionName": "webserv",
-    "dateExported": "2024-02-20T13:51:51.760Z",
+    "dateExported": "2024-02-20T14:18:37.934Z",
     "version": "1.1",
     "folders": [],
     "requests": [
@@ -601,6 +601,33 @@
                 {
                     "name": "Connection",
                     "value": "close"
+                }
+            ],
+            "params": [],
+            "tests": [
+                {
+                    "type": "res-code",
+                    "custom": "",
+                    "action": "equal",
+                    "value": "200"
+                }
+            ]
+        },
+        {
+            "_id": "5ed7ae24-aa98-4f38-a54f-0a5184b944fe",
+            "colId": "8d4fcdbc-cdd1-4637-977c-6222a8e3ec4c",
+            "containerId": "",
+            "name": "GET Host header given",
+            "url": "127.0.0.1:8000/index.html",
+            "method": "GET",
+            "sortNum": 190000,
+            "created": "2024-02-20T14:17:35.723Z",
+            "modified": "2024-02-20T14:18:33.163Z",
+            "headers": [
+                {
+                    "name": "Host",
+                    "value": "blog:8000",
+                    "isDisabled": true
                 }
             ],
             "params": [],
