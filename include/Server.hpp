@@ -10,12 +10,13 @@
 class Server
 {
 	private:
-		std::string			_name;
-		size_t				_listenPort;
-		std::string			_hostIp;
-		size_t				_clientMaxBodySize;
-		locationMap			_locations;
-		Socket				*_socket;
+		bool			_isDefault;
+		std::string		_name;
+		size_t			_listenPort;
+		std::string		_hostIp;
+		size_t			_clientMaxBodySize;
+		locationMap		_locations;
+		Socket			*_socket;
 		std::map<int, std::string> _errorpages;
 
 	public:
@@ -31,6 +32,7 @@ class Server
 		bool	isValueForKey(std::string locationBlock, std::string key, std::string value) const;
 
 		//Setters
+		void setAsDefault();
 		void	setName(std::string serverName);
 		void	setSocket();
 		void	setListenPort(size_t listenPort);
@@ -41,6 +43,7 @@ class Server
 		bool	addErrorPage(int status, std::string index);
 
 		//Getters
+		bool isDefault() const;
 		std::string	getName() const;
 		Socket	*getSocket() const;
 		size_t	getListenPort() const;
