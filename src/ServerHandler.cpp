@@ -74,6 +74,9 @@ void ServerHandler::handleNewClient(Socket *socket)
 		if (newClientFd < 0)
 			break ;
 		addNewPoll(newClientFd);
+#if USE_CONNECTION_TIMEOUT
+		_connections[newClientFd] = new Connection();
+#endif
 	}
 }
 
@@ -151,7 +154,6 @@ bool ServerHandler::incomingClient(int fd)
 		if (fd == socket->getFd())
 		{
 			handleNewClient(socket);
-			_connections[fd] = new Connection();
 			return true;
 		}
 	}
@@ -278,12 +280,12 @@ void ServerHandler::handlePollEvents()
 
 std::map<int, Client*>::iterator ServerHandler::removeClient(std::map<int, Client*>::iterator client)
 {
-	delete client->second;
-
 	closeConnection(client->first);
+	delete client->second;
 	return _clients.erase(client);
 }
 
+#if USE_CONNECTION_TIMEOUT
 std::map<int, Connection*>::iterator ServerHandler::removeConnection(std::map<int, Connection*>::iterator connection)
 {
 	std::map<int, Client*>::iterator client = _clients.find(connection->first);
@@ -297,30 +299,37 @@ std::map<int, Connection*>::iterator ServerHandler::removeConnection(std::map<in
 	delete connection->second;
 	return _connections.erase(connection);
 }
+#endif
 
 void ServerHandler::removeTimedOutClientsAndConnections()
 {
 	for (auto itc = _clients.begin(); itc != _clients.end(); )
 	{
-		if (hasTimedOut(itc->second->getRequestStart(), 1) && itc->second->getStatus() != Client::STATUS::READY_TO_HANDLE)
+		if (hasTimedOut(itc->second->getRequestStart(), CLIENT_TIMEOUT) && itc->second->getStatus() != Client::STATUS::READY_TO_HANDLE)
 		{
 			std::cout << "Removed timed out request " << itc->first << std::endl;
 			itc = removeClient(itc);
 		}
 		else
 			itc++;
+		if (itc == _clients.end() || _clients.empty())
+			break;
 	}
 
+#if USE_CONNECTION_TIMEOUT
 	for (auto itconn = _connections.begin(); itconn != _connections.end(); )
 	{
-		if (hasTimedOut(itconn->second->getTS(), CONNECTION_TIMEOUT))
+		if (hasTimedOut(itconn->second->getTS(), CLIENT_TIMEOUT))
 		{
 			std::cout << "Removed timed out connection " << itconn->first << std::endl;
 			itconn = removeConnection(itconn);
 		}
 		else
 			itconn++;
+		if (itconn == _connections.end() || _connections.empty())
+			break;
 	}
+#endif
 }
 
 void ServerHandler::runServers(std::map<std::string, Server*> &servers)
