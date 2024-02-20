@@ -39,7 +39,7 @@ void Client::setRequest(HttpRequest *request)
 	}
 
 	std::string closeConnectionString = request->getHeader("Connection");
-	if (!closeConnectionString.empty() && closeConnectionString.compare("close") == 0)
+	if (closeConnectionString.empty() == false && closeConnectionString.compare("close") == 0)
 		this->_closeConnection = true;
 
 	this->_request = request;
