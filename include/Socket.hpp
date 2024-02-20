@@ -26,7 +26,7 @@ class Socket
 		~Socket(void);
 		Socket(const Socket& rhs);
 
-		int	acceptConnection() const;
+		int	acceptConnection(int fd) const;
 		int	getFd() const;
 
 		Socket& operator=(const Socket& rhs);

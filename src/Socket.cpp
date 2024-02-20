@@ -17,10 +17,8 @@ void	Socket::isCallValid(const int fd, const std::string errorMsg, int closeFd, 
 Socket::Socket(const int portNumber, std::string host) : _fd(-1)
 {
 	this->_port = portNumber;
-
-	std::cout << portNumber << std::endl;
-	std::cout << host << std::endl;
 	this->_fd = socket(PF_INET, SOCK_STREAM, 0);
+	std::cout << "Creating..." << this->_fd << std::endl;
 	isCallValid(this->_fd, "Failed to create the socket", -1, false);
 
 	// Make socket non-blocking by adding flag
@@ -51,12 +49,16 @@ Socket::Socket(const Socket &rhs) : _fd(rhs._fd)
 {
 }
 
-int Socket::acceptConnection() const
+int Socket::acceptConnection(int fd) const
 {
 	sockaddr_in client_address;
 	socklen_t	client_address_size = sizeof(sockaddr_in);
+	std::cout << "Accepting... " << this->_fd << std::endl;
 
-	int connection = accept(this->_fd, (struct sockaddr*)&client_address, &client_address_size);
+	int connection = accept(fd, (struct sockaddr*)&client_address, &client_address_size);
+	if (connection == -1)
+		return -1;
+
 	// Make non-blocking by adding flag
 	int result = fcntl(connection, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 	isCallValid(result, "Failed to set connection as non/blocking", connection, false);
