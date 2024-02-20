@@ -18,7 +18,6 @@ Socket::Socket(const int portNumber, std::string host) : _fd(-1)
 {
 	this->_port = portNumber;
 	this->_fd = socket(PF_INET, SOCK_STREAM, 0);
-	std::cout << "Creating..." << this->_fd << std::endl;
 	isCallValid(this->_fd, "Failed to create the socket", -1, false);
 
 	// Make socket non-blocking by adding flag
@@ -53,8 +52,6 @@ int Socket::acceptConnection(int fd) const
 {
 	sockaddr_in client_address;
 	socklen_t	client_address_size = sizeof(sockaddr_in);
-	std::cout << "Accepting... " << this->_fd << std::endl;
-
 	int connection = accept(fd, (struct sockaddr*)&client_address, &client_address_size);
 	if (connection == -1)
 		return -1;
