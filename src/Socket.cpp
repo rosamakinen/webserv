@@ -42,7 +42,7 @@ Socket::Socket(const int portNumber, std::string host) : _fd(-1)
 Socket::~Socket(void)
 {
 	if (this->_fd != -1)
-		isCallValid(close(this->_fd), "Failed to close socket", -1, false);
+		close(this->_fd);
 }
 
 Socket::Socket(const Socket &rhs) : _fd(rhs._fd)
