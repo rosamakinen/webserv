@@ -57,7 +57,10 @@ bool ServerHandler::hasTimedOut(Client *client)
 	std::chrono::duration<int> difference = std::chrono::duration_cast<std::chrono::duration<int> >(now - client->getRequestStart());
 
 	if (difference.count() >= 10)
+	{
+		std::cout << "The client with the request '" << client->getRequest()->getBody() << "' has timed out after " << difference.count() << " milliseconds." << std::endl;
 		return true;
+	}
 	return false;
 }
 
@@ -71,7 +74,7 @@ void ServerHandler::handleNewClient(Socket *socket)
 	int newClientFd = -1;
 	while (1)
 	{
-		newClientFd = socket->acceptConnection();
+		newClientFd = socket->acceptConnection(socket->getFd());
 		if (newClientFd < 0)
 			break ;
 		addNewPoll(newClientFd);
@@ -104,7 +107,7 @@ void ServerHandler::closeConnection(int fd)
 			continue;
 		}
 
-		if (it->fd > 0)
+		if (it->fd >  0)
 		{
 			close(it->fd);
 			it->fd = -1;

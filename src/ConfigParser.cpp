@@ -126,8 +126,12 @@ Server* ConfigParser::checkServer()
 	}
 	currentSection.clear();
 	currentLocation.clear();
-	// Create and return a new Server. We don't have the name yet.
-	return new Server();
+
+	Server *server = new Server();
+	if (servers.empty())
+		server->setAsDefault();
+
+	return server;
 }
 
 std::vector<int> ConfigParser::validErrorStatusCodes =
@@ -136,6 +140,7 @@ std::vector<int> ConfigParser::validErrorStatusCodes =
 	403,
 	404,
 	405,
+	413,
 	500,
 	504
 };

@@ -1,6 +1,6 @@
 #include "../include/Server.hpp"
 
-Server::Server() : _name(SERVER_DEFAULT_NAME)
+Server::Server() : _isDefault(false), _name(SERVER_DEFAULT_NAME)
 {
 }
 
@@ -11,8 +11,8 @@ Server::~Server()
 	this->_locations.clear();
 }
 
-Server::Server( std::string serverName,	size_t listenPort, std::string hostIp,
-	std::string clientMaxBodySize) : _name(serverName), _listenPort(listenPort), _hostIp(hostIp)
+Server::Server(std::string serverName,	size_t listenPort, std::string hostIp,
+	std::string clientMaxBodySize) : _isDefault(false), _name(serverName), _listenPort(listenPort), _hostIp(hostIp)
 {
 	if (!clientMaxBodySize.empty())
 		this->setClientMaxBodySize(std::stol(clientMaxBodySize));
@@ -45,6 +45,16 @@ bool	Server::isValueForKey(std::string location, std::string key, std::string va
 	return true;
 }
 
+void Server::setAsDefault()
+{
+	this->_isDefault = true;
+}
+
+bool Server::isDefault() const
+{
+	return this->_isDefault;
+}
+
 void	Server::setName(std::string serverName)
 {
 	if (serverName.empty())
@@ -55,7 +65,7 @@ void	Server::setName(std::string serverName)
 
 void Server::setSocket()
 {
-	this->_socket = new Socket(this->getListenPort());
+	this->_socket = new Socket(this->getListenPort(), this->getHostIp());
 }
 void Server::setListenPort(size_t listenPort)
 {
