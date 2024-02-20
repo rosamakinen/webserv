@@ -18,6 +18,8 @@ Socket::Socket(const int portNumber, std::string host) : _fd(-1)
 {
 	this->_port = portNumber;
 
+	std::cout << portNumber << std::endl;
+	std::cout << host << std::endl;
 	this->_fd = socket(PF_INET, SOCK_STREAM, 0);
 	isCallValid(this->_fd, "Failed to create the socket", -1, false);
 
@@ -28,7 +30,7 @@ Socket::Socket(const int portNumber, std::string host) : _fd(-1)
 	this->_address.sin_family = AF_INET;
 	this->_address.sin_port = htons(this->_port);
 	this->_address.sin_addr.s_addr = inet_addr(host.c_str());
-	memset(this->_address.sin_zero, '\0', sizeof this->_address.sin_zero);
+	memset(this->_address.sin_zero, '\0', sizeof(this->_address.sin_zero));
 
 	int opt = 1;
 	setsockopt(this->_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int));
