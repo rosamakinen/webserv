@@ -8,24 +8,24 @@ The *Hypertext Transfer Protocol (HTTP)* is fundamental for distributed, collabo
 
 ## Requirements 📋
 
-- **Configuration File Handling**: The program should accept a configuration file as an argument or use a default path.
-- **Non-blocking I/O**: The server must never block, using only one \`poll()\` (or equivalent) for all I/O operations.
-- **Compatibility**: The server should be compatible with web browsers and adhere to HTTP standards (e.g., *HTTP 1.1* compliance similar to **NGINX**).
-- **Error Handling**: Proper *HTTP response status codes* and default error pages must be implemented.
-- **Static Website Serving**: The server must be able to serve a fully static website.
-- **HTTP Methods**: Support for at least **GET**, **POST**, and **DELETE** methods is required.
-- **File Upload**: Clients should be able to upload files.
-- **Configuration Flexibility**: The configuration file should allow for setting up servers, defining routes, limiting client body size, etc.
-- **CGI Execution**: Execute *CGI scripts* based on certain file extensions (e.g., \`.php\`).
-- **Resilience**: The server should remain available under stress and should not hang forever on requests.
+- **Configuration File Handling**: The program accepts a configuration file .config as an argument or uses a default configuration file.
+- **Non-blocking I/O**: The server does not block and uses only one \`poll()\` (or equivalent) for all I/O operations.
+- **Compatibility**: The server is compatible with Google Chrome and adheres to HTTP version 1.1 standards.
+- **Error Handling**: Proper *HTTP response status codes* and default error pages are provided.
+- **Static Website Serving**: The server is be able to serve a fully static website.
+- **HTTP Methods**: Supports **GET**, **POST**, and **DELETE** methods.
+- **File Upload**: Clients are able to upload files.
+- **Configuration Flexibility**: The configuration file allows for setting up servers, defining routes, limiting client body size, directory listing, setting up where to upload files, etc.
+- **CGI Execution**: Server allows executing python based *CGI scripts*.
+- **Resilience**: The server remains available under stress and does not hang forever on requests.
 
 ## Configuration File ⚙️
 
-The configuration file should resemble **NGINX's** configuration format, allowing users to specify server settings, routes, error pages, etc. Some key features of the configuration file include:
+The configuration file resembles **NGINX's** configuration format, allowing users to specify server settings, routes, error pages, etc. Some key features of the configuration file include:
 
 - Choosing port and host for each server.
 - Defining server names and default servers.
-- Setting up default error pages.
+- Setting up custom error pages (default error pages provided).
 - Limiting client body size.
 - Configuring routes with accepted HTTP methods, redirections, file directories, CGI execution, etc.
 
