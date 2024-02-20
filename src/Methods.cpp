@@ -11,9 +11,9 @@ static std::string getUploadFilename(std::string path)
 	return "";
 }
 
-void Methods::executePost(HttpRequest request, Server server)
+void Methods::executePost(HttpRequest *request, Server *server)
 {
-	std::string body = request.getBody();
+	std::string body = request->getBody();
 	if (body.empty())
 		throw BadRequestException("empty body on POST request");
 	size_t pos = body.find("=");
@@ -25,8 +25,8 @@ void Methods::executePost(HttpRequest request, Server server)
 		throw BadRequestException("Cannot read the upload file");
 
 	// add checking if the upload folder is configured
-	std::string uploadLocation = request.getUri();
-	const std::vector<std::string>* uploadAllowed = server.getLocationValue(uploadLocation, UPLOAD);
+	std::string uploadLocation = request->getUri();
+	const std::vector<std::string>* uploadAllowed = server->getLocationValue(uploadLocation, UPLOAD_DIR);
 	if (!uploadAllowed || uploadLocation.empty())
 		throw ForbiddenException("Upload not configured");
 	else if (uploadAllowed->front().compare(TRUE) != 0)
@@ -36,13 +36,11 @@ void Methods::executePost(HttpRequest request, Server server)
 	std::string outFilename = getUploadFilename(inFilePath);
 	if (outFilename.empty())
 		throw BadRequestException("Bad path");
-	std::string outFilePath = request.getDirectory();
+	std::string outFilePath = request->getDirectory();
 	outFilePath.append(outFilename);
 
 	std::string fullPath = FileHandler::getFilePath(outFilePath);
 	std::ofstream outputFile(fullPath);
-	std::cout << "outfilepath: " << fullPath << std::endl;
-	std::cout << "infilepath: " << inFilePath << std::endl;
 	if (outputFile.is_open())
 	{
 		outputFile << FileHandler::getUploadFileContent(inFilePath, std::ios::binary);
@@ -58,7 +56,6 @@ void Methods::executeDelete(HttpRequest request)
 	std::string filePath = request.getResourcePath();
 
 	std::string fullPath = FileHandler::getFilePath(filePath);
-	std::cout << "deleting :" << fullPath << std::endl;
 	int result = remove(fullPath.c_str());
 	if (result == 0)
 		return ;

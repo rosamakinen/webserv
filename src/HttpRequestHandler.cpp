@@ -3,14 +3,15 @@
 void HttpRequestHandler::parseOkResponse(Client *client, Server *server)
 {
 	HttpResponse *response = new HttpResponse();
-
 	try
 	{
 		if (client->getRequest()->getMethod() == Util::METHOD::POST)
 			response->setStatus(std::pair<unsigned int, std::string>(201, "Created"));
-		if (client->getRequest()->getMethod() == Util::METHOD::DELETE)
-			response->setStatus(std::pair<unsigned int, std::string>(204, "Deleted"));
-		response->setResponseBody(client->getRequest(), server);
+		else if (client->getRequest()->getMethod() == Util::METHOD::DELETE)
+			response->setStatus(std::pair<unsigned int, std::string>(204, "No Content"));
+		else
+			response->setStatus(std::pair<unsigned int, std::string>(200, "OK"));
+		response->setResponseBody(client->getRequest(), server);	
 	}
 	catch(const Exception& e)
 	{
@@ -24,7 +25,6 @@ void HttpRequestHandler::parseOkResponse(Client *client, Server *server)
 HttpResponse *HttpRequestHandler::parseErrorResponse(Server *server, std::pair<unsigned int, std::string> status)
 {
 	HttpResponse *response = new HttpResponse();
-
 	try
 	{
 		response->setStatus(status);
@@ -53,7 +53,7 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 
 			case Util::METHOD::POST:
 			{
-				Methods::executePost(*client->getRequest(), *client->getServer());
+				Methods::executePost(client->getRequest(), client->getServer());
 				parseOkResponse(client, server);
 				return ;
 			}

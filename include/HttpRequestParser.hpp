@@ -9,9 +9,11 @@
 class HttpRequestParser
 {
 	private:
+		Server *getServer(HttpRequest *request, std::map<std::string, Server *>& servers);
+		void parseHost(HttpRequest *request);
 		void parseParameters(std::string uri, std::map<std::string, std::string>& parameters);
 		void parseUri(std::string &requestLine, HttpRequest *request);
-		void parseRequestLine(std::string &requestLine, HttpRequest *request, Server *server);
+		void parseRequestLine(std::string &requestLine, HttpRequest *request);
 		void parseDirectoryAndLocation(HttpRequest *request, Server *server);
 		void validateMethod(HttpRequest *request, Server *server);
 		void parseMethod(std::string &requestLine, HttpRequest *request);
@@ -33,7 +35,7 @@ class HttpRequestParser
 		HttpRequestParser();
 		~HttpRequestParser();
 
-		HttpRequest	*parseHttpRequest(std::string request, Server *server);
+		HttpRequest	*parseHttpRequest(std::string request, std::map<std::string, Server *>& servers);
 };
 
 #endif

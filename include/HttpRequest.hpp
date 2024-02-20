@@ -24,6 +24,8 @@ class HttpRequest
 		std::map<std::string, std::string> getHeaders();
 		const std::string getHeader(std::string key);
 		bool getIsDirListing();
+		int getPort();
+		std::string getServerName();
 
 		void setIsDirListing(bool isDirListing);
 		void setMethod(Util::METHOD method);
@@ -37,6 +39,8 @@ class HttpRequest
 		void setDirectory(std::string directoryPath);
 		void setLocation(std::string location);
 		void setResourcePath(std::string path);
+		void setPort(int port);
+		void setServerName(std::string name);
 
 	private:
 		static const std::string	_allowedMethods[];
@@ -50,6 +54,8 @@ class HttpRequest
 		std::string _directory;
 		std::string _location;
 		std::string _contentType;
+		std::string _server_name;
+		int _port;
 		size_t _contentLength;
 		bool _isDirListing;
 		std::map<std::string, std::string> _parameters;
