@@ -1,5 +1,4 @@
 #include "../include/Server.hpp"
-#include "Server.hpp"
 
 Server::Server() : _isDefault(false), _name(SERVER_DEFAULT_NAME)
 {
