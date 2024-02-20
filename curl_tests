@@ -120,6 +120,17 @@ curl  -X POST \
 --header 'Connection: keep-alive' \
 -d "file=/Users/rmakinen/Desktop/__WEBSERV__/public_www/textFile.txt"
 
+curl  -X POST \
+'http://127.0.0.1:8000/pictures/' \
+--header 'Accept: */*' \
+--header 'User-Agent: Thunder Client (https://www.thunderclient.com)' \
+--header 'Cache-Control: no-cache' \
+--header 'Accept-Encoding: gzip,deflate' \
+--header 'Content-Type: tect/html' \
+--header 'Content-Length: 64' \
+--header 'Connection: keep-alive' \
+-d "file=/Users/rmakinen/Desktop/__WEBSERV__/public_www/textFile.txt"
+
 curl  -X DELETE \
 'http://127.0.0.1:8000/upload/textFile.txt' \
 --header 'Accept: */*' \

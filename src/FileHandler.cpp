@@ -115,7 +115,7 @@ std::string FileHandler::getFileResource(HttpRequest *request, std::ios_base::op
 	return body;
 }
 
-std::string FileHandler::getFileContent(std::string path, std::ios_base::openmode mode)
+std::string FileHandler::getUploadFileContent(std::string path, std::ios_base::openmode mode)
 {
 	std::ifstream file(path);
 	if (!file.is_open() || file.fail() || file.bad())

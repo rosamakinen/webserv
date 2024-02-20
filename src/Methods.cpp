@@ -11,7 +11,7 @@ static std::string getUploadFilename(std::string path)
 	return "";
 }
 
-void Methods::executePost(HttpRequest request)
+void Methods::executePost(HttpRequest request, Server server)
 {
 	std::string body = request.getBody();
 	if (body.empty())
@@ -25,6 +25,11 @@ void Methods::executePost(HttpRequest request)
 		throw BadRequestException("Cannot read the upload file");
 
 	// add checking if the upload folder is configured
+	std::string uploadLocation = request.getUri();
+	const std::vector<std::string>* uploadAllowed = server.getLocationValue(uploadLocation, UPLOAD);
+	if (uploadAllowed == NULL)
+		throw ForbiddenException("Upload not configured");
+
 
 	std::string outFilename = getUploadFilename(inFilePath);
 	if (outFilename.empty())
@@ -38,7 +43,7 @@ void Methods::executePost(HttpRequest request)
 	std::cout << "infilepath: " << inFilePath << std::endl;
 	if (outputFile.is_open())
 	{
-		outputFile << FileHandler::getFileContent(inFilePath, std::ios::binary);
+		outputFile << FileHandler::getUploadFileContent(inFilePath, std::ios::binary);
 		outputFile.close();
 		return ;
 	}

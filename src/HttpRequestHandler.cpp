@@ -6,7 +6,10 @@ void HttpRequestHandler::parseOkResponse(Client *client, Server *server)
 
 	try
 	{
-		response->setStatus(std::pair<unsigned int, std::string>(200, "OK"));
+		if (client->getRequest()->getMethod() == Util::METHOD::POST)
+			response->setStatus(std::pair<unsigned int, std::string>(201, "Created"));
+		if (client->getRequest()->getMethod() == Util::METHOD::DELETE)
+			response->setStatus(std::pair<unsigned int, std::string>(204, "Deleted"));
 		response->setResponseBody(client->getRequest(), server);
 	}
 	catch(const Exception& e)
@@ -50,7 +53,7 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 
 			case Util::METHOD::POST:
 			{
-				Methods::executePost(*client->getRequest());
+				Methods::executePost(*client->getRequest(), *client->getServer());
 				parseOkResponse(client, server);
 				return ;
 			}
