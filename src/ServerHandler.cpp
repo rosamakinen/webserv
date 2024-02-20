@@ -319,7 +319,7 @@ void ServerHandler::removeTimedOutClientsAndConnections()
 #if USE_CONNECTION_TIMEOUT
 	for (auto itconn = _connections.begin(); itconn != _connections.end(); )
 	{
-		if (hasTimedOut(itconn->second->getTS(), CLIENT_TIMEOUT))
+		if (hasTimedOut(itconn->second->getTS(), CONNECTION_TIMEOUT))
 		{
 			std::cout << "Removed timed out connection " << itconn->first << std::endl;
 			itconn = removeConnection(itconn);
