@@ -1,5 +1,4 @@
 #include "../include/Client.hpp"
-#include "Client.hpp"
 
 Client::Client() : _response(nullptr), _request(nullptr), _server(nullptr), _status(NONE)
 {
