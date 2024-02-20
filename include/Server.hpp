@@ -27,6 +27,8 @@ class Server
 			std::string clientMaxBodySize);
 		~Server();
 
+		static Server* getServer(std::string key, std::map<std::string, Server *>& servers);
+
 		bool	isKeyInLocation(std::string locationBlock, std::string key) const;
 		bool	isLocationInServer(std::string locationBlock) const;
 		bool	isValueForKey(std::string locationBlock, std::string key, std::string value) const;
