@@ -53,9 +53,7 @@ Socket::Socket(const Socket &rhs) : _fd(rhs._fd)
 int Socket::acceptConnection() const
 {
 	size_t socketSize = sizeof(this->_address);
-	int connection = -1;
-	if ((connection = accept(this->_fd, (struct sockaddr*)&this->_address, (socklen_t*)&socketSize)) == -1)
-		throw InternalException("Could not accept the client");
+	int connection = accept(this->_fd, (struct sockaddr*)&this->_address, (socklen_t*)&socketSize);
 
 	if (fcntl(connection, F_SETFL, O_NONBLOCK, FD_CLOEXEC) == -1)
 	{
