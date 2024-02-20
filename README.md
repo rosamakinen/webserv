@@ -56,20 +56,11 @@ This **HTTP server implementation** aims to provide a resilient, feature-rich so
 - Run \`make all\` to compile the project.
 - The compiled executable will be named \`webserv\`.
 
-## 5. Cleaning 🧹
-
-- Run \`make clean\` to remove all object files.
-- Run \`make fclean\` to remove all object files and the compiled executable.
-
-## 6. Rebuilding 🔄
-
-- Run \`make re\` to perform a clean build (removes all object files and recompiles the project).
-
-## 7. Customization 🛠️
+## 5. Customization 🛠️
 
 - Adjust \`CFLAGS\` in the Makefile for any specific compilation flags you require.
 - Modify source files (\`*.cpp\`) and header files (\`*.hpp\`) in the \`src/\` and \`include/\` directories respectively to customize the project.
 
-## 8. Compilation Output 💻
+## 6. Compilation Output 💻
 
 - The compiled executable \`webserv\` will be created in the project directory upon successful compilation.
