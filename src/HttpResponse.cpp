@@ -34,6 +34,9 @@ std::ios_base::openmode HttpResponse::setContentType(std::string resourcePath)
 	return std::ifstream::in;
 }
 
+HttpResponse::~HttpResponse(void)
+{
+}
 
 HttpResponse::HttpResponse()
 	: _contentLenght(0)
@@ -50,13 +53,21 @@ void HttpResponse::setResponseBody(HttpRequest *request, Server *server)
 	else
 	{
 		// TODO add redirection from configurated root to the index html
+		if (request->getMethod() == Util::METHOD::DELETE)
+		{
+			// TODO: do we just want to redirect to the "front page instead"
+			setDeleteResponse();
+			return ;
+		}
 		std::ios_base::openmode mode = setContentType(request->getResourcePath());
 		setBody(FileHandler::getFileResource(request, mode));
 	}
 }
 
-HttpResponse::~HttpResponse(void)
+void HttpResponse::setDeleteResponse()
 {
+	std::string html = "<html><title>YAY</title></head><body><center><h1>file deleted succesfully!</h1></center></body></html>";
+	setBody(html);
 }
 
 void HttpResponse::setCgiResponse(std::string input)

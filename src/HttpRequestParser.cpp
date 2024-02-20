@@ -32,7 +32,8 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 			request->appendBody(requestLine);
 		}
 		request->setHost(request->getHeader("Host"));
-		parseContentLenght(request);
+		parseContentType(request);
+		parseContentLength(request);
 		validateSize(request, server);
 	}
 	catch(const Exception& e)
@@ -44,10 +45,23 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, Serve
 	return request;
 }
 
-void HttpRequestParser::parseContentLenght(HttpRequest *request)
+void HttpRequestParser::parseContentType(HttpRequest *request)
+{
+	std::string method = Util::translateMethod(request->getMethod());
+	if (method.compare(HTTP_POST) == 0)
+	{
+		std::string contentType = request->getHeader(H_CONTENT_TYPE);
+		request->setContentType(contentType);
+		if (request->getContentType().empty())
+			throw BadRequestException("No Content-Type for POST request");
+	}
+}
+
+void HttpRequestParser::parseContentLength(HttpRequest *request)
 {
 	size_t length = 0;
 	std::string contentLengthString = request->getHeader(H_CONTENT_LENGTH);
+
 	if (contentLengthString.empty() || contentLengthString.compare("0") == 0)
 	{
 		if (request->getMethod() == Util::METHOD::POST || request->getMethod() == Util::METHOD::CGI_POST)
@@ -126,7 +140,6 @@ void HttpRequestParser::validateMethod(HttpRequest *request, Server *server)
 		if (it->compare(Util::translateMethod(method)) == 0)
 			return;
 	}
-
 	throw MethodNotAllowedException("Requested method is not allowed for the location");
 }
 
@@ -148,6 +161,13 @@ void HttpRequestParser::parseMethod(std::string &requestLine, HttpRequest *reque
 void HttpRequestParser::parseIndexPathAndDirectoryListing(HttpRequest *request, Server *server)
 {
 	std::string uri = request->getUri();
+	if (request->getMethod() == Util::METHOD::POST)
+	{
+		std::string indexPath = request->getDirectory();
+		std::cout << "index path we are getting is: " << indexPath << std::endl;
+		// request->setResourcePath(indexPath);
+		return;
+	}
 	if (uri[uri.length() - 1] == '/')
 	{
 		const std::vector<std::string> *indexValues = server->getLocationValue(request->getLocation(), INDEX);

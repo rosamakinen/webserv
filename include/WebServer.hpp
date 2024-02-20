@@ -11,8 +11,10 @@
 #define SPACE				" "
 #define WHITESPACE			" \t"
 #define SHEBANG				"#!"
+#define BACKSLASH			'/'
 
 #define H_CONTENT_LENGTH	"Content-Length"
+#define H_CONTENT_TYPE		"Content-Type"
 #define H_ENCODING			"Transfer-Encoding"
 
 #define PARSEHOST			"host"
@@ -31,6 +33,7 @@
 #define SERVER_DEFAULT_NAME	"default"
 
 #define DEFAULT_ERRORPAGES_PATH "/public_www/error_pages/"
+#define UPLOAD_DIR			"upload/"
 
 #define HTTP_METHOD			"method"
 #define HTTP_GET			"GET"
