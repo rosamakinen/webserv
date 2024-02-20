@@ -8,13 +8,21 @@ ServerHandler::ServerHandler()
 ServerHandler::~ServerHandler()
 {
 	if (!_clients.empty())
+	{
+		for (auto client : _clients)
+			delete client.second;
 		_clients.clear();
+	}
 
 	if (!_servers.empty())
 		_servers.clear();
 
 	if (!_connections.empty())
+	{
+		for (auto conn : _connections)
+			delete conn.second;
 		_connections.clear();
+	}
 
 	if (!_pollfds.empty())
 		_pollfds.clear();
