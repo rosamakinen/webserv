@@ -1,4 +1,5 @@
 #include "../include/Server.hpp"
+#include "Server.hpp"
 
 Server::Server() : _isDefault(false), _name(SERVER_DEFAULT_NAME)
 {
@@ -11,8 +12,29 @@ Server::~Server()
 	this->_locations.clear();
 }
 
-Server::Server(std::string serverName,	size_t listenPort, std::string hostIp,
-	std::string clientMaxBodySize) : _isDefault(false), _name(serverName), _listenPort(listenPort), _hostIp(hostIp)
+static Server* getDefaultServer(std::map<std::string, Server *>& servers)
+{
+	Server *server;
+	for (auto serverPair : servers)
+	{
+		if (serverPair.second->isDefault())
+			server = serverPair.second;
+	}
+
+	return server;
+}
+
+Server *Server::getServer(std::string key, std::map<std::string, Server *>& servers)
+{
+	std::map<std::string, Server *>::iterator it = servers.find(key);
+	if (it == servers.end())
+		return getDefaultServer(servers);
+	else
+		return it->second;
+}
+
+Server::Server(std::string serverName, size_t listenPort, std::string hostIp,
+			   std::string clientMaxBodySize) : _isDefault(false), _name(serverName), _listenPort(listenPort), _hostIp(hostIp)
 {
 	if (!clientMaxBodySize.empty())
 		this->setClientMaxBodySize(std::stol(clientMaxBodySize));
@@ -171,6 +193,6 @@ const std::string Server::getErrorPagePath(int status)
 {
 	std::map<int, std::string>::iterator it = this->_errorpages.find(status);
 	if (it == this->_errorpages.end())
-		return std::string();
+		return "";
 	return it->second;
 }

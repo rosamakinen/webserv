@@ -53,10 +53,7 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 
 Server *HttpRequestParser::getServer(HttpRequest *request, std::map<std::string, Server *>& servers)
 {
-	if (request->getHost().empty())
-		return nullptr; // TODO : return default server
-	Server *server = servers.find(request->getServerName())->second;
-	return server;
+	return Server::getServer(request->getServerName(), servers);
 }
 
 void HttpRequestParser::parseHost(HttpRequest *request)

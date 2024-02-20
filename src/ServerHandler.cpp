@@ -11,11 +11,7 @@ ServerHandler::~ServerHandler()
 		_clients.clear();
 
 	if (!_servers.empty())
-	{
-		for (auto serverPoll : _servers)
-			delete serverPoll.second;
 		_servers.clear();
-	}
 
 	if (!_pollfds.empty())
 		_pollfds.clear();
@@ -58,7 +54,7 @@ bool ServerHandler::hasTimedOut(Client *client)
 
 	if (difference.count() >= 10)
 	{
-		std::cout << "The client with the request '" << client->getRequest()->getBody() << "' has timed out after " << difference.count() << " milliseconds." << std::endl;
+		std::cout << "The client has timed out after " << difference.count() << " milliseconds." << std::endl;
 		return true;
 	}
 	return false;
@@ -93,8 +89,6 @@ void ServerHandler::closeConnections()
 		}
 		it = _pollfds.erase(it);
 	}
-
-	_pollfds.clear();
 }
 
 void ServerHandler::closeConnection(int fd)
@@ -165,11 +159,10 @@ bool ServerHandler::incomingClient(int fd)
 
 Server *ServerHandler::getServer(HttpRequest *request)
 {
-	if (request->getHost().empty())
-		throw InternalException("No server found, TODO: get default");
-
-	Server *server = _servers.find(request->getServerName())->second;
-	return server;
+	if (request == nullptr)
+		return Server::getServer("", this->_servers);
+	else
+		return Server::getServer(request->getServerName(), this->_servers);
 }
 
 Client *ServerHandler::getOrCreateClient(pollfd *fd)
@@ -187,6 +180,8 @@ Client *ServerHandler::getOrCreateClient(pollfd *fd)
 	else
 		client = it->second;
 
+	if (client->getServer() == nullptr)
+		client->setServer(getServer(nullptr));
 	return client;
 }
 
@@ -213,7 +208,7 @@ void ServerHandler::handleIncomingRequest(pollfd *fd)
 	if (client->getStatus() == Client::STATUS::NONE)
 	{
 		HttpRequestParser requestParser;
-		HttpRequest *request = requestParser.parseHttpRequest(requestString, _servers);
+		HttpRequest *request = requestParser.parseHttpRequest(requestString, this->_servers);
 		client->setRequest(request);
 		client->setServer(getServer(request));
 	}
@@ -325,5 +320,4 @@ void ServerHandler::runServers(std::map<std::string, Server*> &servers)
 	}
 
 	closeConnections();
-	_pollfds.clear();
 }
