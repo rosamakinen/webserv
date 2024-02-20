@@ -52,7 +52,7 @@ bool ServerHandler::hasTimedOut(Client *client)
 	std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<int> difference = std::chrono::duration_cast<std::chrono::duration<int> >(now - client->getRequestStart());
 
-	if (difference.count() >= 10)
+	if (difference.count() >= 1)
 	{
 		std::cout << "The client has timed out after " << difference.count() << " milliseconds." << std::endl;
 		return true;
@@ -280,6 +280,7 @@ std::map<int, Client*>::iterator ServerHandler::removeClient(std::map<int, Clien
 		if (_pollfds[i].fd != client->first)
 			continue;
 		closeConnection(_pollfds[i].fd);
+		break;
 	}
 
 	return _clients.erase(client);

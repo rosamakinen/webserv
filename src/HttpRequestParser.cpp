@@ -32,7 +32,7 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 		parseCgiMethod(request);
 		parseContentLenght(request);
 
-		std::string	body = "";
+		std::string	body;
 		while (getline(ss, requestLine))
 		{
 			if (requestLine.compare("\r") == 0)
