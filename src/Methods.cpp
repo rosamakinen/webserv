@@ -27,8 +27,10 @@ void Methods::executePost(HttpRequest request, Server server)
 	// add checking if the upload folder is configured
 	std::string uploadLocation = request.getUri();
 	const std::vector<std::string>* uploadAllowed = server.getLocationValue(uploadLocation, UPLOAD);
-	if (uploadAllowed->front().compare(TRUE) != 0)
+	if (!uploadAllowed || uploadLocation.empty())
 		throw ForbiddenException("Upload not configured");
+	else if (uploadAllowed->front().compare(TRUE) != 0)
+		throw ForbiddenException("Upload not set to true");
 
 
 	std::string outFilename = getUploadFilename(inFilePath);
