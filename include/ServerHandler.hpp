@@ -5,6 +5,7 @@
 #include "Client.hpp"
 #include "Socket.hpp"
 #include "Server.hpp"
+#include "Connection.hpp"
 #include "HttpRequestHandler.hpp"
 #include "HttpRequestParser.hpp"
 #include "HttpResponseParser.hpp"
@@ -14,7 +15,7 @@ class ServerHandler
 	private:
 		std::vector<pollfd> _pollfds;
 		std::map<int, Client*> _clients;
-		std::map<int, std::chrono::high_resolution_clock::time_point> _connections;
+		std::map<int, Connection*> _connections;
 		std::map<std::string, Server *> _servers;
 
 		void 	initServers(std::map<std::string, Server*> &servers);
@@ -29,7 +30,7 @@ class ServerHandler
 
 		void	removeTimedOutClientsAndConnections();
 
-		void removeConnection(std::map<int, std::chrono::high_resolution_clock::time_point>::iterator connection);
+		std::map<int, Connection*>::iterator removeConnection(std::map<int, Connection*>::iterator connection);
 		std::map<int, Client*>::iterator removeClient(std::map<int, Client*>::iterator client);
 		bool	hasTimedOut(std::chrono::high_resolution_clock::time_point start, int milliseconds);
 

@@ -56,10 +56,7 @@ bool ServerHandler::hasTimedOut(std::chrono::high_resolution_clock::time_point s
 	std::chrono::duration<int> difference = std::chrono::duration_cast<std::chrono::duration<int> >(now - start);
 
 	if (difference.count() >= milliseconds)
-	{
-		std::cout << "The client has timed out after " << difference.count() << " milliseconds." << std::endl;
 		return true;
-	}
 	return false;
 }
 
@@ -154,7 +151,7 @@ bool ServerHandler::incomingClient(int fd)
 		if (fd == socket->getFd())
 		{
 			handleNewClient(socket);
-			_connections[fd] = std::chrono::high_resolution_clock::now();
+			_connections[fd] = new Connection();
 			return true;
 		}
 	}
@@ -287,27 +284,18 @@ std::map<int, Client*>::iterator ServerHandler::removeClient(std::map<int, Clien
 	return _clients.erase(client);
 }
 
-void ServerHandler::removeConnection(std::map<int, std::chrono::high_resolution_clock::time_point>::iterator connection)
+std::map<int, Connection*>::iterator ServerHandler::removeConnection(std::map<int, Connection*>::iterator connection)
 {
 	std::map<int, Client*>::iterator client = _clients.find(connection->first);
 	if (client != _clients.end())
 	{
-		removeClient(client);
-		connection++;
-		_connections.erase(connection->first);
-		return;
+		connection->second->updateTS();
+		return ++connection;
 	}
 
-	for (unsigned long i = 0; i < _pollfds.size(); i++)
-	{
-		if (_pollfds[i].fd != client->first)
-			continue;
-		closeConnection(_pollfds[i].fd);
-		break;
-	}
-
-	connection++;
-	_connections.erase(connection->first);
+	closeConnection(connection->first);
+	delete connection->second;
+	return _connections.erase(connection);
 }
 
 void ServerHandler::removeTimedOutClientsAndConnections()
@@ -315,15 +303,21 @@ void ServerHandler::removeTimedOutClientsAndConnections()
 	for (auto itc = _clients.begin(); itc != _clients.end(); )
 	{
 		if (hasTimedOut(itc->second->getRequestStart(), 1) && itc->second->getStatus() != Client::STATUS::READY_TO_HANDLE)
+		{
+			std::cout << "Removed timed out request " << itc->first << std::endl;
 			itc = removeClient(itc);
+		}
 		else
 			itc++;
 	}
 
 	for (auto itconn = _connections.begin(); itconn != _connections.end(); )
 	{
-		if (hasTimedOut(itconn->second, 10))
-			removeConnection(itconn);
+		if (hasTimedOut(itconn->second->getTS(), CONNECTION_TIMEOUT))
+		{
+			std::cout << "Removed timed out connection " << itconn->first << std::endl;
+			itconn = removeConnection(itconn);
+		}
 		else
 			itconn++;
 	}
@@ -340,7 +334,6 @@ void ServerHandler::runServers(std::map<std::string, Server*> &servers)
 		if (result == 0)
 		{
 			closeConnections();
-			// TODO: throw Timeout to all clients and close connections, dont shut down the program
 			throw TimeOutException("The program excited with timeout");
 		}
 		else if (result < 0)
