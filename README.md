@@ -32,3 +32,44 @@ The configuration file should resemble **NGINX's** configuration format, allowin
 ## Conclusion 🎉
 
 This **HTTP server implementation** aims to provide a resilient, feature-rich solution for serving web content while adhering to HTTP standards and ensuring compatibility across different platforms and browsers.
+
+# Setting Up the Project with Makefile
+
+## 1. Clone the Repository 📁
+
+- git clone <repository_url>
+
+## 2. Set Up the Project 🚀
+
+- Make sure you have a C++ compiler installed (preferably \`g++\`).
+- Navigate to the project directory.
+
+## 3. Makefile Usage 🛠️
+
+- **\`make all\`**: Compiles the project.
+- **\`make clean\`**: Removes all object files.
+- **\`make fclean\`**: Removes all object files and the executable.
+- **\`make re\`**: Performs a clean build (removes all object files and recompiles).
+
+## 4. Compilation 🖥️
+
+- Run \`make all\` to compile the project.
+- The compiled executable will be named \`webserv\`.
+
+## 5. Cleaning 🧹
+
+- Run \`make clean\` to remove all object files.
+- Run \`make fclean\` to remove all object files and the compiled executable.
+
+## 6. Rebuilding 🔄
+
+- Run \`make re\` to perform a clean build (removes all object files and recompiles the project).
+
+## 7. Customization 🛠️
+
+- Adjust \`CFLAGS\` in the Makefile for any specific compilation flags you require.
+- Modify source files (\`*.cpp\`) and header files (\`*.hpp\`) in the \`src/\` and \`include/\` directories respectively to customize the project.
+
+## 8. Compilation Output 💻
+
+- The compiled executable \`webserv\` will be created in the project directory upon successful compilation.
