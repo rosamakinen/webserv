@@ -34,7 +34,8 @@ SRC_FILES	=	main \
 				ConfigParser \
 				Client \
 				Connection \
-				ServerHandler
+				ServerHandler \
+				Methods
 
 H_FILES =	Exceptions \
 			Util \
@@ -51,7 +52,8 @@ H_FILES =	Exceptions \
 			ConfigParser \
 			Client \
 			Connection \
-			ServerHandler
+			ServerHandler \
+			Methods
 
 #paths
 SRC	=	$(addprefix $(SRC_DIR), $(addsuffix .cpp, $(SRC_FILES)))

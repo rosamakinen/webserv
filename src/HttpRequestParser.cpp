@@ -30,7 +30,8 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 		validateMethod(request, server);
 		parseIndexPathAndDirectoryListing(request, server);
 		parseCgiMethod(request);
-		parseContentLenght(request);
+		parseContentLength(request);
+		parseContentType(request);
 
 		std::string	body;
 		while (getline(ss, requestLine))
@@ -79,10 +80,23 @@ void HttpRequestParser::parseHost(HttpRequest *request)
 	request->setPort(port);
 }
 
-void HttpRequestParser::parseContentLenght(HttpRequest *request)
+void HttpRequestParser::parseContentType(HttpRequest *request)
+{
+	std::string method = Util::translateMethod(request->getMethod());
+	if (method.compare(HTTP_POST) == 0)
+	{
+		std::string contentType = request->getHeader(H_CONTENT_TYPE);
+		request->setContentType(contentType);
+		if (request->getContentType().empty())
+			throw BadRequestException("No Content-Type for POST request");
+	}
+}
+
+void HttpRequestParser::parseContentLength(HttpRequest *request)
 {
 	size_t length = 0;
 	std::string contentLengthString = request->getHeader(H_CONTENT_LENGTH);
+
 	if (contentLengthString.empty() || contentLengthString.compare("0") == 0)
 	{
 		if (request->getMethod() == Util::METHOD::POST || request->getMethod() == Util::METHOD::CGI_POST)
@@ -157,7 +171,6 @@ void HttpRequestParser::validateMethod(HttpRequest *request, Server *server)
 		if (it->compare(Util::translateMethod(method)) == 0)
 			return;
 	}
-
 	throw MethodNotAllowedException("Requested method is not allowed for the location");
 }
 
@@ -179,6 +192,13 @@ void HttpRequestParser::parseMethod(std::string &requestLine, HttpRequest *reque
 void HttpRequestParser::parseIndexPathAndDirectoryListing(HttpRequest *request, Server *server)
 {
 	std::string uri = request->getUri();
+	if (request->getMethod() == Util::METHOD::POST)
+	{
+		std::string indexPath = request->getDirectory();
+		indexPath.append(Util::getFileFromUri(request->getUri()));
+		request->setResourcePath(indexPath);
+		return;
+	}
 	if (uri[uri.length() - 1] == '/')
 	{
 		const std::vector<std::string> *indexValues = server->getLocationValue(request->getLocation(), INDEX);
@@ -212,7 +232,6 @@ void HttpRequestParser::parseCgiMethod(HttpRequest *request)
 {
 	Util::METHOD method = request->getMethod();
 	std::string path = request->getResourcePath();
-
 	if (!findCgi(path))
 		return ;
 

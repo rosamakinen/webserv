@@ -34,6 +34,9 @@ std::ios_base::openmode HttpResponse::setContentType(std::string resourcePath)
 	return std::ifstream::in;
 }
 
+HttpResponse::~HttpResponse(void)
+{
+}
 
 HttpResponse::HttpResponse()
 	: _contentLenght(0)
@@ -49,14 +52,10 @@ void HttpResponse::setResponseBody(HttpRequest *request, Server *server)
 	}
 	else
 	{
-		// TODO add redirection from configurated root to the index html
+		// TODO add redirection from configurated root to the index
 		std::ios_base::openmode mode = setContentType(request->getResourcePath());
 		setBody(FileHandler::getFileResource(request, mode));
 	}
-}
-
-HttpResponse::~HttpResponse(void)
-{
 }
 
 void HttpResponse::setCgiResponse(std::string input)

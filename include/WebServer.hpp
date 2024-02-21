@@ -14,6 +14,7 @@
 #define SPACE				" "
 #define WHITESPACE			" \t"
 #define SHEBANG				"#!"
+#define BACKSLASH			'/'
 
 #define H_CONTENT_LENGTH	"Content-Length"
 #define H_CONTENT_TYPE		"Content-Type"
@@ -30,9 +31,11 @@
 #define AUTO_INDEX			"autoindex"
 #define CONFIG_TRUE			"true"
 #define LOCAL_DIR			"directory"
+#define UPLOAD_DIR			"upload"
 #define INDEX				"index"
 #define ERRORPAGE_LOCATION	"error_page"
 #define SERVER_DEFAULT_NAME	"default"
+#define TRUE				"true"
 
 #define DEFAULT_ERRORPAGES_PATH "/public_www/error_pages/"
 
