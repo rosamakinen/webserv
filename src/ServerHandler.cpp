@@ -8,10 +8,21 @@ ServerHandler::ServerHandler()
 ServerHandler::~ServerHandler()
 {
 	if (!_clients.empty())
+	{
+		for (auto client : _clients)
+			delete client.second;
 		_clients.clear();
+	}
 
 	if (!_servers.empty())
 		_servers.clear();
+
+	if (!_connections.empty())
+	{
+		for (auto conn : _connections)
+			delete conn.second;
+		_connections.clear();
+	}
 
 	if (!_pollfds.empty())
 		_pollfds.clear();
@@ -47,16 +58,13 @@ void ServerHandler::isCallValid(const int fd, const std::string errorMsg, int cl
 	}
 }
 
-bool ServerHandler::hasTimedOut(Client *client)
+bool ServerHandler::hasTimedOut(std::chrono::high_resolution_clock::time_point start, int milliseconds)
 {
 	std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<int> difference = std::chrono::duration_cast<std::chrono::duration<int> >(now - client->getRequestStart());
+	std::chrono::duration<int> difference = std::chrono::duration_cast<std::chrono::duration<int> >(now - start);
 
-	if (difference.count() >= 1)
-	{
-		std::cout << "The client has timed out after " << difference.count() << " milliseconds." << std::endl;
+	if (difference.count() >= milliseconds)
 		return true;
-	}
 	return false;
 }
 
@@ -74,6 +82,9 @@ void ServerHandler::handleNewClient(Socket *socket)
 		if (newClientFd < 0)
 			break ;
 		addNewPoll(newClientFd);
+#if USE_CONNECTION_TIMEOUT
+		_connections[newClientFd] = new Connection();
+#endif
 	}
 }
 
@@ -226,13 +237,17 @@ void ServerHandler::handleOutgoingResponse(pollfd *fd)
 	writeResponse(fd->fd, HttpResponseParser::Parse(*it->second->getResponse()));
 	it->second->setStatus(Client::STATUS::NONE);
 
+	bool close = it->second->closeConnection();
 	delete it->second;
 	_clients.erase(fd->fd);
+	if (close)
+		closeConnection(fd->fd);
 }
 
 void ServerHandler::handleOutgoingError(const Exception& e, pollfd *fd)
 {
 	Client *client = getOrCreateClient(fd);
+	client->setCloseConnection(true);
 	HttpRequestHandler handler;
 	client->setResponse(handler.parseErrorResponse(client->getServer(), ExceptionManager::getErrorStatus(e)));
 	fd->events = POLLOUT;
@@ -273,28 +288,56 @@ void ServerHandler::handlePollEvents()
 
 std::map<int, Client*>::iterator ServerHandler::removeClient(std::map<int, Client*>::iterator client)
 {
+	closeConnection(client->first);
 	delete client->second;
-
-	for (unsigned long i = 0; i < _pollfds.size(); i++)
-	{
-		if (_pollfds[i].fd != client->first)
-			continue;
-		closeConnection(_pollfds[i].fd);
-		break;
-	}
-
 	return _clients.erase(client);
 }
 
-void ServerHandler::removeTimedOutClients()
+#if USE_CONNECTION_TIMEOUT
+std::map<int, Connection*>::iterator ServerHandler::removeConnection(std::map<int, Connection*>::iterator connection)
 {
-	for (auto it = _clients.begin(); it != _clients.end(); )
+	std::map<int, Client*>::iterator client = _clients.find(connection->first);
+	if (client != _clients.end())
 	{
-		if (hasTimedOut(it->second) && it->second->getStatus() != Client::STATUS::READY_TO_HANDLE)
-			it = removeClient(it);
-		else
-			it++;
+		connection->second->updateTS();
+		return ++connection;
 	}
+
+	closeConnection(connection->first);
+	delete connection->second;
+	return _connections.erase(connection);
+}
+#endif
+
+void ServerHandler::removeTimedOutClientsAndConnections()
+{
+	for (auto itc = _clients.begin(); itc != _clients.end(); )
+	{
+		if (hasTimedOut(itc->second->getRequestStart(), CLIENT_TIMEOUT) && itc->second->getStatus() != Client::STATUS::READY_TO_HANDLE)
+		{
+			std::cout << "Removed timed out request " << itc->first << std::endl;
+			itc = removeClient(itc);
+		}
+		else
+			itc++;
+		if (itc == _clients.end() || _clients.empty())
+			break;
+	}
+
+#if USE_CONNECTION_TIMEOUT
+	for (auto itconn = _connections.begin(); itconn != _connections.end(); )
+	{
+		if (hasTimedOut(itconn->second->getTS(), CONNECTION_TIMEOUT))
+		{
+			std::cout << "Removed timed out connection " << itconn->first << std::endl;
+			itconn = removeConnection(itconn);
+		}
+		else
+			itconn++;
+		if (itconn == _connections.end() || _connections.empty())
+			break;
+	}
+#endif
 }
 
 void ServerHandler::runServers(std::map<std::string, Server*> &servers)
@@ -302,13 +345,12 @@ void ServerHandler::runServers(std::map<std::string, Server*> &servers)
 	initServers(servers);
 	while (true)
 	{
-		removeTimedOutClients();
+		removeTimedOutClientsAndConnections();
 		// Wait max 3 minutes for incoming traffic
 		int result = poll(_pollfds.data(), _pollfds.size(), CONNECTION_TIMEOUT);
 		if (result == 0)
 		{
 			closeConnections();
-			// TODO: throw Timeout to all clients and close connections, dont shut down the program
 			throw TimeOutException("The program excited with timeout");
 		}
 		else if (result < 0)
@@ -319,6 +361,4 @@ void ServerHandler::runServers(std::map<std::string, Server*> &servers)
 		handlePollEvents();
 		handleReadyToBeHandledClients();
 	}
-
-	closeConnections();
 }

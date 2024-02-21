@@ -33,6 +33,7 @@ SRC_FILES	=	main \
 				FileHandler \
 				ConfigParser \
 				Client \
+				Connection \
 				ServerHandler
 
 H_FILES =	Exceptions \
@@ -49,6 +50,7 @@ H_FILES =	Exceptions \
 			FileHandler \
 			ConfigParser \
 			Client \
+			Connection \
 			ServerHandler
 
 #paths
