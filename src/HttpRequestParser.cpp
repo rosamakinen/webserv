@@ -195,6 +195,7 @@ void HttpRequestParser::parseIndexPathAndDirectoryListing(HttpRequest *request, 
 	if (request->getMethod() == Util::METHOD::POST)
 	{
 		std::string indexPath = request->getDirectory();
+		indexPath.append(Util::getFileFromUri(request->getUri()));
 		request->setResourcePath(indexPath);
 		return;
 	}
@@ -231,7 +232,6 @@ void HttpRequestParser::parseCgiMethod(HttpRequest *request)
 {
 	Util::METHOD method = request->getMethod();
 	std::string path = request->getResourcePath();
-
 	if (!findCgi(path))
 		return ;
 
