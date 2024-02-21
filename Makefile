@@ -20,38 +20,39 @@ CUT			=	\033[K
 
 #source files
 SRC_FILES	=	main \
-				Util \
 				CgiHandler \
-				HttpRequest \
-				HttpRequestParser \
-				HttpRequestHandler \
-				HttpResponse \
-				Socket \
-				Server \
-				ExceptionManager \
-				HttpResponseParser \
-				FileHandler \
-				ConfigParser \
 				Client \
+				ConfigParser \
 				Connection \
-				ServerHandler
+				ExceptionManager \
+				FileHandler \
+				HttpRequest \
+				HttpRequestHandler \
+				HttpRequestParser \
+				HttpResponse \
+				HttpResponseParser \
+				Server \
+				ServerHandler \
+				Socket \
+				Util
 
-H_FILES =	Exceptions \
-			Util \
-			CgiHandler \
-			HttpRequest \
-			HttpRequestParser \
-			HttpRequestHandler \
-			HttpResponse \
-			Socket \
-			Server \
-			ExceptionManager \
-			HttpResponseParser \
-			FileHandler \
-			ConfigParser \
-			Client \
-			Connection \
-			ServerHandler
+H_FILES =		CgiHandler \
+				Client \
+				ConfigParser \
+				Connection \
+				ExceptionManager \
+				Exceptions \
+				FileHandler \
+				HttpRequest \
+				HttpRequestHandler \
+				HttpRequestParser \
+				HttpResponse \
+				HttpResponseParser \
+				Server \
+				ServerHandler \
+				Socket \
+				Util \
+				WebServer
 
 #paths
 SRC	=	$(addprefix $(SRC_DIR), $(addsuffix .cpp, $(SRC_FILES)))
