@@ -2,6 +2,7 @@
 #define UTIL_HPP
 
 #include "WebServer.hpp"
+#include "Exceptions.hpp"
 
 class Util
 {

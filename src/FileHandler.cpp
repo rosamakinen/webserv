@@ -76,12 +76,15 @@ std::string FileHandler::getFileResource(HttpRequest *request, std::ios_base::op
 	std::string fullPath = getFilePath(request->getResourcePath());
 
 	struct stat file_status;
-	if ((stat(fullPath.c_str(), &file_status) == 0) && S_ISDIR(file_status.st_mode))
+	if (request->getMethod() != Util::METHOD::POST)
 	{
-		if (request->getIsDirListing())
-			return buildDirListing(fullPath);
+		if ((stat(fullPath.c_str(), &file_status) == 0) && S_ISDIR(file_status.st_mode))
+		{
+			if (request->getIsDirListing())
+				return buildDirListing(fullPath);
 
-		throw NotFoundException("Directory found but not accessable for directory listing");
+			throw NotFoundException("Directory found but not accessable for directory listing");
+		}
 	}
 
 	std::ifstream file;
@@ -115,9 +118,9 @@ std::string FileHandler::getFileResource(HttpRequest *request, std::ios_base::op
 	return body;
 }
 
-std::string FileHandler::getFileContent(std::string path)
+std::string FileHandler::getUploadFileContent(std::string path, std::ios_base::openmode mode)
 {
-	std::ifstream file(getFilePath(path));
+	std::ifstream file(path);
 	if (!file.is_open() || file.fail() || file.bad())
 	{
 		std::string message = "Could not open file ";
@@ -126,10 +129,22 @@ std::string FileHandler::getFileContent(std::string path)
 		throw FileException(message);
 	}
 
-	std::string line;
 	std::string body;
-	while (getline(file, line))
-		body.append(line);
+	if (mode == std::ios::binary)
+	{
+		std::stringstream contents;
+		contents << file.rdbuf();
+		body.append(contents.str());
+	}
+	else
+	{
+		std::string line;
+		while (getline(file, line))
+		{
+			body.append(line);
+			body.append(HTTP_LINEBREAK);
+		}
+	}
 
 	file.close();
 	return body;
