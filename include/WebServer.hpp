@@ -16,6 +16,7 @@
 #define SHEBANG				"#!"
 
 #define H_CONTENT_LENGTH	"Content-Length"
+#define H_CONTENT_TYPE		"Content-Type"
 #define H_ENCODING			"Transfer-Encoding"
 
 #define PARSEHOST			"host"
