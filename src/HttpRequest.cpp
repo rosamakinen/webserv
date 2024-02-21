@@ -1,5 +1,4 @@
 #include "../include/HttpRequest.hpp"
-#include "HttpRequest.hpp"
 
 HttpRequest::HttpRequest() : _version("HTTP/1.1"), _isDirListing(false)
 {

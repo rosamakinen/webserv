@@ -38,7 +38,6 @@
 #define TRUE				"true"
 
 #define DEFAULT_ERRORPAGES_PATH "/public_www/error_pages/"
-#define UPLOAD				"upload/"
 
 #define HTTP_METHOD			"method"
 #define HTTP_GET			"GET"
