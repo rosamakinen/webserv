@@ -6,6 +6,8 @@
 #include "Server.hpp"
 #include "FileHandler.hpp"
 
+
+
 class HttpRequestParser
 {
 	private:
@@ -30,6 +32,7 @@ class HttpRequestParser
 		void parseContentLength(HttpRequest *request);
 		void parseContentType(HttpRequest *request);
 		void validateSize(HttpRequest *request, Server *server);
+		bool validContentType(std::string contentTypeToFind);
 
 	public:
 		HttpRequestParser();

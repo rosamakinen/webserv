@@ -49,6 +49,9 @@
 #define EXT_CSS				".css"
 #define EXT_JPEG			".jpeg"
 
+#define CT_TXT	"text/plain"
+#define CT_MLTP "multipart/form-data"
+
 #include <vector>
 #include <map>
 #include <set>
