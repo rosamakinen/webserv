@@ -25,7 +25,8 @@ class Client
 		void appendRequest(std::string requestToAdd);
 		void setServer(Server *server);
 		void updateStatus();
-		void updateServer();
+		bool closeConnection();
+		void setCloseConnection(bool close);
 
 		HttpResponse *getResponse();
 		HttpRequest *getRequest();
@@ -40,9 +41,9 @@ class Client
 		HttpResponse *_response;
 		HttpRequest *_request;
 		Server *_server;
+		STATUS _status;
+		bool _closeConnection;
 
 		std::chrono::high_resolution_clock::time_point _requestStart;
-
-		STATUS _status;
 };
 #endif

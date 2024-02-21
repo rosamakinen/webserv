@@ -1,6 +1,6 @@
 #include "../include/Client.hpp"
 
-Client::Client() : _response(nullptr), _request(nullptr), _server(nullptr), _status(NONE)
+Client::Client() : _response(nullptr), _request(nullptr), _server(nullptr), _status(NONE), _closeConnection(false)
 {
 	_requestStart = std::chrono::high_resolution_clock::now();
 }
@@ -38,6 +38,10 @@ void Client::setRequest(HttpRequest *request)
 		throw BadRequestException("Invalid header \"Host\" given");
 	}
 
+	std::string closeConnectionString = request->getHeader("Connection");
+	if (closeConnectionString.empty() == false && closeConnectionString.compare("close") == 0)
+		this->_closeConnection = true;
+
 	this->_request = request;
 	this->setStatus(Client::STATUS::INCOMING);
 }
@@ -56,6 +60,16 @@ void Client::setServer(Server *server)
 HttpResponse *Client::getResponse()
 {
 	return this->_response;
+}
+
+bool Client::closeConnection()
+{
+	return this->_closeConnection;
+}
+
+void Client::setCloseConnection(bool close)
+{
+	this->_closeConnection = close;
 }
 
 HttpRequest *Client::getRequest()
