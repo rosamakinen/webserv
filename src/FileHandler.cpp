@@ -76,15 +76,12 @@ std::string FileHandler::getFileResource(HttpRequest *request, std::ios_base::op
 	std::string fullPath = getFilePath(request->getResourcePath());
 
 	struct stat file_status;
-	if (request->getMethod() != Util::METHOD::POST)
+	if ((stat(fullPath.c_str(), &file_status) == 0) && S_ISDIR(file_status.st_mode))
 	{
-		if ((stat(fullPath.c_str(), &file_status) == 0) && S_ISDIR(file_status.st_mode))
-		{
-			if (request->getIsDirListing())
-				return buildDirListing(fullPath);
+		if (request->getIsDirListing())
+			return buildDirListing(fullPath);
 
-			throw NotFoundException("Directory found but not accessable for directory listing");
-		}
+		throw NotFoundException("Directory found but not accessable for directory listing");
 	}
 
 	std::ifstream file;
