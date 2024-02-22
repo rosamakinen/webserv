@@ -30,6 +30,7 @@ class HttpRequestParser
 		void parseContentLength(HttpRequest *request);
 		void parseContentType(HttpRequest *request);
 		void validateSize(HttpRequest *request, Server *server);
+		size_t countBody(std::string requestInput, HttpRequest *request);
 
 	public:
 		HttpRequestParser();

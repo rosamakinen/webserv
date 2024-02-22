@@ -32,7 +32,9 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 		parseCgiMethod(request);
 		parseContentLength(request);
 		parseContentType(request);
-
+		if (request->getMethod() == Util::METHOD::POST || request->getMethod() == Util::METHOD::CGI_POST) 
+			request->setBodyLength(countBody(requestInput, request));
+		
 		std::string	body;
 		while (getline(ss, requestLine))
 		{
@@ -40,7 +42,6 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 				break;
 			request->appendBody(requestLine);
 		}
-
 		validateSize(request, server);
 	}
 	catch(const Exception& e)
@@ -50,6 +51,37 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 	}
 
 	return request;
+}
+
+size_t HttpRequestParser::countBody(std::string requestInput, HttpRequest *request)
+{
+	std::string body;
+	std::stringstream ss(requestInput);
+	std::string line;
+	while (getline(ss, line))
+	{
+		if (line.compare("\r") == 0)
+			break;
+	}
+	while (getline(ss, line))
+	{
+		body.append(line);
+		body.append("\n");
+	}
+	size_t count;
+	if (request->getContentType().compare("multipart/form-data") == 0)
+	{
+		count = body.length();
+	}
+	else
+	{
+		if (body.empty() || body.length() == 0)
+			count = 0;
+		else
+			count = body.length() - 1;
+
+	}
+	return count;
 }
 
 Server *HttpRequestParser::getServer(HttpRequest *request, std::map<std::string, Server *>& servers)
@@ -86,7 +118,14 @@ void HttpRequestParser::parseContentType(HttpRequest *request)
 	if (method.compare(HTTP_POST) == 0)
 	{
 		std::string contentType = request->getHeader(H_CONTENT_TYPE);
-		request->setContentType(contentType);
+		size_t found = contentType.find(';');
+		if (found != std::string::npos)
+		{
+			std::string multiType = contentType.substr(0, found);
+			request->setContentType(multiType);
+		}
+		else
+			request->setContentType(contentType);
 		if (request->getContentType().empty())
 			throw BadRequestException("No Content-Type for POST request");
 	}
