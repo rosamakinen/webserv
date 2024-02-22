@@ -10,19 +10,15 @@ ServerHandler::~ServerHandler()
 	if (!_clients.empty())
 	{
 		for (auto client : _clients)
-			delete client.second;
+		{
+			if (client.second != nullptr)
+				delete client.second;
+		}
 		_clients.clear();
 	}
 
 	if (!_servers.empty())
 		_servers.clear();
-
-	if (!_connections.empty())
-	{
-		for (auto conn : _connections)
-			delete conn.second;
-		_connections.clear();
-	}
 
 	if (!_pollfds.empty())
 		_pollfds.clear();
@@ -309,7 +305,7 @@ std::map<int, Connection*>::iterator ServerHandler::removeConnection(std::map<in
 }
 #endif
 
-void ServerHandler::removeTimedOutClientsAndConnections()
+void ServerHandler::removeTimedOutClients()
 {
 	for (auto itc = _clients.begin(); itc != _clients.end(); )
 	{
@@ -345,7 +341,7 @@ void ServerHandler::runServers(std::map<std::string, Server*> &servers)
 	initServers(servers);
 	while (true)
 	{
-		removeTimedOutClientsAndConnections();
+		removeTimedOutClients();
 		// Wait max 3 minutes for incoming traffic
 		int result = poll(_pollfds.data(), _pollfds.size(), CONNECTION_TIMEOUT);
 		if (result == 0)

@@ -50,6 +50,7 @@ void Client::appendRequest(std::string requestToAdd)
 {
 	this->_request->appendBody(requestToAdd);
 	this->setStatus(Client::STATUS::INCOMING);
+	_requestStart = std::chrono::high_resolution_clock::now();
 }
 
 void Client::setServer(Server *server)

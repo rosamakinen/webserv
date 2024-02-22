@@ -37,6 +37,4 @@ class HttpResponse
 		std::string _cgiResponse;
 };
 
-std::ostream& operator<<(std::ostream &out, const HttpResponse &rhs);
-
 #endif
