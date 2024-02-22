@@ -15,7 +15,11 @@ ServerHandler::~ServerHandler()
 	}
 
 	if (!_servers.empty())
+	{
+		for (auto serv : _servers)
+			delete serv.second;
 		_servers.clear();
+	}
 
 	if (!_connections.empty())
 	{
@@ -82,9 +86,6 @@ void ServerHandler::handleNewClient(Socket *socket)
 		if (newClientFd < 0)
 			break ;
 		addNewPoll(newClientFd);
-#if USE_CONNECTION_TIMEOUT
-		_connections[newClientFd] = new Connection();
-#endif
 	}
 }
 
@@ -293,22 +294,6 @@ std::map<int, Client*>::iterator ServerHandler::removeClient(std::map<int, Clien
 	return _clients.erase(client);
 }
 
-#if USE_CONNECTION_TIMEOUT
-std::map<int, Connection*>::iterator ServerHandler::removeConnection(std::map<int, Connection*>::iterator connection)
-{
-	std::map<int, Client*>::iterator client = _clients.find(connection->first);
-	if (client != _clients.end())
-	{
-		connection->second->updateTS();
-		return ++connection;
-	}
-
-	closeConnection(connection->first);
-	delete connection->second;
-	return _connections.erase(connection);
-}
-#endif
-
 void ServerHandler::removeTimedOutClientsAndConnections()
 {
 	for (auto itc = _clients.begin(); itc != _clients.end(); )
@@ -323,21 +308,6 @@ void ServerHandler::removeTimedOutClientsAndConnections()
 		if (itc == _clients.end() || _clients.empty())
 			break;
 	}
-
-#if USE_CONNECTION_TIMEOUT
-	for (auto itconn = _connections.begin(); itconn != _connections.end(); )
-	{
-		if (hasTimedOut(itconn->second->getTS(), CONNECTION_TIMEOUT))
-		{
-			std::cout << "Removed timed out connection " << itconn->first << std::endl;
-			itconn = removeConnection(itconn);
-		}
-		else
-			itconn++;
-		if (itconn == _connections.end() || _connections.empty())
-			break;
-	}
-#endif
 }
 
 void ServerHandler::runServers(std::map<std::string, Server*> &servers)
@@ -348,12 +318,7 @@ void ServerHandler::runServers(std::map<std::string, Server*> &servers)
 		removeTimedOutClientsAndConnections();
 		// Wait max 3 minutes for incoming traffic
 		int result = poll(_pollfds.data(), _pollfds.size(), CONNECTION_TIMEOUT);
-		if (result == 0)
-		{
-			closeConnections();
-			throw TimeOutException("The program excited with timeout");
-		}
-		else if (result < 0)
+		if (result < 0)
 		{
 			closeConnections();
 			throw PollException("Poll failed");
@@ -361,4 +326,6 @@ void ServerHandler::runServers(std::map<std::string, Server*> &servers)
 		handlePollEvents();
 		handleReadyToBeHandledClients();
 	}
+
+	closeConnections();
 }
