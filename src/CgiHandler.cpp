@@ -156,6 +156,7 @@ bool	cgiTimeout(int pid)
 		std::this_thread::sleep_for(std::chrono::milliseconds(100)); // to chill out the threads
 	}
 	kill(pid, SIGKILL);
+	waitpid(pid, &status, 0);
 	return false;
 }
 

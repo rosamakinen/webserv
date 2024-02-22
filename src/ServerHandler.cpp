@@ -289,8 +289,8 @@ void ServerHandler::handlePollEvents()
 
 std::map<int, Client*>::iterator ServerHandler::removeClient(std::map<int, Client*>::iterator client)
 {
-	closeConnection(client->first);
 	delete client->second;
+	closeConnection(client->first);
 	return _clients.erase(client);
 }
 
@@ -323,7 +323,8 @@ void ServerHandler::runServers(std::map<std::string, Server*> &servers)
 			closeConnections();
 			throw PollException("Poll failed");
 		}
-		handlePollEvents();
+		if (result > 0)
+			handlePollEvents();
 		handleReadyToBeHandledClients();
 	}
 
