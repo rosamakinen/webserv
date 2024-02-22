@@ -47,7 +47,7 @@ void Methods::executePost(HttpRequest *request, Server *server)
 		outputFile.close();
 		return ;
 	}
-	throw InternalException("Something went wrong");
+	throw BadRequestException("Something went wrong");
 
 }
 
@@ -59,6 +59,6 @@ void Methods::executeDelete(HttpRequest request)
 	int result = remove(fullPath.c_str());
 	if (result == 0)
 		return ;
-	throw InternalException("Something went wrong");
+	throw BadRequestException("Something went wrong");
 }
 
