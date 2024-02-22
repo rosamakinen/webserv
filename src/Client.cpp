@@ -111,9 +111,13 @@ void Client::updateStatus()
 		}
 
 		std::string chunkedString = this->_request->getHeader(H_ENCODING);
+		std::cout << "content-length: " << this->_request->getContentLength() << std::endl;
+		std::cout << "body length: " << this->_request->getBody().length() << std::endl;
+		std::cout << "body size: " << this->_request->getBody().size() << std::endl;
+		
 		if (chunkedString.empty() || chunkedString.compare("chunked") != 0)
 		{
-			if (this->_request->getContentLength() != this->_request->getBody().length())
+			if (this->_request->getContentLength() != this->_request->getBody().size())
 				throw BadRequestException("The request is not chunked but the body was not fully received");
 
 			this->setStatus(Client::STATUS::READY_TO_HANDLE);

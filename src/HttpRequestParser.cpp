@@ -7,9 +7,16 @@ HttpRequestParser::~HttpRequestParser() {}
 HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::map<std::string, Server *>& servers)
 {
 	HttpRequest *request = new HttpRequest();
+	std::string inputString = requestInput;
 	std::stringstream ss(requestInput);
 	std::string requestLine;
 
+
+	std::cout << "##########################################" << std::endl;
+	std::cout << "request input: " << requestInput << std::endl;
+	std::cout << "##########################################" << std::endl;
+
+	
 	// Parse the request line
 	getline(ss, requestLine);
 	try
@@ -32,10 +39,10 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 		parseCgiMethod(request);
 		parseContentLength(request);
 		parseContentType(request);
-
-		if (request->getMethod() == Util::METHOD::POST && request->getMethod() == Util::METHOD::CGI_POST)
+		if (request->getMethod() == Util::METHOD::POST || request->getMethod() == Util::METHOD::CGI_POST)
 		{
 			std::string contentType = request->getContentType();
+			countBody(inputString);
 			if (contentType.compare(CT_TXT) == 0)
 			{
 				while (getline(ss, requestLine))
@@ -45,7 +52,6 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 					request->appendBody(requestLine);
 				}
 			}
-
 			if (contentType.find(CT_MLTP) != std::string::npos)
 			{
 				size_t bound_pos = contentType.find(" boundary=");
@@ -56,6 +62,7 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 				std::string linebreak = "--";
 				std::string body_part_boundary = linebreak.append(boundary);
 				std::string last_line_boundary = boundary.append(linebreak);
+
 				while (getline(ss, requestLine))
 				{
 					if (requestLine.compare(body_part_boundary) == 0 && request->getFileName().empty())
@@ -85,6 +92,7 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 							request->appendBody(requestLine);
 						}
 					}
+					// std::cout << "appendBody: " << request->getBody() << std::endl;
 
 					if (requestLine.compare(boundary + "--") == 0)
 						break;
@@ -104,6 +112,35 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 	}
 
 	return request;
+}
+
+int HttpRequestParser::countBody(std::string requestInput)
+{
+	std::cout << "&&&&&&&&&&&&&&&&&&& REQUEST INPUT STRING &&&&&&&&&&&&&&&&&&&&&&" << std::endl;
+	std::cout << requestInput << std::endl;
+	std::cout << "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&" << std::endl;
+
+	std::string body;
+	std::stringstream ss(requestInput);
+	std::string line;
+	while (getline(ss, line))
+	{
+		if (line.compare("\r") == 0)
+			break;
+		std::cout << line << std::endl;
+	}
+	while (getline(ss, line))
+	{
+		body.append(line);
+		body.append("\n");
+	}
+	std::cout << "???????????????? REQUEST BODY ?????????????????" << std::endl;
+	std::cout << body << std::endl;
+	std::cout << "?????????????????????????????????" << std::endl;
+
+	int count = body.size();
+	std::cout << "count: " << count << std::endl;
+	return count;
 }
 
 Server *HttpRequestParser::getServer(HttpRequest *request, std::map<std::string, Server *>& servers)
@@ -145,6 +182,8 @@ bool HttpRequestParser::validContentType(std::string contentTypeToFind)
 	for (auto ct : _contenttypes)
 	{
 		if (contentTypeToFind.find(CT_TXT) != std::string::npos)
+			return true;
+		if (contentTypeToFind.find(CT_MLTP) != std::string::npos)
 			return true;
 	}
 
