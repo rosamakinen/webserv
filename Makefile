@@ -27,32 +27,34 @@ SRC_FILES	=	main \
 				HttpRequestHandler \
 				HttpResponse \
 				Socket \
-				Server \
 				ExceptionManager \
 				HttpResponseParser \
 				FileHandler \
 				ConfigParser \
 				Client \
+				Connection \
+				Server \
 				ServerHandler \
 				Methods
 
-H_FILES =	Exceptions \
-			Util \
-			WebServer \
-			CgiHandler \
-			HttpRequest \
-			HttpRequestParser \
-			HttpRequestHandler \
-			HttpResponse \
-			Socket \
-			Server \
-			ExceptionManager \
-			HttpResponseParser \
-			FileHandler \
-			ConfigParser \
-			Client \
-			ServerHandler \
-			Methods
+H_FILES =		Exceptions \
+				Util \
+				CgiHandler \
+				HttpRequest \
+				HttpRequestHandler \
+				HttpResponse \
+				Socket \
+				Server \
+				ExceptionManager \
+				HttpResponseParser \
+				HttpRequestParser \
+				FileHandler \
+				ConfigParser \
+				Client \
+				Connection \
+				ServerHandler \
+				Methods \
+				WebServer
 
 #paths
 SRC	=	$(addprefix $(SRC_DIR), $(addsuffix .cpp, $(SRC_FILES)))
