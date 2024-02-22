@@ -10,6 +10,7 @@
 #include "Client.hpp"
 #include "CgiHandler.hpp"
 #include "Server.hpp"
+#include "Methods.hpp"
 
 class HttpRequestHandler
 {

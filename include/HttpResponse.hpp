@@ -19,6 +19,7 @@ class HttpResponse
 		bool contentTypeSet(std::string resourcePath, std::string contentTypeToFind);
 		std::ios_base::openmode setContentType(std::string resourcePath);
 		void setCgiResponse(std::string input);
+		void setDeleteResponse();
 
 		unsigned int getContentLenght() const;
 		const std::string getContentType() const;

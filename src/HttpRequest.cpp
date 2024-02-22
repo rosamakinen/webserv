@@ -55,6 +55,10 @@ void HttpRequest::appendBody(std::string body)
 	this->_body.append(body);
 }
 
+void HttpRequest::setContentType(std::string type)
+{
+	this->_contentType = type;
+}
 void HttpRequest::setContentLength(size_t contentLength)
 {
 	this->_contentLength = contentLength;
@@ -93,6 +97,11 @@ std::string HttpRequest::getLocation() const
 std::string HttpRequest::getResourcePath() const
 {
 	return this->_resourcePath;
+}
+
+std::string HttpRequest::getContentType() const
+{
+	return this->_contentType;
 }
 
 std::string HttpRequest::getDirectory() const
