@@ -68,6 +68,10 @@ void HttpRequest::setContentLength(size_t contentLength)
 {
 	this->_contentLength = contentLength;
 }
+void HttpRequest::setBodyLength(size_t bodyLength)
+{
+	this->_bodyLength = bodyLength;
+}
 
 void HttpRequest::setIsDirListing(bool isDirListing)
 {
@@ -137,6 +141,10 @@ const std::string HttpRequest::getBody() const
 size_t HttpRequest::getContentLength() const
 {
 	return this->_contentLength;
+}
+size_t HttpRequest::getBodyLength() const
+{
+	return this->_bodyLength;
 }
 
 void HttpRequest::setParameters(std::map<std::string, std::string> parameters)

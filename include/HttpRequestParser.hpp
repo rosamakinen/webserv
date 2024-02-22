@@ -33,7 +33,7 @@ class HttpRequestParser
 		void parseContentType(HttpRequest *request);
 		void validateSize(HttpRequest *request, Server *server);
 		bool validContentType(std::string contentTypeToFind);
-		int countBody(std::string body);
+		size_t countBody(std::string requestInput, HttpRequest *request);
 
 	public:
 		HttpRequestParser();

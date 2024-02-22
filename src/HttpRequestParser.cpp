@@ -39,10 +39,11 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 		parseCgiMethod(request);
 		parseContentLength(request);
 		parseContentType(request);
+		parseContentType(request);
 		if (request->getMethod() == Util::METHOD::POST || request->getMethod() == Util::METHOD::CGI_POST)
 		{
-			std::string contentType = request->getContentType();
-			countBody(inputString);
+			request->setBodyLength(countBody(requestInput, request));
+			std::string contentType = request->getHeader(H_CONTENT_TYPE);
 			if (contentType.compare(CT_TXT) == 0)
 			{
 				while (getline(ss, requestLine))
@@ -52,6 +53,7 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 					request->appendBody(requestLine);
 				}
 			}
+
 			if (contentType.find(CT_MLTP) != std::string::npos)
 			{
 				size_t bound_pos = contentType.find(" boundary=");
@@ -62,7 +64,6 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 				std::string linebreak = "--";
 				std::string body_part_boundary = linebreak.append(boundary);
 				std::string last_line_boundary = boundary.append(linebreak);
-
 				while (getline(ss, requestLine))
 				{
 					if (requestLine.compare(body_part_boundary) == 0 && request->getFileName().empty())
@@ -78,11 +79,13 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 					}
 					else if (requestLine.find("Content-Type:") != std::string::npos)
 					{
+						std::cout << "line: " << requestLine << std::endl;
 						size_t cs_pos = requestLine.find("Content-Type: ");
 						if (cs_pos == std::string::npos)
 							throw BadRequestException("Invalid Content-Type given on request");
 						std::string content = requestLine.substr(cs_pos + 14);
-						if (content.compare(CT_TXT) != 0)
+						std::cout << "content: " << content << std::endl;
+						if (content.compare("text/plain\r") != 0)
 							throw BadRequestException("Invalid Content-Type given on request");
 
 						while (getline(ss, requestLine))
@@ -92,7 +95,6 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 							request->appendBody(requestLine);
 						}
 					}
-					// std::cout << "appendBody: " << request->getBody() << std::endl;
 
 					if (requestLine.compare(boundary + "--") == 0)
 						break;
@@ -110,16 +112,12 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 		delete request;
 		throw;
 	}
-
+	std::cout << "whats in the body: " << request->getBody() << std::endl;
 	return request;
 }
 
-int HttpRequestParser::countBody(std::string requestInput)
+size_t HttpRequestParser::countBody(std::string requestInput, HttpRequest *request)
 {
-	std::cout << "&&&&&&&&&&&&&&&&&&& REQUEST INPUT STRING &&&&&&&&&&&&&&&&&&&&&&" << std::endl;
-	std::cout << requestInput << std::endl;
-	std::cout << "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&" << std::endl;
-
 	std::string body;
 	std::stringstream ss(requestInput);
 	std::string line;
@@ -127,18 +125,28 @@ int HttpRequestParser::countBody(std::string requestInput)
 	{
 		if (line.compare("\r") == 0)
 			break;
-		std::cout << line << std::endl;
 	}
 	while (getline(ss, line))
 	{
 		body.append(line);
 		body.append("\n");
 	}
-	std::cout << "???????????????? REQUEST BODY ?????????????????" << std::endl;
-	std::cout << body << std::endl;
-	std::cout << "?????????????????????????????????" << std::endl;
+	size_t count;
+	if (request->getContentType().compare("multipart/form-data") == 0)
+	{
 
-	int count = body.size();
+		std::cout << "so we trigger this? " << request->getContentType() << std::endl;
+		count = body.length();
+	}
+	else
+	{
+		if (body.empty() || body.length() == 0)
+			count = 0;
+		else
+			count = body.length() - 1;
+
+	}
+	std::cout << "type: " << request->getContentType() << std::endl;
 	std::cout << "count: " << count << std::endl;
 	return count;
 }
@@ -196,7 +204,14 @@ void HttpRequestParser::parseContentType(HttpRequest *request)
 	if (method.compare(HTTP_POST) == 0)
 	{
 		std::string contentType = request->getHeader(H_CONTENT_TYPE);
-		request->setContentType(contentType);
+		size_t found = contentType.find(';');
+		if (found != std::string::npos)
+		{
+			std::string multiType = contentType.substr(0, found);
+			request->setContentType(multiType);
+		}
+		else
+			request->setContentType(contentType);
 		if (request->getContentType().empty())
 			throw BadRequestException("No Content-Type for POST request");
 
@@ -253,6 +268,7 @@ void HttpRequestParser::parseRequestLine(std::string &requestLine, HttpRequest *
 
 void HttpRequestParser::validateSize(HttpRequest *request, Server *server)
 {
+	std::cout << "bodylength in validate size " << request->getBodyLength() << std::endl;
 	if ((request->getMethod() == Util::METHOD::POST || request->getMethod() == Util::METHOD::CGI_POST)
 		 && request->getContentLength() > server->getClientMaxBodySize())
 		throw PayloadTooLargeException("Request body is too large");

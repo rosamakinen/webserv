@@ -117,7 +117,7 @@ void Client::updateStatus()
 		
 		if (chunkedString.empty() || chunkedString.compare("chunked") != 0)
 		{
-			if (this->_request->getContentLength() != this->_request->getBody().size())
+			if (this->_request->getContentLength() != this->_request->getBodyLength())
 				throw BadRequestException("The request is not chunked but the body was not fully received");
 
 			this->setStatus(Client::STATUS::READY_TO_HANDLE);
