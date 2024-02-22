@@ -11,7 +11,7 @@ void HttpRequestHandler::parseOkResponse(Client *client, Server *server)
 			response->setStatus(std::pair<unsigned int, std::string>(204, "No Content"));
 		else
 			response->setStatus(std::pair<unsigned int, std::string>(200, "OK"));
-		response->setResponseBody(client->getRequest(), server);	
+		response->setResponseBody(client->getRequest(), server);
 	}
 	catch(const Exception& e)
 	{
@@ -67,7 +67,7 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 
 			case Util::METHOD::CGI_GET:
 			{
-				std::string cgiResponse = CgiHandler::executeCgi(*client->getRequest());
+				std::string cgiResponse = CgiHandler::executeCgi(*client->getRequest(), server);
 				parseOkResponse(client, server);
 				client->getResponse()->setCgiResponse(cgiResponse);
 				return;
@@ -75,7 +75,7 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 
 			case Util::METHOD::CGI_POST:
 			{
-				std::string cgiResponse = CgiHandler::executeCgi(*client->getRequest());
+				std::string cgiResponse = CgiHandler::executeCgi(*client->getRequest(), server);
 				parseOkResponse(client, server);
 				client->getResponse()->setCgiResponse(cgiResponse);
 				return;
