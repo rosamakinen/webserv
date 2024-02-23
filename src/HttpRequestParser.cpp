@@ -11,12 +11,6 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 	std::stringstream ss(requestInput);
 	std::string requestLine;
 
-
-	std::cout << "##########################################" << std::endl;
-	std::cout << "request input: " << requestInput << std::endl;
-	std::cout << "##########################################" << std::endl;
-
-	
 	// Parse the request line
 	getline(ss, requestLine);
 	try

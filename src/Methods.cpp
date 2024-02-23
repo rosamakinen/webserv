@@ -3,7 +3,6 @@
 void Methods::executePost(HttpRequest *request, Server *server)
 {
 	std::string body = request->getBody();
-	std::cout << "THE BODY IS:::" << std::endl;
 	if (body.empty())
 		throw BadRequestException("empty body on POST request");
 
@@ -14,7 +13,6 @@ void Methods::executePost(HttpRequest *request, Server *server)
 		throw ForbiddenException("Upload not configured");
 	else if (uploadAllowed->front().compare(TRUE) != 0)
 		throw ForbiddenException("Upload not set to true");
-
 
 	std::string outFilename = request->getFileName();
 
