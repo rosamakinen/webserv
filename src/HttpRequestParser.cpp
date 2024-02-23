@@ -127,7 +127,7 @@ void HttpRequestParser::parseContentType(HttpRequest *request)
 		}
 		else
 			request->setContentType(contentType);
-		if (request->getContentType().empty())
+		if (request->getContentType().empty() && request->getParameters().empty())
 			throw BadRequestException("No Content-Type for POST request");
 	}
 }
