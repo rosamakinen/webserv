@@ -46,6 +46,12 @@ class UnsupportedMediaTypeException : public Exception
 		UnsupportedMediaTypeException(const std::string message) : Exception(message) { };
 };
 
+class GatewayTimeoutException : public Exception
+{
+	public:
+		GatewayTimeoutException(const std::string message) : Exception(message) { };
+};
+
 class PayloadTooLargeException : public Exception
 {
 	public:

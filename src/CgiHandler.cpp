@@ -63,7 +63,7 @@ static std::string getQueryString(HttpRequest request)
 	return nullptr;
 }
 
-static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request)
+static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request, Server *server)
 {
 	std::map<std::string, std::string> cgiEnvironment;
 
@@ -72,8 +72,8 @@ static std::map<std::string, std::string> initCgiEnvironment(HttpRequest request
 	cgiEnvironment["SERVER_PROTOCOL"] = HTTP_VERSION;
 	cgiEnvironment["REQUEST_METHOD"] = Util::translateMethod(request.getMethod());
 	cgiEnvironment["SCRIPT_FILENAME"] = FileHandler::getFilePath(request.getResourcePath());
-	cgiEnvironment["SERVER_SOFTWARE"] = "SillyLittleSoftware/1.0"; //fetch from config?
-	cgiEnvironment["SERVER_NAME"] = "127.0.0.1"; //fetch from config?
+	cgiEnvironment["SERVER_SOFTWARE"] = server->getName().empty() ? server->getHostIp().append(VERSION) : server->getName().append(VERSION);
+	cgiEnvironment["SERVER_NAME"] = server->getName().empty() ? server->getHostIp() : server->getName();
 	cgiEnvironment["QUERY_STRING"] = getQueryString(request);
 	return cgiEnvironment;
 }
@@ -156,12 +156,13 @@ bool	cgiTimeout(int pid)
 		std::this_thread::sleep_for(std::chrono::milliseconds(100)); // to chill out the threads
 	}
 	kill(pid, SIGKILL);
+	waitpid(pid, &status, 0);
 	return false;
 }
 
-std::string	CgiHandler::executeCgi(HttpRequest request)
+std::string	CgiHandler::executeCgi(HttpRequest request, Server *server)
 {
-	std::map<std::string, std::string> cgiEnvironment = initCgiEnvironment(request);
+	std::map<std::string, std::string> cgiEnvironment = initCgiEnvironment(request, server);
 	char **environmentString = transferToStringArray(cgiEnvironment);
 	char **argumentString = getArguments(request);
 	std::string response;
@@ -205,8 +206,7 @@ std::string	CgiHandler::executeCgi(HttpRequest request)
 		else
 		{
 			close(pipe_out[0]);
-			throw InternalException("Cgi timeout");
-			//TODO : change this to CGI gateway timeout
+			throw GatewayTimeoutException("Cgi timeout");
 		}
 	}
 
