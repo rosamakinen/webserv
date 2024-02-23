@@ -113,7 +113,7 @@ void Client::updateStatus()
 		std::string chunkedString = this->_request->getHeader(H_ENCODING);
 		std::cout << "content-length: " << this->_request->getContentLength() << std::endl;
 		std::cout << "body length: " << this->_request->getBodyLength() << std::endl;
-		std::cout << "body: " << this->_request->getBody() << std::endl;
+		std::cout << "body: " << this->_request->getBody() << " was here"  << std::endl;
 		
 		if (chunkedString.empty() || chunkedString.compare("chunked") != 0)
 		{

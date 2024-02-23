@@ -79,7 +79,7 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 					}
 					else if (requestLine.find("Content-Type:") != std::string::npos)
 					{
-						std::cout << "line: " << requestLine << std::endl;
+						std::cout << "line: *" << requestLine << "*" << std::endl;
 						size_t cs_pos = requestLine.find("Content-Type: ");
 						if (cs_pos == std::string::npos)
 							throw BadRequestException("Invalid Content-Type given on request");
@@ -91,10 +91,16 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 						while (getline(ss, requestLine))
 						{
 							if (requestLine.compare(body_part_boundary) == 0)
+							{
+								std::cout << "WE FIND A BOUNDARY AND BREAK" << std::endl;
 								break;
+							}
+							requestLine.pop_back();
 							request->appendBody(requestLine);
+							std::cout << "append body: " << request->getBody() << std::endl;
 						}
 					}
+					std::cout << "GET BODY: " << request->getBody() << std::endl;
 
 					if (requestLine.compare(boundary + "--") == 0)
 						break;

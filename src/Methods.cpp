@@ -14,6 +14,7 @@ static std::string getUploadFilename(std::string path)
 void Methods::executePost(HttpRequest *request, Server *server)
 {
 	std::string body = request->getBody();
+	std::cout << "THE BODY IS:::" << std::endl;
 	if (body.empty())
 		throw BadRequestException("empty body on POST request");
 	size_t pos = body.find("=");
