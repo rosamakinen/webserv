@@ -18,11 +18,7 @@ ServerHandler::~ServerHandler()
 	}
 
 	if (!_servers.empty())
-	{
-		for (auto serv : _servers)
-			delete serv.second;
 		_servers.clear();
-	}
 
 	if (!_pollfds.empty())
 		_pollfds.clear();
@@ -210,9 +206,11 @@ void ServerHandler::handleReadyToBeHandledClients()
 
 void ServerHandler::handleIncomingRequest(pollfd *fd)
 {
-	Client *client = getOrCreateClient(fd);
-
 	std::string requestString = readRequest(fd->fd, MESSAGE_BUFFER);
+	if (requestString.empty())
+		return;
+
+	Client *client = getOrCreateClient(fd);
 	if (client->getStatus() == Client::STATUS::NONE)
 	{
 		HttpRequestParser requestParser;

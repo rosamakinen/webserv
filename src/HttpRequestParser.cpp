@@ -7,14 +7,16 @@ HttpRequestParser::~HttpRequestParser() {}
 HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::map<std::string, Server *>& servers)
 {
 	HttpRequest *request = new HttpRequest();
-	std::stringstream ss(requestInput);
-	std::string requestLine;
 
-	// Parse the request line
-	getline(ss, requestLine);
 	try
 	{
+		std::stringstream ss(requestInput);
+		std::string requestLine;
+
+		// Parse the request line
+		getline(ss, requestLine);
 		parseRequestLine(requestLine, request);
+		std::cout << "hello" << std::endl;
 
 		// Parse the headers
 		while (getline(ss, requestLine))
@@ -170,8 +172,8 @@ void HttpRequestParser::parseContentLength(HttpRequest *request)
 
 void HttpRequestParser::parseRequestLine(std::string &requestLine, HttpRequest *request)
 {
-	if (requestLine.empty())
-		throw BadRequestException("Empty requestline");
+	if (requestLine.empty() || requestLine.length() < 14)
+		throw BadRequestException("Invalid requestline");
 	parseMethod(requestLine, request);
 	parseUri(requestLine, request);
 	validateVersion(requestLine);
@@ -357,6 +359,8 @@ void HttpRequestParser::parseUri(std::string &requestLine, HttpRequest *request)
 	std::map<std::string, std::string> parameters;
 	size_t uriPos = requestLine.find('?');
 	size_t paramPos = requestLine.find(' ');
+	if (paramPos == std::string::npos)
+		throw BadRequestException("Invalid requestline");
 	if (uriPos < paramPos)
 	{
 		uri = requestLine.substr(0, uriPos);
