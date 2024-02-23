@@ -32,7 +32,6 @@ SRC_FILES	=	main \
 				FileHandler \
 				ConfigParser \
 				Client \
-				Connection \
 				Server \
 				ServerHandler \
 				Methods
@@ -51,7 +50,6 @@ H_FILES =		Exceptions \
 				FileHandler \
 				ConfigParser \
 				Client \
-				Connection \
 				ServerHandler \
 				Methods \
 				WebServer
