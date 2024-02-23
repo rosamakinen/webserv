@@ -214,8 +214,6 @@ void HttpRequestParser::parseContentType(HttpRequest *request)
 			request->setContentType(contentType);
 		if (request->getContentType().empty())
 			throw BadRequestException("No Content-Type for POST request");
-		std::cout << request->getContentType() << std::endl;
-		std::cout << contentType << std::endl;
 		if (!validContentType(contentType))
 			throw UnsupportedMediaTypeException("Do not support given media type");
 	}
