@@ -36,11 +36,26 @@ void ServerHandler::initServers(std::map<std::string, Server*> &servers)
 		Server* server = this->_servers.find(serverPair.first)->second;
 		if (server != nullptr)
 		{
-			if (server->getClientMaxBodySize() <= 0)
+			if (server->getClientMaxBodySize() <= 0 || server->getClientMaxBodySize() > MESSAGE_BUFFER)
 				server->setClientMaxBodySize(MESSAGE_BUFFER);
 			server->setSocket();
 			addNewPoll(server->getSocket()->getFd());
 		}
+	}
+}
+
+void ServerHandler::validateServers(std::map<std::string, Server *> &servers)
+{
+	for (auto& serverPair : servers)
+	{
+		if (serverPair.second->getName().empty())
+			throw ConfigurationException("Server is missing a name");
+		if (serverPair.second->getHostIp().empty())
+			throw ConfigurationException("Server is missing IP address");
+		if (serverPair.second->getListenPort() == 0)
+			throw ConfigurationException("Server is missing port");
+		if (serverPair.second->getLocationCount() <= 0)
+			throw ConfigurationException("Server is missing locations");
 	}
 }
 
@@ -307,6 +322,7 @@ void ServerHandler::removeTimedOutClients()
 void ServerHandler::runServers(std::map<std::string, Server*> &servers)
 {
 	initServers(servers);
+	validateServers(servers);
 	while (true)
 	{
 		removeTimedOutClients();

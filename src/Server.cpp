@@ -1,6 +1,6 @@
 #include "../include/Server.hpp"
 
-Server::Server() : _isDefault(false), _name(SERVER_DEFAULT_NAME), _socket(nullptr)
+Server::Server() : _isDefault(false), _name(SERVER_DEFAULT_NAME), _listenPort(0), _socket(nullptr)
 {
 }
 

@@ -17,6 +17,7 @@ class ServerHandler
 		std::map<std::string, Server *> _servers;
 
 		void 	initServers(std::map<std::string, Server*> &servers);
+		void 	validateServers(std::map<std::string, Server*> &servers);
 
 		void	isCallValid(const int fd, const std::string errorMsg, int closeFd);
 
