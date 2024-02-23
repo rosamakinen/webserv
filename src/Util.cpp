@@ -65,5 +65,4 @@ void Util::freeStringArray(char **string)
 {
 	for (int i = 0; string[i]; i++)
 		delete [] string[i];
-	delete [] string;
 }

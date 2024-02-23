@@ -16,7 +16,6 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 		// Parse the request line
 		getline(ss, requestLine);
 		parseRequestLine(requestLine, request);
-		std::cout << "hello" << std::endl;
 
 		// Parse the headers
 		while (getline(ss, requestLine))
