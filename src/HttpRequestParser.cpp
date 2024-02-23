@@ -32,9 +32,9 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 		parseCgiMethod(request);
 		parseContentLength(request);
 		parseContentType(request);
-		if (request->getMethod() == Util::METHOD::POST || request->getMethod() == Util::METHOD::CGI_POST) 
+		if (request->getMethod() == Util::METHOD::POST || request->getMethod() == Util::METHOD::CGI_POST)
 			request->setBodyLength(countBody(requestInput, request));
-		
+
 		std::string	body;
 		while (getline(ss, requestLine))
 		{
@@ -210,7 +210,8 @@ void HttpRequestParser::validateMethod(HttpRequest *request, Server *server)
 		if (it->compare(Util::translateMethod(method)) == 0)
 			return;
 	}
-	throw MethodNotAllowedException("Requested method is not allowed for the location");
+
+	throw NotImplementedException("Requested method is not supported");
 }
 
 void HttpRequestParser::parseMethod(std::string &requestLine, HttpRequest *request)
