@@ -1,7 +1,7 @@
 {
     "client": "Thunder Client",
     "collectionName": "webserv",
-    "dateExported": "2024-02-22T14:45:49.638Z",
+    "dateExported": "2024-02-23T17:05:31.604Z",
     "version": "1.1",
     "folders": [],
     "requests": [
@@ -137,7 +137,7 @@
             "method": "POST",
             "sortNum": 50000,
             "created": "2024-02-22T04:28:04.752Z",
-            "modified": "2024-02-22T04:28:04.752Z",
+            "modified": "2024-02-23T16:51:16.821Z",
             "headers": [
                 {
                     "name": "Cache-Control",
@@ -153,7 +153,13 @@
                 },
                 {
                     "name": "Content-Type",
-                    "value": "multipart/form-data"
+                    "value": "text/plain",
+                    "isDisabled": true
+                },
+                {
+                    "name": "Content-Length",
+                    "value": "",
+                    "isDisabled": true
                 }
             ],
             "params": [
@@ -173,7 +179,7 @@
                     "type": "res-code",
                     "custom": "",
                     "action": "equal",
-                    "value": "500"
+                    "value": "400"
                 }
             ]
         },
@@ -669,15 +675,15 @@
             ]
         },
         {
-            "_id": "116940bb-4f0d-429a-9e5b-53bcb9828758",
+            "_id": "293d8a6e-85f6-4432-ad21-70ead1ff5ad2",
             "colId": "2b493c9a-be50-480c-a0f7-4066fe4ba46f",
             "containerId": "",
-            "name": "POST upload image file",
-            "url": "127.0.0.1:8000/upload/",
-            "method": "POST",
-            "sortNum": 200000,
-            "created": "2024-02-22T04:29:26.319Z",
-            "modified": "2024-02-22T14:17:08.233Z",
+            "name": "GET upload text file",
+            "url": "127.0.0.1:8000/upload/default.txt",
+            "method": "GET",
+            "sortNum": 195000,
+            "created": "2024-02-22T04:44:20.679Z",
+            "modified": "2024-02-23T16:34:24.762Z",
             "headers": [
                 {
                     "name": "Content-Length",
@@ -689,65 +695,39 @@
                 }
             ],
             "params": [],
-            "body": {
-                "type": "text",
-                "raw": "file=/Users/rosa/documents/HIVE/_webserv_/webserv/public_www/pictures/field.jpeg",
-                "form": []
-            },
             "tests": [
                 {
                     "type": "res-code",
                     "custom": "",
                     "action": "equal",
-                    "value": "201"
+                    "value": "404"
                 }
             ]
         },
         {
-            "_id": "66c55caa-4e4b-42a1-9895-b9ce015c77b8",
+            "_id": "dd80d974-27ea-4892-8cc5-41d84cf820e0",
             "colId": "2b493c9a-be50-480c-a0f7-4066fe4ba46f",
             "containerId": "",
-            "name": "DELETE file from upload dir",
-            "url": "127.0.0.1:8000/upload/field.jpeg",
-            "method": "DELETE",
-            "sortNum": 210000,
-            "created": "2024-02-22T04:29:44.181Z",
-            "modified": "2024-02-22T04:58:27.896Z",
-            "headers": [],
-            "params": [],
-            "tests": [
-                {
-                    "type": "res-code",
-                    "custom": "",
-                    "action": "equal",
-                    "value": "204"
-                }
-            ]
-        },
-        {
-            "_id": "b4a14b01-5c18-47f3-8f2f-669631ee0be2",
-            "colId": "2b493c9a-be50-480c-a0f7-4066fe4ba46f",
-            "containerId": "",
-            "name": "POST upload text",
+            "name": "upload text to file",
             "url": "127.0.0.1:8000/upload/",
             "method": "POST",
-            "sortNum": 220000,
-            "created": "2024-02-22T04:30:25.199Z",
-            "modified": "2024-02-22T13:53:54.289Z",
+            "sortNum": 200000,
+            "created": "2024-02-23T16:17:00.571Z",
+            "modified": "2024-02-23T16:34:40.174Z",
             "headers": [
-                {
-                    "name": "Content-Length",
-                    "value": "73"
-                },
                 {
                     "name": "Content-Type",
                     "value": "text/plain"
+                },
+                {
+                    "name": "Content-Length",
+                    "value": "10"
                 }
             ],
             "params": [],
             "body": {
                 "type": "text",
-                "raw": "file=/Users/rosa/documents/HIVE/_webserv_/webserv/public_www/textFile.txt",
+                "raw": "0123456789",
                 "form": []
             },
             "tests": [
@@ -760,15 +740,15 @@
             ]
         },
         {
-            "_id": "293d8a6e-85f6-4432-ad21-70ead1ff5ad2",
+            "_id": "7575efc8-0417-451c-a0ee-dce67fe7d5c0",
             "colId": "2b493c9a-be50-480c-a0f7-4066fe4ba46f",
             "containerId": "",
-            "name": "GET upload text file",
-            "url": "127.0.0.1:8000/upload/textFile.txt",
+            "name": "GET upload text file Copy",
+            "url": "127.0.0.1:8000/upload/default.txt",
             "method": "GET",
-            "sortNum": 225000,
-            "created": "2024-02-22T04:44:20.679Z",
-            "modified": "2024-02-22T04:48:19.219Z",
+            "sortNum": 207500,
+            "created": "2024-02-23T16:21:12.638Z",
+            "modified": "2024-02-23T16:21:12.638Z",
             "headers": [
                 {
                     "name": "Content-Length",
@@ -790,15 +770,15 @@
             ]
         },
         {
-            "_id": "1487743f-a689-440c-8998-0e6debcc6ed7",
+            "_id": "66c55caa-4e4b-42a1-9895-b9ce015c77b8",
             "colId": "2b493c9a-be50-480c-a0f7-4066fe4ba46f",
             "containerId": "",
-            "name": "DELETE file from upload dir Copy",
-            "url": "127.0.0.1:8000/upload/textFIle.txt",
+            "name": "DELETE file from upload dir",
+            "url": "127.0.0.1:8000/upload/default.txt",
             "method": "DELETE",
-            "sortNum": 230000,
-            "created": "2024-02-22T04:43:08.604Z",
-            "modified": "2024-02-22T04:56:27.916Z",
+            "sortNum": 210000,
+            "created": "2024-02-22T04:29:44.181Z",
+            "modified": "2024-02-23T16:36:00.264Z",
             "headers": [],
             "params": [],
             "tests": [

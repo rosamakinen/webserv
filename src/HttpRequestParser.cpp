@@ -33,15 +33,80 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 		parseCgiMethod(request);
 		parseContentLength(request);
 		parseContentType(request);
-		if (request->getMethod() == Util::METHOD::POST || request->getMethod() == Util::METHOD::CGI_POST)
-			request->setBodyLength(countBody(requestInput, request));
 
-		std::string	body;
-		while (getline(ss, requestLine))
+		if (request->getMethod() == Util::METHOD::POST || request->getMethod() == Util::METHOD::CGI_POST)
 		{
-			if (requestLine.compare("\r") == 0)
-				break;
-			request->appendBody(requestLine);
+			request->setBodyLength(countBody(requestInput, request));
+			std::string contentType = request->getHeader(H_CONTENT_TYPE);
+			if (contentType.compare(CT_TXT) == 0 || contentType.compare(CT_FRM) == 0)
+			{
+				while (getline(ss, requestLine))
+				{
+					if (requestLine.compare("\r") == 0)
+						break;
+					request->appendBody(requestLine);
+					request->appendBody("\n");
+				}
+				request->setFileName(DEFAULT_FILE);
+			}
+
+			if (contentType.find(CT_MLTP) != std::string::npos)
+			{
+				size_t bound_pos = contentType.find(" boundary=");
+					if (bound_pos == std::string::npos)
+						throw BadRequestException("No boundary given for multipart request");
+
+				std::string boundary = contentType.substr(bound_pos + 10);
+
+				std::string body_part_boundary = MLTP_LINEBREAK;
+				body_part_boundary.append(boundary);
+				body_part_boundary.append("\r");
+
+				std::string last_line_boundary = MLTP_LINEBREAK;
+				last_line_boundary.append(boundary);
+				last_line_boundary.append(MLTP_LINEBREAK);
+				last_line_boundary.append("\r");
+
+				while (getline(ss, requestLine))
+				{
+					if (requestLine.compare(body_part_boundary) == 0)
+					{
+						getline(ss, requestLine);
+						size_t dis_pos = requestLine.find("Content-Disposition: form-data;");
+						if (dis_pos == std::string::npos)
+							throw BadRequestException("Invalid Content-Disposition given on request");
+						dis_pos = requestLine.find("filename=");
+						if (dis_pos == std::string::npos)
+							throw BadRequestException("No filename given on request");
+						if (request->getFileName().empty())
+							request->setFileName(requestLine.substr(dis_pos + 10, ((requestLine.length() - (dis_pos + 10)) - 2)));
+					}
+					else if (requestLine.find("Content-Type:") != std::string::npos)
+					{
+						size_t cs_pos = requestLine.find("Content-Type: ");
+						if (cs_pos == std::string::npos)
+							throw BadRequestException("Invalid Content-Type given on request");
+						std::string content = requestLine.substr(cs_pos + 14);
+						if (content.compare("text/plain\r") != 0)
+							throw BadRequestException("Invalid Content-Type given on request");
+
+						while (getline(ss, requestLine))
+						{
+							if (requestLine.compare("\r") == 0)
+								continue;
+							if (requestLine.compare(last_line_boundary) == 0)
+								break;
+							request->appendBody(requestLine);
+							request->appendBody("\n");
+						}
+					}
+					if (requestLine.compare(last_line_boundary) == 0)
+						break;
+
+					if (requestLine.compare("\r") == 0)
+						continue;
+				}
+			}
 		}
 		validateSize(request, server);
 	}
@@ -50,13 +115,12 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 		delete request;
 		throw;
 	}
-
 	return request;
 }
 
 size_t HttpRequestParser::countBody(std::string requestInput, HttpRequest *request)
 {
-	std::string body;
+	std::string bodystr;
 	std::stringstream ss(requestInput);
 	std::string line;
 	while (getline(ss, line))
@@ -66,21 +130,20 @@ size_t HttpRequestParser::countBody(std::string requestInput, HttpRequest *reque
 	}
 	while (getline(ss, line))
 	{
-		body.append(line);
-		body.append("\n");
+		bodystr.append(line);
+		bodystr.append("\n");
 	}
 	size_t count;
 	if (request->getContentType().compare("multipart/form-data") == 0)
 	{
-		count = body.length();
+		count = bodystr.length();
 	}
 	else
 	{
-		if (body.empty() || body.length() == 0)
+		if (bodystr.empty() || bodystr.length() == 0)
 			count = 0;
 		else
-			count = body.length() - 1;
-
+			count = bodystr.length() - 1;
 	}
 	return count;
 }
@@ -113,6 +176,28 @@ void HttpRequestParser::parseHost(HttpRequest *request)
 	request->setPort(port);
 }
 
+static std::vector<std::string> _contenttypes =
+{
+	CT_TXT,
+	CT_MLTP,
+	CT_FRM
+};
+
+bool HttpRequestParser::validContentType(std::string contentTypeToFind)
+{
+	for (auto ct : _contenttypes)
+	{
+		if (contentTypeToFind.find(CT_TXT) != std::string::npos)
+			return true;
+		if (contentTypeToFind.find(CT_MLTP) != std::string::npos)
+			return true;
+		if (contentTypeToFind.find(CT_FRM) != std::string::npos)
+			return true;
+	}
+
+	return false;
+}
+
 void HttpRequestParser::parseContentType(HttpRequest *request)
 {
 	std::string method = Util::translateMethod(request->getMethod());
@@ -129,6 +214,8 @@ void HttpRequestParser::parseContentType(HttpRequest *request)
 			request->setContentType(contentType);
 		if (request->getContentType().empty() && request->getParameters().empty())
 			throw BadRequestException("No Content-Type for POST request");
+		if (!validContentType(contentType))
+			throw UnsupportedMediaTypeException("Do not support given media type");
 	}
 }
 
