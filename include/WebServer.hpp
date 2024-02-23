@@ -37,6 +37,7 @@
 #define ERRORPAGE_LOCATION	"error_page"
 #define SERVER_DEFAULT_NAME	"default"
 #define TRUE				"true"
+#define DEFAULT_FILE		"default.txt"
 
 #define DEFAULT_ERRORPAGES_PATH "/public_www/error_pages/"
 

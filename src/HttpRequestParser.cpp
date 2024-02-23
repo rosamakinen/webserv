@@ -51,7 +51,9 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 					if (requestLine.compare("\r") == 0)
 						break;
 					request->appendBody(requestLine);
+					request->appendBody("\n");
 				}
+				request->setFileName(DEFAULT_FILE);
 			}
 
 			if (contentType.find(CT_MLTP) != std::string::npos)
@@ -61,7 +63,6 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 						throw BadRequestException("No boundary given for multipart request");
 
 				std::string boundary = contentType.substr(bound_pos + 10);
-				std::cout << "boundary from the ContentType: " << boundary << "*" << std::endl;
 
 				std::string body_part_boundary = MLTP_LINEBREAK;
 				body_part_boundary.append(boundary);
@@ -72,15 +73,10 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 				last_line_boundary.append(MLTP_LINEBREAK);
 				last_line_boundary.append("\r");
 
-				std::cout << "body part boundary: " << body_part_boundary << "*" << std::endl;
-				std::cout << "last line boundary: " << last_line_boundary << "*\n" << std::endl;
 				while (getline(ss, requestLine))
 				{
-					std::cout << "*****body_part_boundary " << body_part_boundary << "*" << std::endl;
-					std::cout << "*****requestline        " << requestLine << "*" << std::endl;
 					if (requestLine.compare(body_part_boundary) == 0)
 					{
-						std::cout << "we ever fill this clause?" << std::endl;
 						getline(ss, requestLine);
 						size_t dis_pos = requestLine.find("Content-Disposition: form-data;");
 						if (dis_pos == std::string::npos)
@@ -88,7 +84,6 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 						dis_pos = requestLine.find("filename=");
 						if (dis_pos == std::string::npos)
 							throw BadRequestException("No filename given on request");
-						std::cout << "*****filename " << request->getFileName() << std::endl;
 						if (request->getFileName().empty())
 							request->setFileName(requestLine.substr(dis_pos + 10, ((requestLine.length() - (dis_pos + 10)) - 2)));
 					}
@@ -103,21 +98,14 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 
 						while (getline(ss, requestLine))
 						{
-							std::cout << "looping through the filecontent: " << requestLine << std::endl;
 							if (requestLine.compare("\r") == 0)
 								continue;
 							if (requestLine.compare(last_line_boundary) == 0)
 								break;
 							request->appendBody(requestLine);
 							request->appendBody("\n");
-							// std::cout << "request line is: " << requestLine << std::endl;
-							// std::cout << "append body has: " << request->getBody() << std::endl;
 						}
 					}
-					std::cout << "GET BODY: " << request->getBody() << std::endl;
-					std::cout << "GET BODY: " << request->getFileName() << std::endl;
-
-
 					if (requestLine.compare(last_line_boundary) == 0)
 						break;
 
@@ -126,7 +114,6 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 				}
 			}
 		}
-
 		validateSize(request, server);
 	}
 	catch(const Exception& e)
@@ -134,13 +121,12 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 		delete request;
 		throw;
 	}
-	std::cout << "whats in the body: " << request->getBody() << std::endl;
 	return request;
 }
 
 size_t HttpRequestParser::countBody(std::string requestInput, HttpRequest *request)
 {
-	std::string body;
+	std::string bodystr;
 	std::stringstream ss(requestInput);
 	std::string line;
 	while (getline(ss, line))
@@ -150,26 +136,21 @@ size_t HttpRequestParser::countBody(std::string requestInput, HttpRequest *reque
 	}
 	while (getline(ss, line))
 	{
-		body.append(line);
-		body.append("\n");
+		bodystr.append(line);
+		bodystr.append("\n");
 	}
 	size_t count;
 	if (request->getContentType().compare("multipart/form-data") == 0)
 	{
-
-		std::cout << "so we trigger this? " << request->getContentType() << std::endl;
-		count = body.length();
+		count = bodystr.length();
 	}
 	else
 	{
-		if (body.empty() || body.length() == 0)
+		if (bodystr.empty() || bodystr.length() == 0)
 			count = 0;
 		else
-			count = body.length() - 1;
-
+			count = bodystr.length() - 1;
 	}
-	std::cout << "type: " << request->getContentType() << std::endl;
-	std::cout << "count: " << count << std::endl;
 	return count;
 }
 
