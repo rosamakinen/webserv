@@ -5,6 +5,7 @@
 #include "HttpRequest.hpp"
 #include "FileHandler.hpp"
 #include "Util.hpp"
+#include "Server.hpp"
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -17,7 +18,7 @@
 class CgiHandler
 {
 	public:
-		static std::string	executeCgi(HttpRequest request);
+		static std::string	executeCgi(HttpRequest request, Server *server);
 };
 
 #endif
