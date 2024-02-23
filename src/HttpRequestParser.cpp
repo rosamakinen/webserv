@@ -44,7 +44,7 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 		{
 			request->setBodyLength(countBody(requestInput, request));
 			std::string contentType = request->getHeader(H_CONTENT_TYPE);
-			if (contentType.compare(CT_TXT) == 0)
+			if (contentType.compare(CT_TXT) == 0 || contentType.compare(CT_FRM) == 0)
 			{
 				while (getline(ss, requestLine))
 				{
@@ -61,48 +61,64 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 						throw BadRequestException("No boundary given for multipart request");
 
 				std::string boundary = contentType.substr(bound_pos + 10);
-				std::string linebreak = "--";
-				std::string body_part_boundary = linebreak.append(boundary);
-				std::string last_line_boundary = boundary.append(linebreak);
+				std::cout << "boundary from the ContentType: " << boundary << "*" << std::endl;
+
+				std::string body_part_boundary = MLTP_LINEBREAK;
+				body_part_boundary.append(boundary);
+				body_part_boundary.append("\r");
+
+				std::string last_line_boundary = MLTP_LINEBREAK;
+				last_line_boundary.append(boundary);
+				last_line_boundary.append(MLTP_LINEBREAK);
+				last_line_boundary.append("\r");
+
+				std::cout << "body part boundary: " << body_part_boundary << "*" << std::endl;
+				std::cout << "last line boundary: " << last_line_boundary << "*\n" << std::endl;
 				while (getline(ss, requestLine))
 				{
-					if (requestLine.compare(body_part_boundary) == 0 && request->getFileName().empty())
+					std::cout << "*****body_part_boundary " << body_part_boundary << "*" << std::endl;
+					std::cout << "*****requestline        " << requestLine << "*" << std::endl;
+					if (requestLine.compare(body_part_boundary) == 0)
 					{
+						std::cout << "we ever fill this clause?" << std::endl;
 						getline(ss, requestLine);
-						size_t dis_pos = contentType.find("Content-Disposition: form-data;");
+						size_t dis_pos = requestLine.find("Content-Disposition: form-data;");
 						if (dis_pos == std::string::npos)
 							throw BadRequestException("Invalid Content-Disposition given on request");
-						dis_pos = contentType.find("filename=");
+						dis_pos = requestLine.find("filename=");
 						if (dis_pos == std::string::npos)
 							throw BadRequestException("No filename given on request");
-						request->setFileName(requestLine.substr(dis_pos + 10, requestLine.length() - 1));
+						std::cout << "*****filename " << request->getFileName() << std::endl;
+						if (request->getFileName().empty())
+							request->setFileName(requestLine.substr(dis_pos + 10, ((requestLine.length() - (dis_pos + 10)) - 2)));
 					}
 					else if (requestLine.find("Content-Type:") != std::string::npos)
 					{
-						std::cout << "line: *" << requestLine << "*" << std::endl;
 						size_t cs_pos = requestLine.find("Content-Type: ");
 						if (cs_pos == std::string::npos)
 							throw BadRequestException("Invalid Content-Type given on request");
 						std::string content = requestLine.substr(cs_pos + 14);
-						std::cout << "content: " << content << std::endl;
 						if (content.compare("text/plain\r") != 0)
 							throw BadRequestException("Invalid Content-Type given on request");
 
 						while (getline(ss, requestLine))
 						{
-							if (requestLine.compare(body_part_boundary) == 0)
-							{
-								std::cout << "WE FIND A BOUNDARY AND BREAK" << std::endl;
+							std::cout << "looping through the filecontent: " << requestLine << std::endl;
+							if (requestLine.compare("\r") == 0)
+								continue;
+							if (requestLine.compare(last_line_boundary) == 0)
 								break;
-							}
-							requestLine.pop_back();
 							request->appendBody(requestLine);
-							std::cout << "append body: " << request->getBody() << std::endl;
+							request->appendBody("\n");
+							// std::cout << "request line is: " << requestLine << std::endl;
+							// std::cout << "append body has: " << request->getBody() << std::endl;
 						}
 					}
 					std::cout << "GET BODY: " << request->getBody() << std::endl;
+					std::cout << "GET BODY: " << request->getFileName() << std::endl;
 
-					if (requestLine.compare(boundary + "--") == 0)
+
+					if (requestLine.compare(last_line_boundary) == 0)
 						break;
 
 					if (requestLine.compare("\r") == 0)
@@ -188,7 +204,8 @@ void HttpRequestParser::parseHost(HttpRequest *request)
 static std::vector<std::string> _contenttypes =
 {
 	CT_TXT,
-	CT_MLTP
+	CT_MLTP,
+	CT_FRM
 };
 
 bool HttpRequestParser::validContentType(std::string contentTypeToFind)
@@ -198,6 +215,8 @@ bool HttpRequestParser::validContentType(std::string contentTypeToFind)
 		if (contentTypeToFind.find(CT_TXT) != std::string::npos)
 			return true;
 		if (contentTypeToFind.find(CT_MLTP) != std::string::npos)
+			return true;
+		if (contentTypeToFind.find(CT_FRM) != std::string::npos)
 			return true;
 	}
 
@@ -220,7 +239,8 @@ void HttpRequestParser::parseContentType(HttpRequest *request)
 			request->setContentType(contentType);
 		if (request->getContentType().empty())
 			throw BadRequestException("No Content-Type for POST request");
-
+		std::cout << request->getContentType() << std::endl;
+		std::cout << contentType << std::endl;
 		if (!validContentType(contentType))
 			throw UnsupportedMediaTypeException("Do not support given media type");
 	}

@@ -1,29 +1,11 @@
 #include "Methods.hpp"
 
-static std::string getUploadFilename(std::string path)
-{
-	std::size_t found = path.find_last_of(BACKSLASH);
-	if (found != std::string::npos)
-	{
-		std::string filename = path.substr(found + 1, path.length());
-		return filename;
-	}
-	return "";
-}
-
 void Methods::executePost(HttpRequest *request, Server *server)
 {
 	std::string body = request->getBody();
 	std::cout << "THE BODY IS:::" << std::endl;
 	if (body.empty())
 		throw BadRequestException("empty body on POST request");
-	size_t pos = body.find("=");
-	if (pos == std::string::npos)
-		throw BadRequestException("Bad query");
-
-	std::string inFilePath = body.substr(pos + 1, body.length());
-	if (access(inFilePath.c_str(), R_OK) != 0)
-		throw BadRequestException("Cannot read the upload file");
 
 	// add checking if the upload folder is configured
 	std::string uploadLocation = request->getUri();
@@ -34,9 +16,8 @@ void Methods::executePost(HttpRequest *request, Server *server)
 		throw ForbiddenException("Upload not set to true");
 
 
-	std::string outFilename = getUploadFilename(inFilePath);
-	if (outFilename.empty())
-		throw BadRequestException("Bad path");
+	std::string outFilename = request->getFileName();
+
 	std::string outFilePath = request->getDirectory();
 	outFilePath.append(outFilename);
 
@@ -44,7 +25,7 @@ void Methods::executePost(HttpRequest *request, Server *server)
 	std::ofstream outputFile(fullPath);
 	if (outputFile.is_open())
 	{
-		outputFile << FileHandler::getUploadFileContent(inFilePath, std::ios::binary);
+		outputFile << request->getBody();
 		outputFile.close();
 		return ;
 	}

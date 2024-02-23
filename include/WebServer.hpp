@@ -15,6 +15,7 @@
 #define WHITESPACE			" \t"
 #define SHEBANG				"#!"
 #define BACKSLASH			'/'
+#define MLTP_LINEBREAK		"--"
 
 #define H_CONTENT_LENGTH	"Content-Length"
 #define H_CONTENT_TYPE		"Content-Type"
@@ -51,6 +52,7 @@
 
 #define CT_TXT	"text/plain"
 #define CT_MLTP "multipart/form-data"
+#define CT_FRM	"application/x-www-form-urlencoded"
 
 #include <vector>
 #include <map>
