@@ -7,7 +7,10 @@ Server::Server() : _isDefault(false), _name(SERVER_DEFAULT_NAME), _listenPort(0)
 Server::~Server()
 {
 	if (this->_socket != nullptr)
+	{
 		delete this->_socket;
+		this->_socket = nullptr;
+	}
 	this->_locations.clear();
 }
 
