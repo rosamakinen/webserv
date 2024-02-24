@@ -34,12 +34,12 @@
 #define LOCAL_DIR			"directory"
 #define UPLOAD_DIR			"upload"
 #define INDEX				"index"
-#define ERRORPAGE_LOCATION	"error_page"
+#define RESPONSEPAGE_LOCATION	"response_page"
 #define SERVER_DEFAULT_NAME	"default"
 #define TRUE				"true"
 #define DEFAULT_FILE		"default.txt"
 
-#define DEFAULT_ERRORPAGES_PATH "/public_www/error_pages/"
+#define DEFAULT_RESPONSEPAGES_PATH "/public_www/response_pages/"
 
 #define HTTP_METHOD			"method"
 #define HTTP_GET			"GET"

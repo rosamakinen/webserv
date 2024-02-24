@@ -23,11 +23,11 @@ private:
 	vectorMap vStack;
 	Server* temporaryServer;
 
-	static std::vector<int> validErrorStatusCodes;
+	static std::vector<int> validResponseStatusCodes;
 
 	Server* checkServer();
 	void checkMain(const std::string& keyword, const std::string& value, const std::string path);
-	bool invalidErrorPageConfig(int status, std::string path);
+	bool invalidResponsePageConfig(int status, std::string path);
 	void processLine(const std::string &line);
 	void configError(const std::string &str, size_t lineNumber);
 };

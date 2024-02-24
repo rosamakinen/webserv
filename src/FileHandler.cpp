@@ -147,17 +147,17 @@ std::string FileHandler::getUploadFileContent(std::string path, std::ios_base::o
 	return body;
 }
 
-std::string FileHandler::getErrorFileContent(unsigned int status, Server *server)
+std::string FileHandler::getResponseFileContent(unsigned int status, Server *server)
 {
 	std::string relativePath;
-	std::string customErrorPagePath = server->getErrorPagePath(status);
-	if (customErrorPagePath.empty())
+	std::string customResponsePagePath = server->getResponsePagePath(status);
+	if (customResponsePagePath.empty())
 	{
-		relativePath = DEFAULT_ERRORPAGES_PATH;
+		relativePath = DEFAULT_RESPONSEPAGES_PATH;
 		relativePath.append(std::to_string(status)).append(".html");
 	}
 	else
-		relativePath = customErrorPagePath;
+		relativePath = customResponsePagePath;
 
 	std::string path(getFilePath(relativePath));
 	std::ifstream file(path);

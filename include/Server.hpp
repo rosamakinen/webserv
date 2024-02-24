@@ -17,7 +17,7 @@ class Server
 		size_t			_clientMaxBodySize;
 		locationMap		_locations;
 		Socket			*_socket;
-		std::map<int, std::string> _errorpages;
+		std::map<int, std::string> _responsepages;
 
 	public:
 		Server();
@@ -42,7 +42,7 @@ class Server
 		void	setClientMaxBodySize(size_t clientMaxBodySize);
 		void	setLocation(std::string key, vectorMap locationValues);
 		static void	addToVectorMap(vectorMap &vMap, std::string values);
-		bool	addErrorPage(int status, std::string index);
+		bool	addResponsePage(int status, std::string index);
 
 		//Getters
 		bool isDefault() const;
@@ -54,7 +54,7 @@ class Server
 		size_t	getLocationCount() const;
 		size_t	getLocationCount(std::string location) const;
 		const std::vector<std::string>*	getLocationValue(std::string location, std::string key) const;
-		const std::string	getErrorPagePath(int status);
+		const std::string	getResponsePagePath(int status);
 };
 
 #endif
