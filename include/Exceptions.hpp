@@ -77,6 +77,12 @@ class TimeOutException : public std::logic_error
 		TimeOutException(const std::string message) : logic_error(message.c_str()) { };
 };
 
+class ErrorInCGIException : public std::logic_error
+{
+	public:
+		ErrorInCGIException(const std::string message) : logic_error(message.c_str()) { };
+};
+
 class PollException : public std::logic_error
 {
 	public:
