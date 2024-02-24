@@ -27,6 +27,7 @@ class HttpRequest
 		bool getIsDirListing();
 		int getPort();
 		std::string getServerName();
+		std::string getFileName();
 
 		void setIsDirListing(bool isDirListing);
 		void setMethod(Util::METHOD method);
@@ -43,6 +44,7 @@ class HttpRequest
 		void setResourcePath(std::string path);
 		void setPort(int port);
 		void setServerName(std::string name);
+		void setFileName(std::string fileName);
 
 	private:
 		static const std::string	_allowedMethods[];
@@ -57,6 +59,9 @@ class HttpRequest
 		std::string _location;
 		std::string _contentType;
 		std::string _server_name;
+
+		std::string _filename;
+
 		int _port;
 		size_t _contentLength;
 		size_t _bodyLength;

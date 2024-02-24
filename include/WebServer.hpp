@@ -15,6 +15,7 @@
 #define WHITESPACE			" \t"
 #define SHEBANG				"#!"
 #define BACKSLASH			'/'
+#define MLTP_LINEBREAK		"--"
 
 #define H_CONTENT_LENGTH	"Content-Length"
 #define H_CONTENT_TYPE		"Content-Type"
@@ -36,6 +37,7 @@
 #define ERRORPAGE_LOCATION	"error_page"
 #define SERVER_DEFAULT_NAME	"default"
 #define TRUE				"true"
+#define DEFAULT_FILE		"default.txt"
 
 #define DEFAULT_ERRORPAGES_PATH "/public_www/error_pages/"
 
@@ -48,6 +50,10 @@
 #define EXT_HTML			".html"
 #define EXT_CSS				".css"
 #define EXT_JPEG			".jpeg"
+
+#define CT_TXT	"text/plain"
+#define CT_MLTP "multipart/form-data"
+#define CT_FRM	"application/x-www-form-urlencoded"
 
 #include <vector>
 #include <map>

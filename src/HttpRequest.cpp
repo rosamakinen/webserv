@@ -50,6 +50,11 @@ void HttpRequest::setServerName(std::string name)
 	this->_server_name = name;
 }
 
+void HttpRequest::setFileName(std::string fileName)
+{
+	this->_filename = fileName;
+}
+
 void HttpRequest::appendBody(std::string body)
 {
 	this->_body.append(body);
@@ -86,6 +91,11 @@ int HttpRequest::getPort()
 std::string HttpRequest::getServerName()
 {
 	return this->_server_name;
+}
+
+std::string HttpRequest::getFileName()
+{
+	return this->_filename;
 }
 
 Util::METHOD HttpRequest::getMethod() const
