@@ -210,8 +210,8 @@ std::string	CgiHandler::executeCgi(HttpRequest request, Server *server)
 		}
 	}
 
-	delete [] environmentString;
-	delete [] argumentString;
+	Util::freeStringArray(environmentString);
+	Util::freeStringArray(argumentString);
 
 	if (response.empty())
 		throw ErrorInCGIException("CGI execution failed");
