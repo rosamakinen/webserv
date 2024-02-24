@@ -6,13 +6,16 @@ ConfigParser::ConfigParser() : lineNumber(1), temporaryServer(nullptr)
 
 ConfigParser::~ConfigParser()
 {
-	for (const std::pair<const std::string, Server*> &serverPair : servers)
+	for (std::pair<const std::string, Server *> &serverPair : servers)
+	{
 		delete serverPair.second;
+		serverPair.second = nullptr; // Just in case.
+	}
 	servers.clear();
+	sectionStack.clear();
 }
 
-
-static std::string trim(const std::string& str)
+static std::string trim(const std::string &str)
 {
 	size_t first = str.find_first_not_of(WHITESPACE);
 	if (first == std::string::npos)
@@ -21,7 +24,7 @@ static std::string trim(const std::string& str)
 	return str.substr(first, (last - first + 1));
 }
 
-static bool validIp(const std::string& ip)
+static bool validIp(const std::string &ip)
 {
 	std::stringstream ss(ip);
 	std::string segment;
@@ -37,14 +40,14 @@ static bool validIp(const std::string& ip)
 	return segmentCount == 4;
 }
 
-static std::string adjustPath(const std::string& path)
+static std::string adjustPath(const std::string &path)
 {
 	if (!path.empty() && path[0] == '/')
 		return "." + path;
 	return "./" + path;
 }
 
-static bool directoryExists(const std::string& path)
+static bool directoryExists(const std::string &path)
 {
 	struct stat info;
 	if (stat(path.c_str(), &info) != 0)
@@ -52,7 +55,7 @@ static bool directoryExists(const std::string& path)
 	return (info.st_mode & S_IFDIR) != 0;
 }
 
-static bool checkValidDirectory(const std::string& line, std::string key)
+static bool checkValidDirectory(const std::string &line, std::string key)
 {
 	std::istringstream iss(line);
 	std::string firstWord;
@@ -70,15 +73,15 @@ static bool checkValidDirectory(const std::string& line, std::string key)
 	return true;
 }
 
-static void uniChecker(const std::map<std::string, Server*> &servers)
+static void uniChecker(const std::map<std::string, Server *> &servers)
 {
 	if (servers.empty())
 		throw ConfigurationException("No servers detected.");
 	std::set<std::string> uniqueHostPortCombos;
 
-	for (const std::pair<const std::string, Server*> &serverPair : servers)
+	for (const std::pair<const std::string, Server *> &serverPair : servers)
 	{
-		const Server* server = serverPair.second;
+		const Server *server = serverPair.second;
 		std::string hostPortCombo = server->getHostIp() + ":" + std::to_string(server->getListenPort());
 
 		if (!uniqueHostPortCombos.insert(hostPortCombo).second)
@@ -86,7 +89,7 @@ static void uniChecker(const std::map<std::string, Server*> &servers)
 	}
 }
 
-static void clearMap(vectorMap& vMap)
+static void clearMap(vectorMap &vMap)
 {
 	for (vectorMap::iterator it = vMap.begin(); it != vMap.end(); it++)
 	{
@@ -96,7 +99,7 @@ static void clearMap(vectorMap& vMap)
 	vMap.clear();
 }
 
-void ConfigParser::configError(const std::string& str, size_t lineNumber)
+void ConfigParser::configError(const std::string &str, size_t lineNumber)
 {
 	if (temporaryServer != nullptr)
 	{
@@ -108,12 +111,12 @@ void ConfigParser::configError(const std::string& str, size_t lineNumber)
 	throw ConfigurationException(base);
 }
 
-const std::map<std::string, Server*> &ConfigParser::getServers() const
+const std::map<std::string, Server *> &ConfigParser::getServers() const
 {
 	return this->servers;
 }
 
-Server* ConfigParser::checkServer()
+Server *ConfigParser::checkServer()
 {
 	if (temporaryServer && !temporaryServer->getName().empty())
 	{
@@ -135,19 +138,20 @@ Server* ConfigParser::checkServer()
 }
 
 std::vector<int> ConfigParser::validErrorStatusCodes =
-{
-	400,
-	403,
-	404,
-	405,
-	413,
-	500,
-	504
-};
+	{
+		400,
+		403,
+		404,
+		405,
+		413,
+		415,
+		500,
+		501,
+		504};
 
 bool ConfigParser::invalidErrorPageConfig(int status, std::string path)
 {
-	for (std::vector<int>::iterator it = validErrorStatusCodes.begin(); ; it++)
+	for (std::vector<int>::iterator it = validErrorStatusCodes.begin();; it++)
 	{
 		if (status == *it)
 			break;
@@ -166,7 +170,7 @@ bool ConfigParser::invalidErrorPageConfig(int status, std::string path)
 	return true;
 }
 
-void ConfigParser::checkMain(const std::string& keyword, const std::string& value, const std::string path)
+void ConfigParser::checkMain(const std::string &keyword, const std::string &value, const std::string path)
 {
 	if (!temporaryServer)
 		configError("No server defined for main block.", lineNumber);
@@ -183,9 +187,9 @@ void ConfigParser::checkMain(const std::string& keyword, const std::string& valu
 		{
 			port = std::stoi(value);
 		}
-		catch(const std::exception& e)
+		catch (const std::exception &e)
 		{
-			configError("Invalid status code.", lineNumber);
+			configError("Invalid port number.", lineNumber);
 		}
 
 		if (port > UINT16_MAX || port < 0 || value.empty())
@@ -205,7 +209,7 @@ void ConfigParser::checkMain(const std::string& keyword, const std::string& valu
 		{
 			status = std::stoi(value);
 		}
-		catch(const std::exception& e)
+		catch (const std::exception &e)
 		{
 			configError("Invalid status code.", lineNumber);
 		}
@@ -218,8 +222,7 @@ void ConfigParser::checkMain(const std::string& keyword, const std::string& valu
 	}
 }
 
-
-void ConfigParser::parseConfig(const std::string& filename)
+void ConfigParser::parseConfig(const std::string &filename)
 {
 	std::ifstream file(filename);
 	std::string line;
@@ -260,9 +263,10 @@ void ConfigParser::parseConfig(const std::string& filename)
 				clearMap(vStack);
 			}
 		}
-	lineNumber++;
+		lineNumber++;
 	}
-	if (temporaryServer) {
+	if (temporaryServer)
+	{
 		std::string serverName = "";
 		serverName = temporaryServer->getName();
 
@@ -306,7 +310,6 @@ void ConfigParser::processLine(const std::string &line)
 		iss >> currentLocation;
 		if (currentLocation.empty())
 			configError("Unnamed location.", lineNumber);
-
 	}
 	else if (currentSection.compare(LOCATIONBLOCK) == 0)
 	{
