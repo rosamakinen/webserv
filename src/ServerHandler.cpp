@@ -10,23 +10,15 @@ ServerHandler::~ServerHandler()
 	if (!_clients.empty())
 	{
 		for (auto client : _clients)
-			delete client.second;
+		{
+			if (client.second != nullptr)
+				delete client.second;
+		}
 		_clients.clear();
 	}
 
 	if (!_servers.empty())
-	{
-		for (auto serv : _servers)
-			delete serv.second;
 		_servers.clear();
-	}
-
-	if (!_connections.empty())
-	{
-		for (auto conn : _connections)
-			delete conn.second;
-		_connections.clear();
-	}
 
 	if (!_pollfds.empty())
 		_pollfds.clear();
@@ -44,11 +36,26 @@ void ServerHandler::initServers(std::map<std::string, Server*> &servers)
 		Server* server = this->_servers.find(serverPair.first)->second;
 		if (server != nullptr)
 		{
-			if (server->getClientMaxBodySize() <= 0)
+			if (server->getClientMaxBodySize() <= 0 || server->getClientMaxBodySize() > MESSAGE_BUFFER)
 				server->setClientMaxBodySize(MESSAGE_BUFFER);
 			server->setSocket();
 			addNewPoll(server->getSocket()->getFd());
 		}
+	}
+}
+
+void ServerHandler::validateServers(std::map<std::string, Server *> &servers)
+{
+	for (auto& serverPair : servers)
+	{
+		if (serverPair.second->getName().empty())
+			throw ConfigurationException("Server is missing a name");
+		if (serverPair.second->getHostIp().empty())
+			throw ConfigurationException("Server is missing IP address");
+		if (serverPair.second->getListenPort() == 0)
+			throw ConfigurationException("Server is missing port");
+		if (serverPair.second->getLocationCount() <= 0)
+			throw ConfigurationException("Server is missing locations");
 	}
 }
 
@@ -214,9 +221,11 @@ void ServerHandler::handleReadyToBeHandledClients()
 
 void ServerHandler::handleIncomingRequest(pollfd *fd)
 {
-	Client *client = getOrCreateClient(fd);
-
 	std::string requestString = readRequest(fd->fd, MESSAGE_BUFFER);
+	if (requestString.empty())
+		return;
+
+	Client *client = getOrCreateClient(fd);
 	if (client->getStatus() == Client::STATUS::NONE)
 	{
 		HttpRequestParser requestParser;
@@ -294,7 +303,7 @@ std::map<int, Client*>::iterator ServerHandler::removeClient(std::map<int, Clien
 	return _clients.erase(client);
 }
 
-void ServerHandler::removeTimedOutClientsAndConnections()
+void ServerHandler::removeTimedOutClients()
 {
 	for (auto itc = _clients.begin(); itc != _clients.end(); )
 	{
@@ -313,9 +322,10 @@ void ServerHandler::removeTimedOutClientsAndConnections()
 void ServerHandler::runServers(std::map<std::string, Server*> &servers)
 {
 	initServers(servers);
+	validateServers(servers);
 	while (true)
 	{
-		removeTimedOutClientsAndConnections();
+		removeTimedOutClients();
 		// Wait max 3 minutes for incoming traffic
 		int result = poll(_pollfds.data(), _pollfds.size(), CONNECTION_TIMEOUT);
 		if (result < 0)

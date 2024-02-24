@@ -9,6 +9,7 @@ ConfigParser::~ConfigParser()
 	for (const std::pair<const std::string, Server*> &serverPair : servers)
 		delete serverPair.second;
 	servers.clear();
+	sectionStack.clear();
 }
 
 
@@ -185,7 +186,7 @@ void ConfigParser::checkMain(const std::string& keyword, const std::string& valu
 		}
 		catch(const std::exception& e)
 		{
-			configError("Invalid status code.", lineNumber);
+			configError("Invalid port number.", lineNumber);
 		}
 
 		if (port > UINT16_MAX || port < 0 || value.empty())

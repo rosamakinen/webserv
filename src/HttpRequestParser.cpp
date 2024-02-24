@@ -7,14 +7,14 @@ HttpRequestParser::~HttpRequestParser() {}
 HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::map<std::string, Server *>& servers)
 {
 	HttpRequest *request = new HttpRequest();
-	std::string inputString = requestInput;
-	std::stringstream ss(requestInput);
-	std::string requestLine;
 
-	// Parse the request line
-	getline(ss, requestLine);
 	try
 	{
+		std::stringstream ss(requestInput);
+		std::string requestLine;
+
+		// Parse the request line
+		getline(ss, requestLine);
 		parseRequestLine(requestLine, request);
 
 		// Parse the headers
@@ -33,7 +33,7 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 		parseCgiMethod(request);
 		parseContentLength(request);
 		parseContentType(request);
-		parseContentType(request);
+
 		if (request->getMethod() == Util::METHOD::POST || request->getMethod() == Util::METHOD::CGI_POST)
 		{
 			request->setBodyLength(countBody(requestInput, request));
@@ -212,7 +212,7 @@ void HttpRequestParser::parseContentType(HttpRequest *request)
 		}
 		else
 			request->setContentType(contentType);
-		if (request->getContentType().empty())
+		if (request->getContentType().empty() && request->getParameters().empty())
 			throw BadRequestException("No Content-Type for POST request");
 		if (!validContentType(contentType))
 			throw UnsupportedMediaTypeException("Do not support given media type");
@@ -258,8 +258,8 @@ void HttpRequestParser::parseContentLength(HttpRequest *request)
 
 void HttpRequestParser::parseRequestLine(std::string &requestLine, HttpRequest *request)
 {
-	if (requestLine.empty())
-		throw BadRequestException("Empty requestline");
+	if (requestLine.empty() || requestLine.length() < 14)
+		throw BadRequestException("Invalid requestline");
 	parseMethod(requestLine, request);
 	parseUri(requestLine, request);
 	validateVersion(requestLine);
@@ -298,7 +298,8 @@ void HttpRequestParser::validateMethod(HttpRequest *request, Server *server)
 		if (it->compare(Util::translateMethod(method)) == 0)
 			return;
 	}
-	throw MethodNotAllowedException("Requested method is not allowed for the location");
+
+	throw NotImplementedException("Requested method is not supported");
 }
 
 void HttpRequestParser::parseMethod(std::string &requestLine, HttpRequest *request)
@@ -444,6 +445,8 @@ void HttpRequestParser::parseUri(std::string &requestLine, HttpRequest *request)
 	std::map<std::string, std::string> parameters;
 	size_t uriPos = requestLine.find('?');
 	size_t paramPos = requestLine.find(' ');
+	if (paramPos == std::string::npos)
+		throw BadRequestException("Invalid requestline");
 	if (uriPos < paramPos)
 	{
 		uri = requestLine.substr(0, uriPos);

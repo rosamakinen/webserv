@@ -21,6 +21,8 @@ std::pair<unsigned int, std::string> ExceptionManager::getErrorStatus(const Exce
 		return std::pair<unsigned int, std::string>(413, "Payload Too Large");
 	else if (typeid(e) == typeid(GatewayTimeoutException))
 		return std::pair<unsigned int, std::string>(504, "Gateway Timeout");
+	else if (typeid(e) == typeid(NotImplementedException))
+		return std::pair<unsigned int, std::string>(501, "Not Implemented");
 
 	// If we fall all the way down here, let's just give a 500
 	return std::pair<unsigned int, std::string>(500, "Internal Server Error");

@@ -20,7 +20,6 @@ int main(int argc, char **argv)
 		ServerHandler serverHandler;
 
 		serverHandler.runServers(servers);
-		servers.clear();
 	}
 	catch(const std::logic_error& e)
 	{
