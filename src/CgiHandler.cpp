@@ -29,7 +29,7 @@ static char **transferToStringArray(std::map<std::string, std::string> input)
 		std::string base = it->first;
 		base.append("=");
 		base.append(it->second);
-		stringArray[i] = (char *)base.c_str();
+		stringArray[i] = strdup(base.c_str());
 		i++;
 	}
 	stringArray[i] = nullptr;
@@ -104,8 +104,8 @@ char **getArguments(HttpRequest request)
 	std::string fullPath = FileHandler::getFilePath(request.getResourcePath());
 	std::string shebang = findInterpreterPath(fullPath);
 
-	argumentString[0] = (char *)shebang.c_str();
-	argumentString[1] = (char *)fullPath.c_str();
+	argumentString[0] = strdup(shebang.c_str());
+	argumentString[1] = strdup(fullPath.c_str());
 	argumentString[2] = nullptr;
 
 	return argumentString;
