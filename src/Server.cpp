@@ -1,12 +1,12 @@
 #include "../include/Server.hpp"
 
-Server::Server() : _isDefault(false), _name(SERVER_DEFAULT_NAME)
+Server::Server() : _isDefault(false), _name(SERVER_DEFAULT_NAME), _listenPort(0), _socket(nullptr)
 {
 }
 
 Server::~Server()
 {
-	if (this->_socket)
+	if (this->_socket != nullptr)
 		delete this->_socket;
 	this->_locations.clear();
 }

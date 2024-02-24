@@ -82,7 +82,7 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 			}
 
 			default :
-				throw MethodNotAllowedException("Method not allowed");
+				throw NotImplementedException("Method not allowed");
 				break;
 		}
 	}

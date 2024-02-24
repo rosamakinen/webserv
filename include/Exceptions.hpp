@@ -28,6 +28,12 @@ class MethodNotAllowedException : public Exception
 		MethodNotAllowedException(const std::string message) : Exception(message) { };
 };
 
+class NotImplementedException : public Exception
+{
+	public:
+		NotImplementedException(const std::string message) : Exception(message) { };
+};
+
 class ForbiddenException : public Exception
 {
 	public:
