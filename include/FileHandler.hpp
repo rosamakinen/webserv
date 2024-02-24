@@ -11,7 +11,6 @@
 class FileHandler
 {
 	public:
-		static std::string getUploadFileContent(std::string path, std::ios_base::openmode mode);
 		static std::string getResponseFileContent(unsigned int status, Server *server);
 		static std::string getFileResource(HttpRequest *request, std::ios_base::openmode mode);
 		static std::string getFilePath(std::string relativePath);

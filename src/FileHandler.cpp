@@ -115,38 +115,6 @@ std::string FileHandler::getFileResource(HttpRequest *request, std::ios_base::op
 	return body;
 }
 
-std::string FileHandler::getUploadFileContent(std::string path, std::ios_base::openmode mode)
-{
-	std::ifstream file(path);
-	if (!file.is_open() || file.fail() || file.bad())
-	{
-		std::string message = "Could not open file ";
-		message.append(path);
-		message.append(" for reading");
-		throw FileException(message);
-	}
-
-	std::string body;
-	if (mode == std::ios::binary)
-	{
-		std::stringstream contents;
-		contents << file.rdbuf();
-		body.append(contents.str());
-	}
-	else
-	{
-		std::string line;
-		while (getline(file, line))
-		{
-			body.append(line);
-			body.append(HTTP_LINEBREAK);
-		}
-	}
-
-	file.close();
-	return body;
-}
-
 std::string FileHandler::getResponseFileContent(unsigned int status, Server *server)
 {
 	std::string relativePath;
