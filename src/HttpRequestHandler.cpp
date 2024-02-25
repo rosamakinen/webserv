@@ -1,7 +1,26 @@
 #include "../include/HttpRequestHandler.hpp"
 
-void HttpRequestHandler::redirectClient(Client *client, Server *server)
+bool HttpRequestHandler::redirectClient(Client *client)
 {
+	if (client->getRequest()->getIsDirListing())
+		return true;
+	return false;
+}
+
+void HttpRequestHandler::parseRedirResponse(Client *client, Server *server)
+{
+	HttpResponse *response = new HttpResponse();
+	try
+	{
+		response->setStatus(std::pair<unsigned int, std::string>(301, "Moved Permanently"));
+	}
+	catch(const Exception& e)
+	{
+		delete response;
+		response = parseErrorResponse(server, ExceptionManager::getErrorStatus(e));
+	}
+
+	client->setResponse(response);
 }
 
 void HttpRequestHandler::parseOkResponse(Client *client, Server *server)
@@ -47,6 +66,12 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 {
 	try
 	{
+		if (redirectClient(client))
+		{
+			parseRedirResponse(client, server);
+			return ;
+		}
+
 		switch (client->getRequest()->getMethod())
 		{
 			case Util::METHOD::GET:
@@ -95,7 +120,6 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 		client->setResponse(parseErrorResponse(server, ExceptionManager::getErrorStatus(e)));
 	}
 
-	redirectClient(client, server);
 }
 
 HttpRequestHandler::HttpRequestHandler()

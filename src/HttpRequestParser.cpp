@@ -28,6 +28,8 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 		parseHost(request);
 		Server *server = getServer(request, servers);
 		parseDirectoryAndLocation(request, server);
+		if (request->getIsRedirected())
+			return request;
 		validateMethod(request, server);
 		parseIndexPathAndDirectoryListing(request, server);
 		parseCgiMethod(request);
@@ -278,6 +280,8 @@ void HttpRequestParser::parseDirectoryAndLocation(HttpRequest *request, Server *
 	if (!server->isLocationInServer(directoryPath))
 		throw NotFoundException("Location does not exist");
 	request->setLocation(directoryPath);
+	if (parseRedirection(request, server))
+		return ;
 
 	const std::vector<std::string>* workingDir = server->getLocationValue(directoryPath, LOCAL_DIR);
 	if (workingDir == nullptr || workingDir->size() != 1)
@@ -315,6 +319,22 @@ void HttpRequestParser::parseMethod(std::string &requestLine, HttpRequest *reque
 		parseMethodStr(requestLine);
 
 	request->setMethod(method);
+}
+
+
+bool HttpRequestParser::parseRedirection(HttpRequest *request, Server *server)
+{
+	std::cout << "Checking for redirection in location: " << request->getLocation() << std::endl;
+	const std::vector<std::string> *redirectionValues = server->getLocationValue(request->getLocation(), REDIR);
+	if (redirectionValues != nullptr)
+	{
+		std::string location = redirectionValues->front();
+		std::cout << "In redirection path parsing the path: " << location << std::endl;
+		request->setRedirLocation(location);
+		request->setIsRedirected(true);
+	}
+	std::cout << "parsing redirection!" << std::endl;
+	return request->getIsRedirected();
 }
 
 void HttpRequestParser::parseIndexPathAndDirectoryListing(HttpRequest *request, Server *server)
