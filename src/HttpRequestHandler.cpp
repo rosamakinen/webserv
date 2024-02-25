@@ -72,7 +72,6 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 			return ;
 		}
 
-		std::cout << "hello with " << client->getRequest()->getMethod() << std::endl;
 		switch (client->getRequest()->getMethod())
 		{
 			case Util::METHOD::GET:
