@@ -182,9 +182,6 @@ Server *ServerHandler::getServer(HttpRequest *request)
 		return Server::getServer("", nullptr, this->_servers);
 
 	Server *server = Server::getServer(request->getServerName(), request, this->_servers);
-	if (request->getHasHostDefined() && (server->getListenPort() != (size_t)request->getPort()))
-		throw ForbiddenException("Accessing a server listening to another port");
-
 	return server;
 }
 

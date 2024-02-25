@@ -25,19 +25,6 @@ void Client::setRequest(HttpRequest *request)
 	if (host.empty())
 		throw BadRequestException("No host given as a header");
 
-	std::string	host_name;
-	std::string port;
-	int	colon_pos = host.find_last_of(':');
-	host_name = host.substr(0, colon_pos);
-	try
-	{
-		port = std::stoi(host.substr(colon_pos + 1));
-	}
-	catch(const std::exception& e)
-	{
-		throw BadRequestException("Invalid header \"Host\" given");
-	}
-
 	std::string closeConnectionString = request->getHeader("Connection");
 	if (closeConnectionString.empty() == false && closeConnectionString.compare("close") == 0)
 		this->_closeConnection = true;

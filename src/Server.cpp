@@ -28,7 +28,7 @@ static Server* getDefaultServer(std::map<std::string, Server *>& servers)
 
 Server *Server::getServer(std::string key, HttpRequest *request, std::map<std::string, Server *>& servers)
 {
-	if (key.empty() || !request->getHasHostDefined() || request == nullptr)
+	if (key.empty() || request == nullptr || !request->getHasHostDefined())
 		return getDefaultServer(servers);
 
 	Server *serverPtr = nullptr;
@@ -41,7 +41,7 @@ Server *Server::getServer(std::string key, HttpRequest *request, std::map<std::s
 		{
 			if (server.second->getHostIp().compare(key) == 0)
 			{
-				if (server.second->getListenPort() == (size_t)request->getPort())
+				if (request->getPort() == -1 || server.second->getListenPort() == (size_t)request->getPort())
 				{
 					serverPtr = server.second;
 					break;
@@ -54,7 +54,7 @@ Server *Server::getServer(std::string key, HttpRequest *request, std::map<std::s
 
 	if (serverPtr == nullptr)
 		throw ForbiddenException("Accessing server listening to another port");
-	else if (serverPtr->getListenPort() == (size_t)request->getPort())
+	else if (request->getPort() == -1 || serverPtr->getListenPort() == (size_t)request->getPort())
 		return serverPtr;
 	else
 		throw BadRequestException("Mismatch with the provided host name and port");

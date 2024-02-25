@@ -160,19 +160,26 @@ void HttpRequestParser::parseHost(HttpRequest *request)
 	std::string host = request->getHeader("Host");
 	request->setHost(host);
 	if (host.empty())
-		return ;
+		throw BadRequestException("Missing the Host header");
 
 	std::string	name;
-	int	colon_pos = host.find_last_of(':');
+	size_t	colon_pos = host.find_last_of(':');
 	request->setServerName(host.substr(0, colon_pos));
 	int port = -1;
+	if (colon_pos == std::string::npos)
+	{
+		request->setHasHostDefined(true);
+		request->setPort(port);
+		return;
+	}
+
 	try
 	{
 		port = std::stoi(host.substr(colon_pos + 1));
 	}
 	catch(const std::logic_error& e)
 	{
-		throw BadRequestException("Invalid Host header");
+		throw BadRequestException("Invalid Host header port");
 	}
 
 	request->setHasHostDefined(true);
@@ -342,8 +349,6 @@ bool HttpRequestParser::parseRedirection(HttpRequest *request, Server *server)
 void HttpRequestParser::parseIndexPathAndDirectoryListing(HttpRequest *request, Server *server)
 {
 	std::string uri = request->getUri();
-	std::cout << "Uri: " << uri << std::endl;
-	std::cout << "Method: " << Util::translateMethod(request->getMethod()) << std::endl;
 	if (request->getMethod() == Util::METHOD::POST)
 	{
 		std::string indexPath = request->getDirectory();
@@ -358,7 +363,6 @@ void HttpRequestParser::parseIndexPathAndDirectoryListing(HttpRequest *request, 
 		{
 			std::string indexPath = request->getDirectory();
 			indexPath.append(indexValues->front());
-			std::cout << "Index: " << indexPath << std::endl;
 			request->setResourcePath(indexPath);
 			return;
 		}
