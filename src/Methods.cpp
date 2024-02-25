@@ -6,7 +6,6 @@ void Methods::executePost(HttpRequest *request, Server *server)
 	if (body.empty())
 		throw BadRequestException("empty body on POST request");
 
-	// add checking if the upload folder is configured
 	std::string uploadLocation = request->getUri();
 	const std::vector<std::string>* uploadAllowed = server->getLocationValue(uploadLocation, UPLOAD_DIR);
 	if (!uploadAllowed || uploadLocation.empty())
@@ -36,9 +35,11 @@ void Methods::executeDelete(HttpRequest request)
 	std::string filePath = request.getResourcePath();
 
 	std::string fullPath = FileHandler::getFilePath(filePath);
+	if (access(fullPath.c_str(), F_OK) != 0)
+		throw ForbiddenException("Requested file not found");
 	int result = remove(fullPath.c_str());
 	if (result == 0)
 		return ;
-	throw BadRequestException("Something went wrong");
+	throw InternalException("Something went wrong");
 }
 

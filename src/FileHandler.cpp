@@ -115,49 +115,17 @@ std::string FileHandler::getFileResource(HttpRequest *request, std::ios_base::op
 	return body;
 }
 
-std::string FileHandler::getUploadFileContent(std::string path, std::ios_base::openmode mode)
-{
-	std::ifstream file(path);
-	if (!file.is_open() || file.fail() || file.bad())
-	{
-		std::string message = "Could not open file ";
-		message.append(path);
-		message.append(" for reading");
-		throw FileException(message);
-	}
-
-	std::string body;
-	if (mode == std::ios::binary)
-	{
-		std::stringstream contents;
-		contents << file.rdbuf();
-		body.append(contents.str());
-	}
-	else
-	{
-		std::string line;
-		while (getline(file, line))
-		{
-			body.append(line);
-			body.append(HTTP_LINEBREAK);
-		}
-	}
-
-	file.close();
-	return body;
-}
-
-std::string FileHandler::getErrorFileContent(unsigned int status, Server *server)
+std::string FileHandler::getResponseFileContent(unsigned int status, Server *server)
 {
 	std::string relativePath;
-	std::string customErrorPagePath = server->getErrorPagePath(status);
-	if (customErrorPagePath.empty())
+	std::string customResponsePagePath = server->getResponsePagePath(status);
+	if (customResponsePagePath.empty())
 	{
-		relativePath = DEFAULT_ERRORPAGES_PATH;
+		relativePath = DEFAULT_RESPONSEPAGES_PATH;
 		relativePath.append(std::to_string(status)).append(".html");
 	}
 	else
-		relativePath = customErrorPagePath;
+		relativePath = customResponsePagePath;
 
 	std::string path(getFilePath(relativePath));
 	std::ifstream file(path);

@@ -213,5 +213,7 @@ std::string	CgiHandler::executeCgi(HttpRequest request, Server *server)
 	Util::freeStringArray(environmentString);
 	Util::freeStringArray(argumentString);
 
+	if (response.empty())
+		throw ErrorInCGIException("CGI execution failed");
 	return response;
 }

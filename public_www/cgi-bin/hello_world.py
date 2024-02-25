@@ -22,7 +22,7 @@ if not form_input:
 	</center>
   	</body>
 	</html>"""
-	response = f"HTTP/1.1 500 Internal Server Error\r\nDate: {date_time}\r\nContent-Type: text/html\r\nContent-Length: {len(html_content)} \r\n\r\n"
+	response = f"HTTP/1.1 502 Error in CGI\r\nDate: {date_time}\r\nContent-Type: text/html\r\nContent-Length: {len(html_content)} \r\n\r\n"
 	sys.stdout.write(response + html_content)
 	exit()
 
@@ -44,7 +44,7 @@ if len(parts) != 2:
 	</center>
   	</body>
 	</html>"""
-	response = f"HTTP/1.1 500 Internal Server Error\r\nDate: {date_time}\r\nContent-Type: text/html\r\nContent-Length: {len(html_content)} \r\n\r\n"
+	response = f"HTTP/1.1 502 Error in CGI\r\nDate: {date_time}\r\nContent-Type: text/html\r\nContent-Length: {len(html_content)} \r\n\r\n"
 	sys.stdout.write(response + html_content)
 	exit()
 

@@ -126,10 +126,10 @@ void	Server::addToVectorMap(vectorMap &vMap, std::string line)
 	vMap.insert(std::pair<std::string, std::vector<std::string> >(key, vstrings));
 }
 
-bool Server::addErrorPage(int status, std::string index)
+bool Server::addResponsePage(int status, std::string index)
 {
 	std::pair<std::map<int, std::string>::iterator, bool> result;
-	result = this->_errorpages.insert(std::pair<int, std::string>(status, index));
+	result = this->_responsepages.insert(std::pair<int, std::string>(status, index));
 	return result.second;
 }
 
@@ -191,10 +191,10 @@ const std::vector<std::string>*	Server::getLocationValue(std::string location, s
 	return nullptr;
 }
 
-const std::string Server::getErrorPagePath(int status)
+const std::string Server::getResponsePagePath(int status)
 {
-	std::map<int, std::string>::iterator it = this->_errorpages.find(status);
-	if (it == this->_errorpages.end())
+	std::map<int, std::string>::iterator it = this->_responsepages.find(status);
+	if (it == this->_responsepages.end())
 		return "";
 	return it->second;
 }

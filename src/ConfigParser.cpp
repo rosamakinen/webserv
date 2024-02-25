@@ -147,12 +147,13 @@ std::vector<int> ConfigParser::validErrorStatusCodes =
 	415,
 	500,
 	501,
+	502,
 	504 
 };
 
 bool ConfigParser::invalidErrorPageConfig(int status, std::string path)
 {
-	for (std::vector<int>::iterator it = validErrorStatusCodes.begin();; it++)
+	for (std::vector<int>::iterator it = validErrorStatusCodes.begin(); ; it++)
 	{
 		if (status == *it)
 			break;
@@ -218,7 +219,7 @@ void ConfigParser::checkMain(const std::string& keyword, const std::string& valu
 		if (!invalidErrorPageConfig(status, path))
 			configError("Invalid error page configuration.", lineNumber);
 
-		if (!temporaryServer->addErrorPage(status, path))
+		if (!temporaryServer->addResponsePage(status, path))
 			configError("Duplicate error page configuration.", lineNumber);
 	}
 }
