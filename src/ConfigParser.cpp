@@ -6,12 +6,14 @@ ConfigParser::ConfigParser() : lineNumber(1), temporaryServer(nullptr)
 
 ConfigParser::~ConfigParser()
 {
-	for (const std::pair<const std::string, Server*> &serverPair : servers)
+	for (std::pair<const std::string, Server*>& serverPair : servers)
+	{
 		delete serverPair.second;
+		serverPair.second = nullptr; // Just in case.
+	}
 	servers.clear();
 	sectionStack.clear();
 }
-
 
 static std::string trim(const std::string& str)
 {
@@ -71,13 +73,13 @@ static bool checkValidDirectory(const std::string& line, std::string key)
 	return true;
 }
 
-static void uniChecker(const std::map<std::string, Server*> &servers)
+static void uniChecker(const std::map<std::string, Server*>& servers)
 {
 	if (servers.empty())
 		throw ConfigurationException("No servers detected.");
 	std::set<std::string> uniqueHostPortCombos;
 
-	for (const std::pair<const std::string, Server*> &serverPair : servers)
+	for (const std::pair<const std::string, Server*>& serverPair : servers)
 	{
 		const Server* server = serverPair.second;
 		std::string hostPortCombo = server->getHostIp() + ":" + std::to_string(server->getListenPort());
@@ -109,7 +111,7 @@ void ConfigParser::configError(const std::string& str, size_t lineNumber)
 	throw ConfigurationException(base);
 }
 
-const std::map<std::string, Server*> &ConfigParser::getServers() const
+const std::map<std::string, Server*>& ConfigParser::getServers() const
 {
 	return this->servers;
 }
@@ -118,7 +120,7 @@ Server* ConfigParser::checkServer()
 {
 	if (temporaryServer && !temporaryServer->getName().empty())
 	{
-		const std::string &serverName = temporaryServer->getName();
+		const std::string& serverName = temporaryServer->getName();
 		if (servers.find(serverName) != servers.end())
 			configError("Server with the same name already exists.", lineNumber);
 		else
@@ -128,7 +130,7 @@ Server* ConfigParser::checkServer()
 	currentSection.clear();
 	currentLocation.clear();
 
-	Server *server = new Server();
+	Server* server = new Server();
 	if (servers.empty())
 		server->setAsDefault();
 
@@ -142,8 +144,11 @@ std::vector<int> ConfigParser::validErrorStatusCodes =
 	404,
 	405,
 	413,
+	415,
 	500,
-	504
+	501,
+	502,
+	504 
 };
 
 bool ConfigParser::invalidErrorPageConfig(int status, std::string path)
@@ -184,7 +189,7 @@ void ConfigParser::checkMain(const std::string& keyword, const std::string& valu
 		{
 			port = std::stoi(value);
 		}
-		catch(const std::exception& e)
+		catch (const std::exception& e)
 		{
 			configError("Invalid port number.", lineNumber);
 		}
@@ -206,7 +211,7 @@ void ConfigParser::checkMain(const std::string& keyword, const std::string& valu
 		{
 			status = std::stoi(value);
 		}
-		catch(const std::exception& e)
+		catch (const std::exception& e)
 		{
 			configError("Invalid status code.", lineNumber);
 		}
@@ -214,11 +219,10 @@ void ConfigParser::checkMain(const std::string& keyword, const std::string& valu
 		if (!invalidErrorPageConfig(status, path))
 			configError("Invalid error page configuration.", lineNumber);
 
-		if (!temporaryServer->addErrorPage(status, path))
+		if (!temporaryServer->addResponsePage(status, path))
 			configError("Duplicate error page configuration.", lineNumber);
 	}
 }
-
 
 void ConfigParser::parseConfig(const std::string& filename)
 {
@@ -261,9 +265,10 @@ void ConfigParser::parseConfig(const std::string& filename)
 				clearMap(vStack);
 			}
 		}
-	lineNumber++;
+		lineNumber++;
 	}
-	if (temporaryServer) {
+	if (temporaryServer)
+	{
 		std::string serverName = "";
 		serverName = temporaryServer->getName();
 
@@ -275,7 +280,7 @@ void ConfigParser::parseConfig(const std::string& filename)
 	uniChecker(servers);
 }
 
-void ConfigParser::processLine(const std::string &line)
+void ConfigParser::processLine(const std::string& line)
 {
 	std::istringstream iss(line);
 	std::string keyword;
@@ -307,7 +312,6 @@ void ConfigParser::processLine(const std::string &line)
 		iss >> currentLocation;
 		if (currentLocation.empty())
 			configError("Unnamed location.", lineNumber);
-
 	}
 	else if (currentSection.compare(LOCATIONBLOCK) == 0)
 	{

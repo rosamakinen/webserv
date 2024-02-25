@@ -48,7 +48,7 @@ void HttpResponse::setResponseBody(HttpRequest *request, Server *server)
 	if (this->getStatus().first != 200)
 	{
 		this->_contentType = _contenttypes.find(EXT_HTML)->second;
-		setBody(FileHandler::getErrorFileContent(this->getStatus().first, server));
+		setBody(FileHandler::getResponseFileContent(this->getStatus().first, server));
 	}
 	else
 	{
