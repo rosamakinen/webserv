@@ -148,7 +148,6 @@ std::vector<int> ConfigParser::validErrorStatusCodes =
 	500,
 	501,
 	502,
-	501,
 	504 
 };
 
