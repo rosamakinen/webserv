@@ -103,6 +103,12 @@ void Client::updateStatus()
 	if (this->_request == nullptr)
 		return;
 
+	if (this->getRequest()->getIsDirListing())
+	{
+		this->setStatus(Client::STATUS::READY_TO_HANDLE);
+		return;
+	}
+
 	if (this->_status == Client::STATUS::INCOMING)
 	{
 		if (this->_request->getMethod() != Util::METHOD::POST && this->_request->getMethod() != Util::METHOD::CGI_POST)

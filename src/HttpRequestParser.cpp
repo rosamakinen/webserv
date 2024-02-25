@@ -324,16 +324,14 @@ void HttpRequestParser::parseMethod(std::string &requestLine, HttpRequest *reque
 
 bool HttpRequestParser::parseRedirection(HttpRequest *request, Server *server)
 {
-	std::cout << "Checking for redirection in location: " << request->getLocation() << std::endl;
 	const std::vector<std::string> *redirectionValues = server->getLocationValue(request->getLocation(), REDIR);
 	if (redirectionValues != nullptr)
 	{
 		std::string location = redirectionValues->front();
-		std::cout << "In redirection path parsing the path: " << location << std::endl;
 		request->setRedirLocation(location);
 		request->setIsRedirected(true);
 	}
-	std::cout << "parsing redirection!" << std::endl;
+
 	return request->getIsRedirected();
 }
 
