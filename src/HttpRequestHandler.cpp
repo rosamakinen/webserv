@@ -1,5 +1,9 @@
 #include "../include/HttpRequestHandler.hpp"
 
+void HttpRequestHandler::redirectClient(Client *client, Server *server)
+{
+}
+
 void HttpRequestHandler::parseOkResponse(Client *client, Server *server)
 {
 	HttpResponse *response = new HttpResponse();
@@ -48,21 +52,21 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 			case Util::METHOD::GET:
 			{
 				parseOkResponse(client, server);
-				return;
+				break;
 			}
 
 			case Util::METHOD::POST:
 			{
 				Methods::executePost(client->getRequest(), client->getServer());
 				parseOkResponse(client, server);
-				return ;
+				break;
 			}
 
 			case Util::METHOD::DELETE:
 			{
 				Methods::executeDelete(*client->getRequest());
 				parseOkResponse(client, server);
-				return;
+				break;
 			}
 
 			case Util::METHOD::CGI_GET:
@@ -70,7 +74,7 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 				std::string cgiResponse = CgiHandler::executeCgi(*client->getRequest(), server);
 				parseOkResponse(client, server);
 				client->getResponse()->setCgiResponse(cgiResponse);
-				return;
+				break;
 			}
 
 			case Util::METHOD::CGI_POST:
@@ -78,7 +82,7 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 				std::string cgiResponse = CgiHandler::executeCgi(*client->getRequest(), server);
 				parseOkResponse(client, server);
 				client->getResponse()->setCgiResponse(cgiResponse);
-				return;
+				break;
 			}
 
 			default :
@@ -90,6 +94,8 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 	{
 		client->setResponse(parseErrorResponse(server, ExceptionManager::getErrorStatus(e)));
 	}
+
+	redirectClient(client, server);
 }
 
 HttpRequestHandler::HttpRequestHandler()
