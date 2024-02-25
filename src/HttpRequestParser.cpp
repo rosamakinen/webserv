@@ -152,7 +152,7 @@ size_t HttpRequestParser::countBody(std::string requestInput, HttpRequest *reque
 
 Server *HttpRequestParser::getServer(HttpRequest *request, std::map<std::string, Server *>& servers)
 {
-	return Server::getServer(request->getServerName(), servers);
+	return Server::getServer(request->getServerName(), request, servers);
 }
 
 void HttpRequestParser::parseHost(HttpRequest *request)
@@ -175,6 +175,7 @@ void HttpRequestParser::parseHost(HttpRequest *request)
 		throw BadRequestException("Invalid Host header");
 	}
 
+	request->setHasHostDefined(true);
 	request->setPort(port);
 }
 

@@ -1,6 +1,6 @@
 #include "../include/HttpRequest.hpp"
 
-HttpRequest::HttpRequest() : _version("HTTP/1.1"), _isDirListing(false), _isRedirected(false)
+HttpRequest::HttpRequest() : _version("HTTP/1.1"), _isDirListing(false), _isRedirected(false), _hasHostDefined(false)
 {
 }
 
@@ -93,9 +93,19 @@ void HttpRequest::setIsRedirected(bool isRedirected)
 	this->_isRedirected = isRedirected;
 }
 
+void HttpRequest::setHasHostDefined(bool hasHostDefined)
+{
+	this->_hasHostDefined = hasHostDefined;
+}
+
 bool HttpRequest::getIsRedirected()
 {
 	return this->_isRedirected;
+}
+
+bool HttpRequest::getHasHostDefined()
+{
+	return this->_hasHostDefined;
 }
 
 int HttpRequest::getPort()

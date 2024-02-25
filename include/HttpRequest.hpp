@@ -27,12 +27,14 @@ class HttpRequest
 		const std::string getHeader(std::string key);
 		bool getIsDirListing();
 		bool getIsRedirected();
+		bool getHasHostDefined();
 		int getPort();
 		std::string getServerName();
 		std::string getFileName();
 
 		void setIsDirListing(bool isDirListing);
 		void setIsRedirected(bool isRedirected);
+		void setHasHostDefined(bool hasHostDefined);
 		void setMethod(Util::METHOD method);
 		void setUri(std::string uri);
 		void setHost(std::string host);
@@ -72,6 +74,7 @@ class HttpRequest
 		size_t _bodyLength;
 		bool _isDirListing;
 		bool _isRedirected;
+		bool _hasHostDefined;
 		std::map<std::string, std::string> _parameters;
 		std::map<std::string, std::string> _headers;
 };
