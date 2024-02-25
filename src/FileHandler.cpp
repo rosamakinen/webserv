@@ -78,9 +78,14 @@ std::string FileHandler::getFileResource(HttpRequest *request, std::ios_base::op
 	struct stat file_status;
 	if ((stat(fullPath.c_str(), &file_status) == 0) && S_ISDIR(file_status.st_mode))
 	{
+		if (fullPath[fullPath.length() - 1] != '/')
+		{
+			std::string message = "Could not access file ";
+			message.append(fullPath);
+			throw NotFoundException(message);
+		}
 		if (request->getIsDirListing())
 			return buildDirListing(fullPath);
-
 		throw NotFoundException("Directory found but not accessable for directory listing");
 	}
 
