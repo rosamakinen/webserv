@@ -424,8 +424,9 @@ int	HttpRequestParser::compareAndSubstring(std::string method, std::string &requ
 
 void HttpRequestParser::validateVersion(std::string &requestLine)
 {
-	if (requestLine.compare(HTTP_VERSION) == 0)
-		throw BadRequestException("Unsupported HTTP version");
+	size_t version = requestLine.find(HTTP_VERSION);
+	if (version == std::string::npos)
+		throw HttpVersionNotSupportedException("Unsupported HTTP version");
 }
 
 void HttpRequestParser::parseMethodStr(std::string &requestLine)

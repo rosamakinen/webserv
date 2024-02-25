@@ -148,7 +148,8 @@ std::vector<int> ConfigParser::validErrorStatusCodes =
 	500,
 	501,
 	502,
-	504 
+	504,
+	505
 };
 
 bool ConfigParser::invalidErrorPageConfig(int status, std::string path)

@@ -25,6 +25,8 @@ std::pair<unsigned int, std::string> ExceptionManager::getErrorStatus(const Exce
 		return std::pair<unsigned int, std::string>(501, "Not Implemented");
 	else if (typeid(e) == typeid(ErrorInCGIException))
 		return std::pair<unsigned int, std::string>(502, "Error in CGI application");
+	else if (typeid(e) == typeid(HttpVersionNotSupportedException))
+		return std::pair<unsigned int, std::string>(505, "Http Version Not Supported");
 
 	// If we fall all the way down here, let's just give a 500
 	return std::pair<unsigned int, std::string>(500, "Internal Server Error");

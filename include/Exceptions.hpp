@@ -52,6 +52,12 @@ class UnsupportedMediaTypeException : public Exception
 		UnsupportedMediaTypeException(const std::string message) : Exception(message) { };
 };
 
+class HttpVersionNotSupportedException : public Exception
+{
+	public:
+		HttpVersionNotSupportedException(const std::string message) : Exception(message) { };
+};
+
 class GatewayTimeoutException : public Exception
 {
 	public:
