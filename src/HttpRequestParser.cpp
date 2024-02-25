@@ -297,13 +297,16 @@ void HttpRequestParser::validateMethod(HttpRequest *request, Server *server)
 		throw MethodNotAllowedException("Requested method is not allowed for the location");
 
 	Util::METHOD method = request->getMethod();
+	if (method == Util::METHOD::NONE)
+		return;
+
 	for (std::vector<std::string>::const_iterator it = values->begin(); it != values->end(); it++)
 	{
 		if (it->compare(Util::translateMethod(method)) == 0)
 			return;
 	}
 
-	throw NotImplementedException("Requested method is not supported");
+	throw MethodNotAllowedException("Requested method is not supported");
 }
 
 void HttpRequestParser::parseMethod(std::string &requestLine, HttpRequest *request)

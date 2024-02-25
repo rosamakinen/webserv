@@ -111,7 +111,7 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 			}
 
 			default :
-				throw NotImplementedException("Method not allowed");
+				throw NotImplementedException("Method not implemented");
 				break;
 		}
 	}
