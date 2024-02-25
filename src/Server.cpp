@@ -133,7 +133,6 @@ bool Server::addResponsePage(int status, std::string index)
 	return result.second;
 }
 
-//Getters
 std::string	Server::getName() const
 {
 	return this->_name;

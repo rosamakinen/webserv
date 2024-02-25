@@ -20,7 +20,6 @@ Socket::Socket(const int portNumber, std::string host) : _fd(-1)
 	this->_fd = socket(PF_INET, SOCK_STREAM, 0);
 	isCallValid(this->_fd, "Failed to create the socket", -1, false);
 
-	// Make socket non-blocking by adding flag
 	int result = fcntl(this->_fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 	isCallValid(result, "Failed to set socket as non/blocking", this->_fd, false);
 
@@ -57,7 +56,6 @@ int Socket::acceptConnection(int fd) const
 	if (connection == -1)
 		return -1;
 
-	// Make non-blocking by adding flag
 	int result = fcntl(connection, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 	isCallValid(result, "Failed to set connection as non/blocking", connection, false);
 

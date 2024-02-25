@@ -52,7 +52,6 @@ void HttpResponse::setResponseBody(HttpRequest *request, Server *server)
 	}
 	else
 	{
-		// TODO add redirection from configurated root to the index
 		std::ios_base::openmode mode = setContentType(request->getResourcePath());
 		setBody(FileHandler::getFileResource(request, mode));
 	}
