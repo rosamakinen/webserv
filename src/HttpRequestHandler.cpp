@@ -2,7 +2,7 @@
 
 bool HttpRequestHandler::redirectClient(Client *client)
 {
-	if (client->getRequest()->getIsDirListing())
+	if (client->getRequest()->getIsRedirected())
 		return true;
 	return false;
 }

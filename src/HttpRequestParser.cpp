@@ -341,6 +341,8 @@ bool HttpRequestParser::parseRedirection(HttpRequest *request, Server *server)
 void HttpRequestParser::parseIndexPathAndDirectoryListing(HttpRequest *request, Server *server)
 {
 	std::string uri = request->getUri();
+	std::cout << "Uri: " << uri << std::endl;
+	std::cout << "Method: " << Util::translateMethod(request->getMethod()) << std::endl;
 	if (request->getMethod() == Util::METHOD::POST)
 	{
 		std::string indexPath = request->getDirectory();
@@ -355,6 +357,7 @@ void HttpRequestParser::parseIndexPathAndDirectoryListing(HttpRequest *request, 
 		{
 			std::string indexPath = request->getDirectory();
 			indexPath.append(indexValues->front());
+			std::cout << "Index: " << indexPath << std::endl;
 			request->setResourcePath(indexPath);
 			return;
 		}
