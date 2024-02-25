@@ -34,7 +34,7 @@
 #define LOCAL_DIR			"directory"
 #define UPLOAD_DIR			"upload"
 #define INDEX				"index"
-#define RESPONSEPAGE_LOCATION	"response_page"
+#define ERRORPAGE_LOCATION	"error_page"
 #define SERVER_DEFAULT_NAME	"default"
 #define TRUE				"true"
 #define DEFAULT_FILE		"default.txt"

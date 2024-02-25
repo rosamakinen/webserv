@@ -137,11 +137,8 @@ Server* ConfigParser::checkServer()
 	return server;
 }
 
-std::vector<int> ConfigParser::validResponseStatusCodes =
+std::vector<int> ConfigParser::validErrorStatusCodes =
 {
-	200,
-	201,
-	204,
 	400,
 	403,
 	404,
@@ -155,13 +152,13 @@ std::vector<int> ConfigParser::validResponseStatusCodes =
 	504 
 };
 
-bool ConfigParser::invalidResponsePageConfig(int status, std::string path)
+bool ConfigParser::invalidErrorPageConfig(int status, std::string path)
 {
-	for (std::vector<int>::iterator it = validResponseStatusCodes.begin(); ; it++)
+	for (std::vector<int>::iterator it = validErrorStatusCodes.begin(); ; it++)
 	{
 		if (status == *it)
 			break;
-		if (it == validResponseStatusCodes.end())
+		if (it == validErrorStatusCodes.end())
 			return false;
 	}
 
@@ -206,7 +203,7 @@ void ConfigParser::checkMain(const std::string& keyword, const std::string& valu
 		temporaryServer->setName(value);
 	else if (keyword.compare(PARSESIZE) == 0)
 		temporaryServer->setClientMaxBodySize(std::stol(value));
-	else if (keyword.compare(RESPONSEPAGE_LOCATION) == 0)
+	else if (keyword.compare(ERRORPAGE_LOCATION) == 0)
 	{
 		if (value.empty() || path.empty())
 			configError("Invalid error page configuration.", lineNumber);
@@ -220,7 +217,7 @@ void ConfigParser::checkMain(const std::string& keyword, const std::string& valu
 			configError("Invalid status code.", lineNumber);
 		}
 
-		if (!invalidResponsePageConfig(status, path))
+		if (!invalidErrorPageConfig(status, path))
 			configError("Invalid error page configuration.", lineNumber);
 
 		if (!temporaryServer->addResponsePage(status, path))
