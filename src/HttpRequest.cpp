@@ -1,6 +1,6 @@
 #include "../include/HttpRequest.hpp"
 
-HttpRequest::HttpRequest() : _version("HTTP/1.1"), _isDirListing(false)
+HttpRequest::HttpRequest() : _version("HTTP/1.1"), _isDirListing(false), _isRedirected(false)
 {
 }
 
@@ -55,6 +55,11 @@ void HttpRequest::setFileName(std::string fileName)
 	this->_filename = fileName;
 }
 
+void HttpRequest::setRedirLocation(std::string redirLocation)
+{
+	this->_redirLocation = redirLocation;
+}
+
 void HttpRequest::appendBody(std::string body)
 {
 	this->_body.append(body);
@@ -81,6 +86,16 @@ void HttpRequest::setIsDirListing(bool isDirListing)
 bool HttpRequest::getIsDirListing()
 {
 	return this->_isDirListing;
+}
+
+void HttpRequest::setIsRedirected(bool isRedirected)
+{
+	this->_isRedirected = isRedirected;
+}
+
+bool HttpRequest::getIsRedirected()
+{
+	return this->_isRedirected;
 }
 
 int HttpRequest::getPort()
@@ -116,6 +131,11 @@ std::string HttpRequest::getResourcePath() const
 std::string HttpRequest::getContentType() const
 {
 	return this->_contentType;
+}
+
+std::string HttpRequest::getRedirLocation() const
+{
+	return this->_redirLocation;
 }
 
 std::string HttpRequest::getDirectory() const

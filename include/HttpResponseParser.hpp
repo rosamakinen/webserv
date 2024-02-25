@@ -10,6 +10,7 @@ class HttpResponseParser
 {
 	public:
 		static std::string Parse(const HttpResponse& response);
+		static std::string ParseRedirect(const std::string content);
 };
 
 #endif

@@ -1,5 +1,28 @@
 #include "../include/HttpRequestHandler.hpp"
 
+bool HttpRequestHandler::redirectClient(Client *client)
+{
+	if (client->getRequest()->getIsRedirected())
+		return true;
+	return false;
+}
+
+void HttpRequestHandler::parseRedirResponse(Client *client, Server *server)
+{
+	HttpResponse *response = new HttpResponse();
+	try
+	{
+		response->setStatus(std::pair<unsigned int, std::string>(301, "Moved Permanently"));
+	}
+	catch(const Exception& e)
+	{
+		delete response;
+		response = parseErrorResponse(server, ExceptionManager::getErrorStatus(e));
+	}
+
+	client->setResponse(response);
+}
+
 void HttpRequestHandler::parseOkResponse(Client *client, Server *server)
 {
 	HttpResponse *response = new HttpResponse();
@@ -43,26 +66,32 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 {
 	try
 	{
+		if (redirectClient(client))
+		{
+			parseRedirResponse(client, server);
+			return ;
+		}
+
 		switch (client->getRequest()->getMethod())
 		{
 			case Util::METHOD::GET:
 			{
 				parseOkResponse(client, server);
-				return;
+				break;
 			}
 
 			case Util::METHOD::POST:
 			{
 				Methods::executePost(client->getRequest(), client->getServer());
 				parseOkResponse(client, server);
-				return ;
+				break;
 			}
 
 			case Util::METHOD::DELETE:
 			{
 				Methods::executeDelete(*client->getRequest());
 				parseOkResponse(client, server);
-				return;
+				break;
 			}
 
 			case Util::METHOD::CGI_GET:
@@ -70,7 +99,7 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 				std::string cgiResponse = CgiHandler::executeCgi(*client->getRequest(), server);
 				parseOkResponse(client, server);
 				client->getResponse()->setCgiResponse(cgiResponse);
-				return;
+				break;
 			}
 
 			case Util::METHOD::CGI_POST:
@@ -78,11 +107,11 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 				std::string cgiResponse = CgiHandler::executeCgi(*client->getRequest(), server);
 				parseOkResponse(client, server);
 				client->getResponse()->setCgiResponse(cgiResponse);
-				return;
+				break;
 			}
 
 			default :
-				throw NotImplementedException("Method not allowed");
+				throw NotImplementedException("Method not implemented");
 				break;
 		}
 	}
@@ -90,6 +119,7 @@ void HttpRequestHandler::handleRequest(Client *client, Server *server)
 	{
 		client->setResponse(parseErrorResponse(server, ExceptionManager::getErrorStatus(e)));
 	}
+
 }
 
 HttpRequestHandler::HttpRequestHandler()

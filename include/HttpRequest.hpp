@@ -19,17 +19,20 @@ class HttpRequest
 		std::string getLocation() const;
 		std::string getResourcePath() const;
 		std::string getContentType() const;
+		std::string getRedirLocation() const;
 		size_t getContentLength() const;
 		size_t getBodyLength() const;
 		std::map<std::string, std::string> getParameters();
 		std::map<std::string, std::string> getHeaders();
 		const std::string getHeader(std::string key);
 		bool getIsDirListing();
+		bool getIsRedirected();
 		int getPort();
 		std::string getServerName();
 		std::string getFileName();
 
 		void setIsDirListing(bool isDirListing);
+		void setIsRedirected(bool isRedirected);
 		void setMethod(Util::METHOD method);
 		void setUri(std::string uri);
 		void setHost(std::string host);
@@ -45,6 +48,7 @@ class HttpRequest
 		void setPort(int port);
 		void setServerName(std::string name);
 		void setFileName(std::string fileName);
+		void setRedirLocation(std::string redirLocation);
 
 	private:
 		static const std::string	_allowedMethods[];
@@ -59,6 +63,7 @@ class HttpRequest
 		std::string _location;
 		std::string _contentType;
 		std::string _server_name;
+		std::string _redirLocation;
 
 		std::string _filename;
 
@@ -66,6 +71,7 @@ class HttpRequest
 		size_t _contentLength;
 		size_t _bodyLength;
 		bool _isDirListing;
+		bool _isRedirected;
 		std::map<std::string, std::string> _parameters;
 		std::map<std::string, std::string> _headers;
 };

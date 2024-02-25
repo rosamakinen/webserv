@@ -156,7 +156,7 @@ std::string ServerHandler::readRequest(int connection, unsigned int buffer_size)
 
 void ServerHandler::writeResponse(int connection, const std::string response)
 {
-	int result = send(connection, response.c_str(), response.size(), 0);
+	int result = send(connection, response.c_str(), response.length(), 0);
 	if (result < 0)
 		throw InternalException("Could not send response to client");
 }
@@ -244,7 +244,12 @@ void ServerHandler::handleOutgoingResponse(pollfd *fd)
 	std::map<int, Client*>::iterator it = _clients.find(fd->fd);
 	if (it == _clients.end())
 		return;
-	writeResponse(fd->fd, HttpResponseParser::Parse(*it->second->getResponse()));
+	if (it->second->getRequest() != nullptr && it->second->getRequest()->getIsRedirected())
+	{
+		writeResponse(fd->fd, HttpResponseParser::ParseRedirect(it->second->getRequest()->getRedirLocation()));
+	}
+	else
+		writeResponse(fd->fd, HttpResponseParser::Parse(*it->second->getResponse()));
 	it->second->setStatus(Client::STATUS::NONE);
 
 	bool close = it->second->closeConnection();

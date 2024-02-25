@@ -38,8 +38,10 @@
 #define SERVER_DEFAULT_NAME	"default"
 #define TRUE				"true"
 #define DEFAULT_FILE		"default.txt"
+#define REDIR				"return"
 
 #define DEFAULT_RESPONSEPAGES_PATH "/public_www/response_pages/"
+#define REDIRECT_PATH "/public_www/response_pages/301"
 
 #define HTTP_METHOD			"method"
 #define HTTP_GET			"GET"

@@ -22,7 +22,9 @@ class HttpRequestHandler
 		~HttpRequestHandler();
 
 		HttpResponse *parseErrorResponse(Server *server, std::pair<unsigned int, std::string> status);
-		void	handleRequest(Client *client, Server *server);
+		void handleRequest(Client *client, Server *server);
+		bool redirectClient(Client *client);
+		void parseRedirResponse(Client *client, Server *server);
 };
 
 #endif

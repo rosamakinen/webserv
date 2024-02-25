@@ -53,6 +53,8 @@ static std::string getQueryString(HttpRequest request)
 		case Util::METHOD::CGI_POST:
 		{
 			query = request.getBody();
+			if (query.empty())
+				query = transferToString(request.getParameters());
 			return query;
 			break;
 		}

@@ -12,6 +12,7 @@ class HttpRequestParser
 {
 	private:
 		Server *getServer(HttpRequest *request, std::map<std::string, Server *>& servers);
+		bool parseRedirection(HttpRequest *request, Server *server);
 		void parseHost(HttpRequest *request);
 		void parseParameters(std::string uri, std::map<std::string, std::string>& parameters);
 		void parseUri(std::string &requestLine, HttpRequest *request);

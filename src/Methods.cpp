@@ -36,7 +36,7 @@ void Methods::executeDelete(HttpRequest request)
 
 	std::string fullPath = FileHandler::getFilePath(filePath);
 	if (access(fullPath.c_str(), F_OK) != 0)
-		throw ForbiddenException("Requested file not found");
+		throw NotFoundException("Requested file not found");
 	int result = remove(fullPath.c_str());
 	if (result == 0)
 		return ;

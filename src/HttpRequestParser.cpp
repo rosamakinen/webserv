@@ -13,11 +13,9 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 		std::stringstream ss(requestInput);
 		std::string requestLine;
 
-		// Parse the request line
 		getline(ss, requestLine);
 		parseRequestLine(requestLine, request);
 
-		// Parse the headers
 		while (getline(ss, requestLine))
 		{
 			if (requestLine.compare("\r") == 0)
@@ -28,6 +26,8 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 		parseHost(request);
 		Server *server = getServer(request, servers);
 		parseDirectoryAndLocation(request, server);
+		if (request->getIsRedirected())
+			return request;
 		validateMethod(request, server);
 		parseIndexPathAndDirectoryListing(request, server);
 		parseCgiMethod(request);
@@ -278,6 +278,8 @@ void HttpRequestParser::parseDirectoryAndLocation(HttpRequest *request, Server *
 	if (!server->isLocationInServer(directoryPath))
 		throw NotFoundException("Location does not exist");
 	request->setLocation(directoryPath);
+	if (parseRedirection(request, server))
+		return ;
 
 	const std::vector<std::string>* workingDir = server->getLocationValue(directoryPath, LOCAL_DIR);
 	if (workingDir == nullptr || workingDir->size() != 1)
@@ -293,13 +295,16 @@ void HttpRequestParser::validateMethod(HttpRequest *request, Server *server)
 		throw MethodNotAllowedException("Requested method is not allowed for the location");
 
 	Util::METHOD method = request->getMethod();
+	if (method == Util::METHOD::NONE)
+		return;
+
 	for (std::vector<std::string>::const_iterator it = values->begin(); it != values->end(); it++)
 	{
 		if (it->compare(Util::translateMethod(method)) == 0)
 			return;
 	}
 
-	throw NotImplementedException("Requested method is not supported");
+	throw MethodNotAllowedException("Requested method is not supported");
 }
 
 void HttpRequestParser::parseMethod(std::string &requestLine, HttpRequest *request)
@@ -315,6 +320,20 @@ void HttpRequestParser::parseMethod(std::string &requestLine, HttpRequest *reque
 		parseMethodStr(requestLine);
 
 	request->setMethod(method);
+}
+
+
+bool HttpRequestParser::parseRedirection(HttpRequest *request, Server *server)
+{
+	const std::vector<std::string> *redirectionValues = server->getLocationValue(request->getLocation(), REDIR);
+	if (redirectionValues != nullptr)
+	{
+		std::string location = redirectionValues->front();
+		request->setRedirLocation(location);
+		request->setIsRedirected(true);
+	}
+
+	return request->getIsRedirected();
 }
 
 void HttpRequestParser::parseIndexPathAndDirectoryListing(HttpRequest *request, Server *server)
@@ -406,8 +425,9 @@ int	HttpRequestParser::compareAndSubstring(std::string method, std::string &requ
 
 void HttpRequestParser::validateVersion(std::string &requestLine)
 {
-	if (requestLine.compare(HTTP_VERSION) == 0)
-		throw BadRequestException("Unsupported HTTP version");
+	size_t version = requestLine.find(HTTP_VERSION);
+	if (version == std::string::npos)
+		throw HttpVersionNotSupportedException("Unsupported HTTP version");
 }
 
 void HttpRequestParser::parseMethodStr(std::string &requestLine)
