@@ -39,7 +39,7 @@
 #define TRUE				"true"
 #define DEFAULT_FILE		"default.txt"
 
-#define DEFAULT_ERRORPAGES_PATH "/public_www/error_pages/"
+#define DEFAULT_RESPONSEPAGES_PATH "/public_www/response_pages/"
 
 #define HTTP_METHOD			"method"
 #define HTTP_GET			"GET"

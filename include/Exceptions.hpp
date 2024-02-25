@@ -64,17 +64,17 @@ class PayloadTooLargeException : public Exception
 		PayloadTooLargeException(const std::string message) : Exception(message) { };
 };
 
+class ErrorInCGIException : public Exception
+{
+	public:
+		ErrorInCGIException(const std::string message) : Exception(message) { };
+};
+
 // Internal exceptions - cause the program to shut down
 class ConfigurationException : public std::logic_error
 {
 	public:
 		ConfigurationException(const std::string message) : logic_error(message.c_str()) { };
-};
-
-class TimeOutException : public std::logic_error
-{
-	public:
-		TimeOutException(const std::string message) : logic_error(message.c_str()) { };
 };
 
 class PollException : public std::logic_error
