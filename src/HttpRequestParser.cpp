@@ -38,7 +38,7 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 		{
 			request->setBodyLength(countBody(requestInput, request));
 			std::string contentType = request->getHeader(H_CONTENT_TYPE);
-			if (contentType.compare(CT_TXT) == 0 || contentType.compare(CT_FRM) == 0)
+			if (contentType.compare(CT_TXT) == 0 || contentType.compare(CT_FRM) == 0 || contentType.compare(CT_TXT2) == 0)
 			{
 				while (getline(ss, requestLine))
 				{
@@ -200,6 +200,8 @@ bool HttpRequestParser::validContentType(std::string contentTypeToFind)
 	for (auto ct : _contenttypes)
 	{
 		if (contentTypeToFind.find(CT_TXT) != std::string::npos)
+			return true;
+		if (contentTypeToFind.find(CT_TXT2) != std::string::npos)
 			return true;
 		if (contentTypeToFind.find(CT_MLTP) != std::string::npos)
 			return true;

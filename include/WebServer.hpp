@@ -57,6 +57,7 @@
 #define EXT_JPEG			".jpeg"
 
 #define CT_TXT	"text/plain"
+#define CT_TXT2	"plain/text"
 #define CT_MLTP "multipart/form-data"
 #define CT_FRM	"application/x-www-form-urlencoded"
 
