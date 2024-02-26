@@ -67,6 +67,11 @@ $(NAME): $(OBJ) $(HS)
 	@$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
 	@echo "$(GREEN)Finished $(NAME)$(RESET)"
 
+whitelist: $(OBJ) $(HS)
+	@echo "$(YELLOW)Compiling $(NAME)...$(RESET)"
+	@$(CC) $(CFLAGS) $(WHITELIST) $(OBJ) -o $(NAME)
+	@echo "$(GREEN)Finished $(NAME)$(RESET)"
+
 #compile objects
 $(OBJ_DIR)%.o:$(SRC_DIR)%.cpp
 	@mkdir -p $(OBJ_DIR)
