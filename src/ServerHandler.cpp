@@ -179,9 +179,10 @@ bool ServerHandler::incomingClient(int fd)
 Server *ServerHandler::getServer(HttpRequest *request)
 {
 	if (request == nullptr)
-		return Server::getServer("", this->_servers);
-	else
-		return Server::getServer(request->getServerName(), this->_servers);
+		return Server::getServer("", nullptr, this->_servers);
+
+	Server *server = Server::getServer(request->getServerName(), request, this->_servers);
+	return server;
 }
 
 Client *ServerHandler::getOrCreateClient(pollfd *fd)

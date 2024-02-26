@@ -2,6 +2,7 @@
 #define SERVER_HPP
 
 #include "WebServer.hpp"
+#include "HttpRequest.hpp"
 #include "Socket.hpp"
 
 #include <iterator>
@@ -27,7 +28,7 @@ class Server
 			std::string clientMaxBodySize);
 		~Server();
 
-		static Server* getServer(std::string key, std::map<std::string, Server *>& servers);
+		static Server* getServer(std::string key, HttpRequest *request, std::map<std::string, Server *>& servers);
 
 		bool	isKeyInLocation(std::string locationBlock, std::string key) const;
 		bool	isLocationInServer(std::string locationBlock) const;

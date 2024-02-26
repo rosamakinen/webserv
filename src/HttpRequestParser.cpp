@@ -150,7 +150,7 @@ size_t HttpRequestParser::countBody(std::string requestInput, HttpRequest *reque
 
 Server *HttpRequestParser::getServer(HttpRequest *request, std::map<std::string, Server *>& servers)
 {
-	return Server::getServer(request->getServerName(), servers);
+	return Server::getServer(request->getServerName(), request, servers);
 }
 
 void HttpRequestParser::parseHost(HttpRequest *request)
@@ -158,21 +158,29 @@ void HttpRequestParser::parseHost(HttpRequest *request)
 	std::string host = request->getHeader("Host");
 	request->setHost(host);
 	if (host.empty())
-		return ;
+		throw BadRequestException("Missing the Host header");
 
 	std::string	name;
-	int	colon_pos = host.find_last_of(':');
+	size_t	colon_pos = host.find_last_of(':');
 	request->setServerName(host.substr(0, colon_pos));
 	int port = -1;
+	if (colon_pos == std::string::npos)
+	{
+		request->setHasHostDefined(true);
+		request->setPort(port);
+		return;
+	}
+
 	try
 	{
 		port = std::stoi(host.substr(colon_pos + 1));
 	}
 	catch(const std::logic_error& e)
 	{
-		throw BadRequestException("Invalid Host header");
+		throw BadRequestException("Invalid Host header port");
 	}
 
+	request->setHasHostDefined(true);
 	request->setPort(port);
 }
 

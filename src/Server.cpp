@@ -26,13 +26,38 @@ static Server* getDefaultServer(std::map<std::string, Server *>& servers)
 	return server;
 }
 
-Server *Server::getServer(std::string key, std::map<std::string, Server *>& servers)
+Server *Server::getServer(std::string key, HttpRequest *request, std::map<std::string, Server *>& servers)
 {
+	if (key.empty() || request == nullptr || !request->getHasHostDefined())
+		return getDefaultServer(servers);
+
+	Server *serverPtr = nullptr;
+	// Try to find the server by its name
 	std::map<std::string, Server *>::iterator it = servers.find(key);
 	if (it == servers.end())
-		return getDefaultServer(servers);
+	{
+		// We did not find the server by the name (or there was no name given), so we look for the hosting IP address
+		for (auto server : servers)
+		{
+			if (server.second->getHostIp().compare(key) == 0)
+			{
+				if (request->getPort() == -1 || server.second->getListenPort() == (size_t)request->getPort())
+				{
+					serverPtr = server.second;
+					break;
+				}
+			}
+		}
+	}
 	else
-		return it->second;
+		serverPtr = it->second;
+
+	if (serverPtr == nullptr)
+		throw ForbiddenException("Accessing server listening to another port");
+	else if (request->getPort() == -1 || serverPtr->getListenPort() == (size_t)request->getPort())
+		return serverPtr;
+	else
+		throw BadRequestException("Mismatch with the provided host name and port");
 }
 
 Server::Server(std::string serverName, size_t listenPort, std::string hostIp,
