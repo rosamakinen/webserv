@@ -4,7 +4,7 @@ void Methods::executePost(HttpRequest *request, Server *server)
 {
 	std::string body = request->getBody();
 	if (body.empty())
-		throw BadRequestException("empty body on POST request");
+		throw BadRequestException("Empty body on POST request");
 
 	std::string uploadLocation = request->getUri();
 	const std::vector<std::string>* uploadAllowed = server->getLocationValue(uploadLocation, UPLOAD_DIR);
@@ -20,13 +20,14 @@ void Methods::executePost(HttpRequest *request, Server *server)
 
 	std::string fullPath = FileHandler::getFilePath(outFilePath);
 	std::ofstream outputFile(fullPath);
-	if (outputFile.is_open())
+	if (outputFile.is_open() && !outputFile.fail() && !outputFile.bad())
 	{
 		outputFile << request->getBody();
 		outputFile.close();
 		return ;
 	}
-	throw BadRequestException("Something went wrong");
+
+	throw BadRequestException("Uploading a file failed");
 
 }
 
