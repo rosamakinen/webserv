@@ -47,7 +47,11 @@ HttpRequest *HttpRequestParser::parseHttpRequest(std::string requestInput, std::
 					request->appendBody(requestLine);
 					request->appendBody("\n");
 				}
-				request->setFileName(DEFAULT_FILE);
+				static int i;
+				std::string filename = std::to_string(i);
+				filename.append(".txt");
+				request->setFileName(filename);
+				i++;
 			}
 
 			if (contentType.find(CT_MLTP) != std::string::npos)
