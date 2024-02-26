@@ -8,6 +8,9 @@
 #define CGI_TIMEOUT_LIMIT	5
 #define CLIENT_TIMEOUT		CGI_TIMEOUT_LIMIT + 5
 
+#define WHITELIST	"localhost"
+#define LOCAL_IP	"127.0.0.1"
+
 #define HTTP_VERSION		"HTTP/1.1"
 #define GATEWAY_VERSION		"CGI/1.1"
 #define HTTP_LINEBREAK		"\r\n"

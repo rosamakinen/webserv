@@ -36,6 +36,11 @@ Server *Server::getServer(std::string key, HttpRequest *request, std::map<std::s
 	std::map<std::string, Server *>::iterator it = servers.find(key);
 	if (it == servers.end())
 	{
+		std::string whitelist = WHITELIST;
+		size_t whitelisted_pos = whitelist.find(key);
+		if (whitelisted_pos != std::string::npos)
+			key = "127.0.0.1";
+
 		// We did not find the server by the name (or there was no name given), so we look for the hosting IP address
 		for (auto server : servers)
 		{
