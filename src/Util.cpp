@@ -7,7 +7,7 @@ const std::string Util::getTimeDateString()
 
 	time_t now = time(0);
 	struct tm tm = *gmtime(&now);
-	
+
 	char date[1000];
 	strftime(date, sizeof(date), "%a, %d %b %Y %T %Z", &tm);
 	return (std::string(date));
@@ -18,30 +18,65 @@ const std::string Util::translateMethod(Util::METHOD method)
 	switch (method)
 	{
 		case Util::METHOD::GET :
+		{
 			return HTTP_GET;
-		break;
-
+			break;
+		}
 		case Util::METHOD::POST :
+		{
 			return HTTP_POST;
-		break;
-
+			break;
+		}
 		case Util::METHOD::DELETE :
+		{
 			return HTTP_DELETE;
-		break;
-
+			break;
+		}
 		case Util::METHOD::CGI_GET :
+		{
 			return HTTP_GET;
-		break;
-
+			break;
+		}
 		case Util::METHOD::CGI_POST :
+		{
 			return HTTP_POST;
-		break;
-
-		case Util::METHOD::NONE :
-			return HTTP_NONE;
-
+			break;
+		}
+		case Util::METHOD::PUT :
+		{
+			return HTTP_PUT;
+			break;
+		}
+		case Util::METHOD::HEAD :
+		{
+			return HTTP_HEAD;
+			break;
+		}
+		case Util::METHOD::OPTIONS :
+		{
+			return HTTP_OPTIONS;
+			break;
+		}
+		case Util::METHOD::CONNECT :
+		{
+			return HTTP_CONNECT;
+			break;
+		}
+		case Util::METHOD::TRACE :
+		{
+			return HTTP_TRACE;
+			break;
+		}
+		case Util::METHOD::PATCH :
+		{
+			return HTTP_PATCH;
+			break;
+		}
 		default:
-		break;
+		{
+			return HTTP_NONE;
+			break;
+		}
 	}
 
 	return nullptr;

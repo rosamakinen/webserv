@@ -310,9 +310,6 @@ void HttpRequestParser::validateMethod(HttpRequest *request, Server *server)
 		throw MethodNotAllowedException("Requested method is not allowed for the location");
 
 	Util::METHOD method = request->getMethod();
-	if (method == Util::METHOD::NONE)
-		return;
-
 	for (std::vector<std::string>::const_iterator it = values->begin(); it != values->end(); it++)
 	{
 		if (it->compare(Util::translateMethod(method)) == 0)
@@ -331,6 +328,18 @@ void HttpRequestParser::parseMethod(std::string &requestLine, HttpRequest *reque
 		method = Util::METHOD::POST;
 	else if (compareAndSubstring("DELETE ", requestLine) == 0)
 		method = Util::METHOD::DELETE;
+	else if (compareAndSubstring("PUT ", requestLine) == 0)
+		method = Util::METHOD::PUT;
+	else if (compareAndSubstring("HEAD ", requestLine) == 0)
+		method = Util::METHOD::HEAD;
+	else if (compareAndSubstring("OPTIONS ", requestLine) == 0)
+		method = Util::METHOD::OPTIONS;
+	else if (compareAndSubstring("CONNECT ", requestLine) == 0)
+		method = Util::METHOD::CONNECT;
+	else if (compareAndSubstring("TRACE ", requestLine) == 0)
+		method = Util::METHOD::TRACE;
+	else if (compareAndSubstring("PATCH ", requestLine) == 0)
+		method = Util::METHOD::PATCH;
 	else
 		parseMethodStr(requestLine);
 

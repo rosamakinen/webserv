@@ -51,6 +51,12 @@
 #define HTTP_POST			"POST"
 #define HTTP_DELETE			"DELETE"
 #define HTTP_NONE			"NONE"
+#define HTTP_PUT			"PUT"
+#define HTTP_HEAD			"HEAD"
+#define HTTP_OPTIONS		"OPTIONS"
+#define HTTP_CONNECT		"CONNECT"
+#define HTTP_TRACE			"TRACE"
+#define HTTP_PATCH			"PATCH"
 
 #define EXT_HTML			".html"
 #define EXT_CSS				".css"

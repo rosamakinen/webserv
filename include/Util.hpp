@@ -14,7 +14,13 @@ class Util
 			CGI_GET,
 			POST,
 			CGI_POST,
-			DELETE
+			DELETE,
+			PUT,
+			HEAD,
+			OPTIONS,
+			CONNECT,
+			TRACE,
+			PATCH
 		};
 
 		static const std::string	getTimeDateString();
