@@ -191,6 +191,7 @@ void HttpRequestParser::parseHost(HttpRequest *request)
 static std::vector<std::string> _contenttypes =
 {
 	CT_TXT,
+	CT_TXT2,
 	CT_MLTP,
 	CT_FRM
 };
