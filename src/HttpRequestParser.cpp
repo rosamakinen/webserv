@@ -197,6 +197,8 @@ bool HttpRequestParser::validContentType(std::string contentTypeToFind)
 	{
 		if (contentTypeToFind.find(CT_TXT) != std::string::npos)
 			return true;
+		if (contentTypeToFind.find(CT_TXT2) != std::string::npos)
+			return true;
 		if (contentTypeToFind.find(CT_MLTP) != std::string::npos)
 			return true;
 		if (contentTypeToFind.find(CT_FRM) != std::string::npos)
