@@ -2,7 +2,7 @@ NAME		=	webserv
 
 CC			=	c++
 
-CFLAGS		=	-std=c++11 -Wall -Werror -Wextra -fsanitize=address,undefined
+CFLAGS		=	-std=c++11 -Wall -Werror -Wextra
 
 # directories
 SRC_DIR		=	src/
@@ -65,11 +65,6 @@ all: $(NAME)
 $(NAME): $(OBJ) $(HS)
 	@echo "$(YELLOW)Compiling $(NAME)...$(RESET)"
 	@$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
-	@echo "$(GREEN)Finished $(NAME)$(RESET)"
-
-whitelist: $(OBJ) $(HS)
-	@echo "$(YELLOW)Compiling $(NAME)...$(RESET)"
-	@$(CC) $(CFLAGS) $(WHITELIST) $(OBJ) -o $(NAME)
 	@echo "$(GREEN)Finished $(NAME)$(RESET)"
 
 #compile objects

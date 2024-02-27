@@ -129,7 +129,7 @@ size_t HttpRequestParser::countBody(std::string requestInput, HttpRequest *reque
 	std::string line;
 	while (getline(ss, line))
 	{
-		if (line.compare("\r") == 0)
+		if (line.empty() || line.compare("\r") == 0)
 			break;
 	}
 	while (getline(ss, line))

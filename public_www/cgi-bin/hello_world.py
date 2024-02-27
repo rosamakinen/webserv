@@ -52,9 +52,9 @@ first_name = parts[0].split("=")[1]
 last_name = parts[1].split("=")[1]
 
 # this is to test cgi_timeout
-# value = 1
-# while (value):
-# 	date_time = datetime.now()
+#value = 1
+#while (value):
+#	date_time = datetime.now()
 
 date_time = datetime.now()
 html_content = f"<html><head>Hello {first_name} {last_name}  nice to meet you! </head></html>"
