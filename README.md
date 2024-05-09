@@ -34,6 +34,7 @@ The configuration file resembles **NGINX's** configuration format, allowing user
 This **HTTP server implementation** aims to provide a resilient, feature-rich solution for serving web content while adhering to HTTP standards and ensuring compatibility across different platforms and browsers.
 
 # Setting Up the Project with Makefile
+- tested with Apple clang version 15.0.0 (clang-1500.1.0.2.5) and macOS Ventura 13.5
 
 ## 1. Clone the Repository 📁
 
